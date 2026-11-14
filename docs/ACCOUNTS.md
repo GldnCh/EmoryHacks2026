@@ -80,6 +80,8 @@ The dashboard and `/family/<id>` use this: Full and Health-summary connections g
 | `GET /api/connections` | Connected people (what each side sees), incoming and outgoing requests |
 | `POST /api/connections { toId, level, relationship? }` | Send a request (`level` = what they'll see of you) |
 | `POST /api/connections/<id> { action: "accept", level? }` | Accept (`level` = what the sender sees of you; null = nothing) |
+| `GET /api/reminders/<memberId>?days=7` | Medicine schedules, every dose in the window (taken / missed / due / upcoming), adherence, `canAct`. Needs `reminders` (Full) |
+| `POST /api/reminders/<memberId>` | `{ action: "log", scheduleId, scheduledFor, status }`, `{ action: "add", medicine, times, label? }`, `{ action: "remove", scheduleId }`. Needs `act` (the person or a guardian); logged as `dose.log` / `reminder.add` / `reminder.remove` |
 | `POST /api/connections/<id> { action: "decline" or "cancel" }` | Decline (recipient) or withdraw (sender) |
 | `DELETE /api/connections?with=<accountId>` | Disconnect, both directions (a child can't disconnect a guardian) |
 | `POST /api/sharing { subjectId?, viewerId, level }` | Change what a **connected** person sees; guardians may also add someone to the person they care for |
@@ -90,3 +92,6 @@ The dashboard and `/family/<id>` use this: Full and Health-summary connections g
 - Data lives in Tiger Data tables `accounts`, `sharing`, `connection_requests`, `activity_log` (`db/tiger/app-schema.sql`). Without a database the app uses an in-memory copy of the demo data.
 - **Not yet:** the existing health pages (`/dashboard`, `/family/<id>`) and data routes are still open to everyone for the demo. Use `authorize()` in all **new** features; filtering the existing pages by `me.people` is a follow-up.
 - **Native app:** the device identity comes from the iPhone (and `accounts.apple_sub` from the user's Apple account) instead of `/setup`; connections, levels and permissions stay the same. Health data comes from HealthKit instead of the demo generator.
+
+## Medication reminders
+Schedules are copied from the prescription label (`med_schedules`); every tap is saved in `dose_log`. A dose is **due** from 1 hour before to 2 hours after its time, and **missed** after that if nobody logged it. iCare never suggests doses or changes. The demo family's schedules are marked `demo`: days before today are generated relative to today (all taken, except Rosa's evening metformin and atorvastatin yesterday and 3 days ago), so the story is fresh at any demo time. Code: `src/lib/reminders/`, UI: `src/components/MedReminders.tsx` on `/family/<id>`. `npm run seed:app` creates the tables and demo schedules; `-- --reset` also clears taps.
