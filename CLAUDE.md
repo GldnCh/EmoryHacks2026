@@ -29,9 +29,9 @@ Priority order. **Core** features make the demo; the rest are **stretch**. Cam h
 
 | # | Feature | Owner | Priority | Status on the live site |
 |---|---|---|---|---|
-| 1 | AI wellness check-in over Chert video (Gemini), with a browser `/checkin` chat fallback | Ish | Core | 🚧 In progress on Ish's branch (Chert via LiveKit Agents + Gemini Live); not merged yet |
-| 2 | Medicine search (Typesense, typo-tolerant, voice) + medicine detail pages with FDA boxed warnings | Jam | Core | ✅ Live: `/medicines`, `/medicines/<name>`. Photo search waits for Ish |
-| 3 | Monthly and yearly health summaries (Gemini) | Ish | Core | 🚧 In progress. Data ready: `/api/trends/<id>`, `/api/family/<id>/profile` |
+| 1 | AI wellness check-in (Gemini), in the browser and over Chert FaceTime | Ish | Core | ✅ Live: `/checkin` chat + red-flag check. ⚠️ Chert FaceTime agent (`chert-agent/`, runs separately in Coder) is connected but a full call is not yet confirmed |
+| 2 | Medicine search (Typesense, typo-tolerant, voice) + medicine pages with FDA boxed warnings and Gemini "Explain this label simply" | Jam + Ish | Core | ✅ Live: `/medicines`, `/medicines/<name>`, `/api/ai/explain-label`. Photo search: not built |
+| 3 | Monthly and yearly health summaries (Gemini) | Ish | Core | ✅ Live: `/checkin` summary panel, `/api/ai/summary/<id>?period=month\|year` |
 | 4 | Family health dashboard, 12-month trends, hour-by-hour day view | TD | Core | ✅ Live: `/dashboard`, `/family/<id>` |
 | 5 | Find specialists near a family member | Jam + TD | Stretch | ✅ Live: `/specialists?memberId=<id>` |
 | 6 | Track family health remotely (Rosa in Savannah), cohort view | TD + Jam | Stretch | ✅ Live: Rosa's dashboard card, `/data` cohort chart |

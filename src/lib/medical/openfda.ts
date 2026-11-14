@@ -31,12 +31,40 @@ type Raw = Record<string, unknown> & {
   effective_time?: string;
 };
 
-function first(r: Raw, ...keys: string[]) {
+function raw(r: Raw, ...keys: string[]) {
   for (const k of keys) {
     const v = r[k];
-    if (Array.isArray(v) && typeof v[0] === "string" && v[0]) return trimText(v[0]);
+    if (Array.isArray(v) && typeof v[0] === "string" && v[0]) return v[0];
   }
   return undefined;
+}
+
+const first = (r: Raw, ...keys: string[]) => trimText(raw(r, ...keys));
+
+/**
+ * Prescription labels put the short "Highlights" boxed warning and the full one in the same field,
+ * so the heading ("WARNING: FETAL TOXICITY") appears twice. Keep the first copy and drop the
+ * "see full prescribing information" pointers and section numbers like "( 5.1 )".
+ */
+export function cleanBoxedWarning(text: string | undefined): string | undefined {
+  if (!text) return undefined;
+  // the app's callout is already titled "FDA boxed warning", so drop a leading "BOXED WARNING" label
+  let t = text.replace(/\s+/g, " ").trim().replace(/^BOXED WARNING:?\s+(?=WARNING)/i, "");
+  const heading = t.match(/^WARNINGS?:?[A-Z0-9 ,;:'()&/-]*?(?=\s+[A-Z][a-z])/)?.[0]?.trim();
+  if (heading && heading.length >= 8) {
+    const again = t.indexOf(heading, heading.length);
+    if (again > 0) t = t.slice(0, again);
+  }
+  // Lettered warnings list their titles first ("(A) X (B) Y (A) X details…"); drop that list.
+  const a1 = t.indexOf("(A) ");
+  const a2 = a1 >= 0 ? t.indexOf("(A) ", a1 + 4) : -1;
+  if (a2 > 0) t = t.slice(0, a1) + t.slice(a2);
+  t = t
+    .replace(/See full prescribing information for complete boxed warning\.?/gi, "")
+    .replace(/\[\s*see [^\]]*\]/gi, "")
+    .replace(/\(\s*\d+(\.\d+)*(\s*,\s*\d+(\.\d+)*)*\s*\)/g, "")
+    .replace(/\s+([.,;])/g, "$1");
+  return trimText(t, 1000); // the most important text on the page, so allow more than other fields
 }
 
 function toLabel(r: Raw): DrugLabel {
@@ -48,7 +76,7 @@ function toLabel(r: Raw): DrugLabel {
     isPrescription: (ofda.product_type?.[0] ?? "").includes("PRESCRIPTION"),
     purpose: first(r, "purpose"),
     indications: first(r, "indications_and_usage"),
-    boxedWarning: first(r, "boxed_warning"),
+    boxedWarning: cleanBoxedWarning(raw(r, "boxed_warning")),
     warnings: first(r, "warnings_and_cautions", "warnings"),
     doNotUse: first(r, "do_not_use"),
     askDoctor: first(r, "ask_doctor", "ask_doctor_or_pharmacist"),
@@ -91,7 +119,71 @@ export async function searchLabelsByUse(term: string, limit = 5): Promise<DrugLa
   const data = await fetchJson<{ results?: Raw[] }>(
     url(`indications_and_usage:"${q}" OR purpose:"${q}"`, Math.min(limit * 4, 50)),
   );
-  const labels = (data?.results ?? []).map(toLabel).filter((l) => l.genericName);
-  // the same drug often has many labels from different makers; keep one per generic name
-  return [...new Map(labels.map((l) => [l.genericName!.toLowerCase(), l])).values()].slice(0, limit);
+  const seen = new Set<string>();
+  const labels: DrugLabel[] = [];
+  for (const r of data?.results ?? []) {
+    if (isHomeopathic(r)) continue;
+    const label = toLabel(r);
+    if (!label.genericName) continue;
+    // some records have no substance list, so also count the ingredients in the name
+    const ingredients = Math.max(r.openfda?.substance_name?.length ?? 0, splitIngredients(label.genericName).length);
+    if (ingredients > MAX_INGREDIENTS) continue;
+    // the same drug often has many labels from different makers and salts; keep one per ingredient set
+    const key = ingredientKey(label.genericName);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    labels.push(label);
+  }
+  return labels.slice(0, limit);
+}
+
+/** Search results skip products with more ingredients than this (long multi-symptom or homeopathic mixes). */
+const MAX_INGREDIENTS = 3;
+
+/** Homeopathic products aren't FDA-evaluated for effectiveness; they say so on the label. */
+function isHomeopathic(r: Raw) {
+  return ["purpose", "indications_and_usage", "package_label_principal_display_panel", "description"].some((k) =>
+    /homeopathic/i.test(raw(r, k) ?? ""),
+  );
+}
+
+// Salt, form and label words that don't change which drug it is.
+const NOISE =
+  /\b(hydrochloride|hydrobromide|hcl|maleate|propionate|sulfate|succinate|tartrate|citrate|besylate|mesylate|fumarate|sodium|potassium|magnesium|monohydrate|dihydrate|nasal|oral|topical|extended|delayed|release|er|xr|dr|tablets?|capsules?|solution|suspension|spray|usp|and)\b/g;
+
+/**
+ * A comparable key for a drug: its ingredients without salts or forms, sorted.
+ * "BROMPHENIRAMINE MALEATE, PSEUDOEPHEDRINE HCL AND DEXTROMETHORPHAN" and
+ * "Brompheniramine, Pseudoephedrine, Dextromethorphan" give the same key; "Fluticasone (nasal)" -> "fluticasone".
+ */
+export function ingredientKey(name: string): string {
+  const words = name
+    .toLowerCase()
+    .replace(/\(.*?\)/g, " ")
+    .replace(NOISE, " ")
+    .split(/[^a-z]+/)
+    .filter((w) => w.length > 2);
+  return [...new Set(words)].sort().join("+");
+}
+
+/** "A, B and C" -> ["A", "B", "C"] */
+const splitIngredients = (name: string) => name.split(/\s*,\s*(?:and\s+)?|\s+and\s+/i).filter(Boolean);
+
+// Salt words people don't need on a result card.
+const SALTS = /\s+\b(hydrochloride|hydrobromide|hcl|hbr|maleate|sulfate|succinate|tartrate|citrate|besylate|mesylate|fumarate)\b/gi;
+
+/**
+ * A name short enough for a result card. Title case; if too long, drop salt words
+ * ("Brompheniramine, Pseudoephedrine, Dextromethorphan"), then fall back to "A, B and 2 more".
+ */
+export function shortDrugName(name: string, max = 60): string {
+  const titled = name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
+  if (titled.length <= max) return titled;
+  const parts = splitIngredients(titled.replace(SALTS, ""));
+  const joined = parts.join(", ");
+  if (joined.length <= max) return joined;
+  let out = parts[0];
+  let used = 1;
+  while (used < parts.length && `${out}, ${parts[used]}`.length <= max - 12) out = `${out}, ${parts[used++]}`;
+  return used < parts.length ? `${out} and ${parts.length - used} more` : out.slice(0, max - 1) + "…";
 }
