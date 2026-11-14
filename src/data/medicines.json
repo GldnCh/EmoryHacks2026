@@ -1,0 +1,835 @@
+{
+  "_note": "SAMPLE DATA for the Emory Hacks demo. General reference info only, not medical advice. Pill appearance varies by manufacturer and strength; never identify a real pill from this list - ask a pharmacist.",
+  "medicines": [
+    {
+      "id": "acetaminophen",
+      "genericName": "Acetaminophen",
+      "brandNames": [
+        "Tylenol"
+      ],
+      "drugClass": "Analgesic / antipyretic",
+      "commonUses": [
+        "pain",
+        "fever",
+        "headache"
+      ],
+      "forms": [
+        "tablet",
+        "caplet",
+        "liquid"
+      ],
+      "appearanceExample": "white oval caplet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "rare at normal doses; liver damage with overdose"
+      ]
+    },
+    {
+      "id": "ibuprofen",
+      "genericName": "Ibuprofen",
+      "brandNames": [
+        "Advil",
+        "Motrin"
+      ],
+      "drugClass": "NSAID",
+      "commonUses": [
+        "pain",
+        "inflammation",
+        "fever",
+        "menstrual cramps"
+      ],
+      "forms": [
+        "tablet",
+        "capsule",
+        "liquid"
+      ],
+      "appearanceExample": "brown or orange round tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "stomach upset",
+        "heartburn"
+      ]
+    },
+    {
+      "id": "naproxen",
+      "genericName": "Naproxen",
+      "brandNames": [
+        "Aleve"
+      ],
+      "drugClass": "NSAID",
+      "commonUses": [
+        "pain",
+        "arthritis",
+        "inflammation"
+      ],
+      "forms": [
+        "tablet",
+        "caplet"
+      ],
+      "appearanceExample": "blue oval tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "stomach upset",
+        "heartburn"
+      ]
+    },
+    {
+      "id": "aspirin",
+      "genericName": "Aspirin",
+      "brandNames": [
+        "Bayer",
+        "Ecotrin"
+      ],
+      "drugClass": "NSAID / antiplatelet",
+      "commonUses": [
+        "pain",
+        "fever",
+        "heart attack prevention (as directed by a doctor)"
+      ],
+      "forms": [
+        "tablet",
+        "chewable tablet"
+      ],
+      "appearanceExample": "white or orange round tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "stomach upset",
+        "bleeding risk"
+      ]
+    },
+    {
+      "id": "cetirizine",
+      "genericName": "Cetirizine",
+      "brandNames": [
+        "Zyrtec"
+      ],
+      "drugClass": "Antihistamine",
+      "commonUses": [
+        "seasonal allergies",
+        "hay fever",
+        "hives"
+      ],
+      "forms": [
+        "tablet",
+        "liquid"
+      ],
+      "appearanceExample": "white rectangular tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "drowsiness",
+        "dry mouth"
+      ]
+    },
+    {
+      "id": "loratadine",
+      "genericName": "Loratadine",
+      "brandNames": [
+        "Claritin"
+      ],
+      "drugClass": "Antihistamine",
+      "commonUses": [
+        "seasonal allergies",
+        "hay fever"
+      ],
+      "forms": [
+        "tablet",
+        "dissolving tablet"
+      ],
+      "appearanceExample": "white oval tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "headache",
+        "dry mouth"
+      ]
+    },
+    {
+      "id": "diphenhydramine",
+      "genericName": "Diphenhydramine",
+      "brandNames": [
+        "Benadryl"
+      ],
+      "drugClass": "Antihistamine",
+      "commonUses": [
+        "allergies",
+        "itching",
+        "short-term sleep aid"
+      ],
+      "forms": [
+        "tablet",
+        "capsule",
+        "liquid"
+      ],
+      "appearanceExample": "pink capsule or tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "drowsiness",
+        "dry mouth",
+        "dizziness"
+      ]
+    },
+    {
+      "id": "fluticasone-nasal",
+      "genericName": "Fluticasone (nasal)",
+      "brandNames": [
+        "Flonase"
+      ],
+      "drugClass": "Nasal corticosteroid",
+      "commonUses": [
+        "allergic rhinitis",
+        "nasal congestion"
+      ],
+      "forms": [
+        "nasal spray"
+      ],
+      "appearanceExample": "nasal spray bottle",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "nosebleed",
+        "headache"
+      ]
+    },
+    {
+      "id": "omeprazole",
+      "genericName": "Omeprazole",
+      "brandNames": [
+        "Prilosec"
+      ],
+      "drugClass": "Proton pump inhibitor",
+      "commonUses": [
+        "heartburn",
+        "acid reflux (GERD)",
+        "stomach ulcers"
+      ],
+      "forms": [
+        "capsule",
+        "tablet"
+      ],
+      "appearanceExample": "purple or pink capsule",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "headache",
+        "stomach pain"
+      ]
+    },
+    {
+      "id": "famotidine",
+      "genericName": "Famotidine",
+      "brandNames": [
+        "Pepcid"
+      ],
+      "drugClass": "H2 blocker",
+      "commonUses": [
+        "heartburn",
+        "acid reflux"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "beige or pink round tablet",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "headache",
+        "constipation"
+      ]
+    },
+    {
+      "id": "loperamide",
+      "genericName": "Loperamide",
+      "brandNames": [
+        "Imodium"
+      ],
+      "drugClass": "Antidiarrheal",
+      "commonUses": [
+        "diarrhea"
+      ],
+      "forms": [
+        "capsule",
+        "tablet",
+        "liquid"
+      ],
+      "appearanceExample": "green capsule",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "constipation",
+        "dizziness"
+      ]
+    },
+    {
+      "id": "lisinopril",
+      "genericName": "Lisinopril",
+      "brandNames": [
+        "Prinivil",
+        "Zestril"
+      ],
+      "drugClass": "ACE inhibitor",
+      "commonUses": [
+        "high blood pressure",
+        "heart failure"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "pink or yellow round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "dry cough",
+        "dizziness"
+      ]
+    },
+    {
+      "id": "amlodipine",
+      "genericName": "Amlodipine",
+      "brandNames": [
+        "Norvasc"
+      ],
+      "drugClass": "Calcium channel blocker",
+      "commonUses": [
+        "high blood pressure",
+        "chest pain (angina)"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "white round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "ankle swelling",
+        "flushing"
+      ]
+    },
+    {
+      "id": "losartan",
+      "genericName": "Losartan",
+      "brandNames": [
+        "Cozaar"
+      ],
+      "drugClass": "Angiotensin receptor blocker",
+      "commonUses": [
+        "high blood pressure",
+        "kidney protection in diabetes"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "green or white oval tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "dizziness"
+      ]
+    },
+    {
+      "id": "hydrochlorothiazide",
+      "genericName": "Hydrochlorothiazide",
+      "brandNames": [
+        "Microzide"
+      ],
+      "drugClass": "Thiazide diuretic",
+      "commonUses": [
+        "high blood pressure",
+        "fluid retention"
+      ],
+      "forms": [
+        "tablet",
+        "capsule"
+      ],
+      "appearanceExample": "peach round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "frequent urination",
+        "dizziness"
+      ]
+    },
+    {
+      "id": "metoprolol",
+      "genericName": "Metoprolol",
+      "brandNames": [
+        "Lopressor",
+        "Toprol-XL"
+      ],
+      "drugClass": "Beta blocker",
+      "commonUses": [
+        "high blood pressure",
+        "chest pain",
+        "heart rhythm problems"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "pink or blue round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "tiredness",
+        "slow heart rate"
+      ]
+    },
+    {
+      "id": "atorvastatin",
+      "genericName": "Atorvastatin",
+      "brandNames": [
+        "Lipitor"
+      ],
+      "drugClass": "Statin",
+      "commonUses": [
+        "high cholesterol",
+        "heart disease prevention"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "white oval tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "muscle aches",
+        "stomach upset"
+      ]
+    },
+    {
+      "id": "rosuvastatin",
+      "genericName": "Rosuvastatin",
+      "brandNames": [
+        "Crestor"
+      ],
+      "drugClass": "Statin",
+      "commonUses": [
+        "high cholesterol"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "pink or yellow round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "muscle aches",
+        "headache"
+      ]
+    },
+    {
+      "id": "metformin",
+      "genericName": "Metformin",
+      "brandNames": [
+        "Glucophage"
+      ],
+      "drugClass": "Biguanide (diabetes)",
+      "commonUses": [
+        "type 2 diabetes",
+        "prediabetes"
+      ],
+      "forms": [
+        "tablet",
+        "extended-release tablet"
+      ],
+      "appearanceExample": "white oval tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "stomach upset",
+        "diarrhea"
+      ]
+    },
+    {
+      "id": "glipizide",
+      "genericName": "Glipizide",
+      "brandNames": [
+        "Glucotrol"
+      ],
+      "drugClass": "Sulfonylurea (diabetes)",
+      "commonUses": [
+        "type 2 diabetes"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "white round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "low blood sugar",
+        "dizziness"
+      ]
+    },
+    {
+      "id": "insulin-glargine",
+      "genericName": "Insulin glargine",
+      "brandNames": [
+        "Lantus",
+        "Basaglar"
+      ],
+      "drugClass": "Long-acting insulin",
+      "commonUses": [
+        "type 1 diabetes",
+        "type 2 diabetes"
+      ],
+      "forms": [
+        "injection pen",
+        "vial"
+      ],
+      "appearanceExample": "injection pen",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "low blood sugar",
+        "injection site reaction"
+      ]
+    },
+    {
+      "id": "levothyroxine",
+      "genericName": "Levothyroxine",
+      "brandNames": [
+        "Synthroid",
+        "Levoxyl"
+      ],
+      "drugClass": "Thyroid hormone",
+      "commonUses": [
+        "hypothyroidism"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "color varies by strength; small round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "fast heartbeat if dose too high"
+      ]
+    },
+    {
+      "id": "albuterol",
+      "genericName": "Albuterol",
+      "brandNames": [
+        "ProAir",
+        "Ventolin"
+      ],
+      "drugClass": "Short-acting bronchodilator",
+      "commonUses": [
+        "asthma attacks",
+        "wheezing",
+        "exercise-induced asthma"
+      ],
+      "forms": [
+        "inhaler",
+        "nebulizer solution"
+      ],
+      "appearanceExample": "red, blue or gray inhaler",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "shakiness",
+        "fast heartbeat"
+      ]
+    },
+    {
+      "id": "fluticasone-salmeterol",
+      "genericName": "Fluticasone / salmeterol",
+      "brandNames": [
+        "Advair"
+      ],
+      "drugClass": "Inhaled steroid + long-acting bronchodilator",
+      "commonUses": [
+        "asthma control",
+        "COPD"
+      ],
+      "forms": [
+        "inhaler (disk)"
+      ],
+      "appearanceExample": "purple disk inhaler",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "hoarseness",
+        "thrush"
+      ]
+    },
+    {
+      "id": "montelukast",
+      "genericName": "Montelukast",
+      "brandNames": [
+        "Singulair"
+      ],
+      "drugClass": "Leukotriene blocker",
+      "commonUses": [
+        "asthma control",
+        "allergies"
+      ],
+      "forms": [
+        "tablet",
+        "chewable tablet"
+      ],
+      "appearanceExample": "beige square tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "headache",
+        "mood changes (rare)"
+      ]
+    },
+    {
+      "id": "amoxicillin",
+      "genericName": "Amoxicillin",
+      "brandNames": [
+        "Amoxil"
+      ],
+      "drugClass": "Penicillin antibiotic",
+      "commonUses": [
+        "bacterial infections",
+        "ear infections",
+        "strep throat"
+      ],
+      "forms": [
+        "capsule",
+        "tablet",
+        "liquid"
+      ],
+      "appearanceExample": "pink and red capsule",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "diarrhea",
+        "rash"
+      ]
+    },
+    {
+      "id": "azithromycin",
+      "genericName": "Azithromycin",
+      "brandNames": [
+        "Zithromax",
+        "Z-Pak"
+      ],
+      "drugClass": "Macrolide antibiotic",
+      "commonUses": [
+        "bacterial infections",
+        "bronchitis",
+        "pneumonia"
+      ],
+      "forms": [
+        "tablet",
+        "liquid"
+      ],
+      "appearanceExample": "pink oval tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "stomach upset",
+        "diarrhea"
+      ]
+    },
+    {
+      "id": "cephalexin",
+      "genericName": "Cephalexin",
+      "brandNames": [
+        "Keflex"
+      ],
+      "drugClass": "Cephalosporin antibiotic",
+      "commonUses": [
+        "skin infections",
+        "urinary tract infections"
+      ],
+      "forms": [
+        "capsule"
+      ],
+      "appearanceExample": "green and white capsule",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "diarrhea",
+        "nausea"
+      ]
+    },
+    {
+      "id": "prednisone",
+      "genericName": "Prednisone",
+      "brandNames": [
+        "Deltasone"
+      ],
+      "drugClass": "Corticosteroid",
+      "commonUses": [
+        "inflammation",
+        "asthma flare-ups",
+        "allergic reactions"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "white round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "increased appetite",
+        "trouble sleeping",
+        "high blood sugar"
+      ]
+    },
+    {
+      "id": "sertraline",
+      "genericName": "Sertraline",
+      "brandNames": [
+        "Zoloft"
+      ],
+      "drugClass": "SSRI antidepressant",
+      "commonUses": [
+        "depression",
+        "anxiety",
+        "OCD"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "blue or green oval tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "nausea",
+        "trouble sleeping"
+      ]
+    },
+    {
+      "id": "escitalopram",
+      "genericName": "Escitalopram",
+      "brandNames": [
+        "Lexapro"
+      ],
+      "drugClass": "SSRI antidepressant",
+      "commonUses": [
+        "depression",
+        "generalized anxiety"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "white round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "nausea",
+        "tiredness"
+      ]
+    },
+    {
+      "id": "gabapentin",
+      "genericName": "Gabapentin",
+      "brandNames": [
+        "Neurontin"
+      ],
+      "drugClass": "Anticonvulsant",
+      "commonUses": [
+        "nerve pain",
+        "seizures"
+      ],
+      "forms": [
+        "capsule",
+        "tablet"
+      ],
+      "appearanceExample": "yellow or white capsule",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "drowsiness",
+        "dizziness"
+      ]
+    },
+    {
+      "id": "warfarin",
+      "genericName": "Warfarin",
+      "brandNames": [
+        "Coumadin",
+        "Jantoven"
+      ],
+      "drugClass": "Anticoagulant",
+      "commonUses": [
+        "blood clot prevention",
+        "atrial fibrillation"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "color varies by strength",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "bleeding risk"
+      ]
+    },
+    {
+      "id": "apixaban",
+      "genericName": "Apixaban",
+      "brandNames": [
+        "Eliquis"
+      ],
+      "drugClass": "Anticoagulant",
+      "commonUses": [
+        "blood clot prevention",
+        "atrial fibrillation"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "yellow or pink oval tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "bleeding risk"
+      ]
+    },
+    {
+      "id": "clopidogrel",
+      "genericName": "Clopidogrel",
+      "brandNames": [
+        "Plavix"
+      ],
+      "drugClass": "Antiplatelet",
+      "commonUses": [
+        "heart attack and stroke prevention"
+      ],
+      "forms": [
+        "tablet"
+      ],
+      "appearanceExample": "pink round tablet",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "bleeding risk",
+        "bruising"
+      ]
+    },
+    {
+      "id": "tamsulosin",
+      "genericName": "Tamsulosin",
+      "brandNames": [
+        "Flomax"
+      ],
+      "drugClass": "Alpha blocker",
+      "commonUses": [
+        "enlarged prostate (BPH)"
+      ],
+      "forms": [
+        "capsule"
+      ],
+      "appearanceExample": "green and orange capsule",
+      "prescriptionRequired": true,
+      "commonSideEffects": [
+        "dizziness on standing"
+      ]
+    },
+    {
+      "id": "vitamin-d3",
+      "genericName": "Vitamin D3 (cholecalciferol)",
+      "brandNames": [],
+      "drugClass": "Vitamin supplement",
+      "commonUses": [
+        "vitamin D deficiency",
+        "bone health"
+      ],
+      "forms": [
+        "softgel",
+        "tablet"
+      ],
+      "appearanceExample": "small yellow softgel",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "rare at normal doses"
+      ]
+    },
+    {
+      "id": "melatonin",
+      "genericName": "Melatonin",
+      "brandNames": [],
+      "drugClass": "Sleep supplement",
+      "commonUses": [
+        "occasional sleeplessness",
+        "jet lag"
+      ],
+      "forms": [
+        "tablet",
+        "gummy"
+      ],
+      "appearanceExample": "small white tablet or gummy",
+      "prescriptionRequired": false,
+      "commonSideEffects": [
+        "drowsiness",
+        "headache"
+      ]
+    }
+  ]
+}
