@@ -47,17 +47,17 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
   - `family_members` (relational profiles: conditions, medications, location)
   - `health_metrics` hypertable (one row per person per day: sleep, blood pressure, glucose)
   - `vitals_minute` hypertable with **~2.1 million minute-by-minute heart-rate and step readings**, like an Apple Watch, in 7-day chunks
-  - **3 continuous aggregates** (`vitals_hourly`, `vitals_daily`, `health_monthly`) with auto-refresh policies, so dashboards read pre-computed results instead of scanning millions of rows. Every API response reports its database time (`queryMs`): monthly trends, hourly vitals and cohort queries return in about 20 ms. **[CHECK: re-measure on the live Vercel site, which is in the same AWS region as the database]**
+  - **3 continuous aggregates** (`vitals_hourly`, `vitals_daily`, `health_monthly`) with auto-refresh policies, so dashboards read pre-computed results instead of scanning millions of rows. Every API response reports its database time (`queryMs`). On the live site (Vercel and Tiger Cloud both in AWS us-east-1), monthly trends, weekly trends, hourly vitals and cohort queries return in **2–4 ms**, and a full year of daily heart rate comes back in **~3 ms from the continuous aggregate vs ~22 ms from the 525,600 raw minute rows (~7.5× faster)**.
   - **Compression** segmented by family member. **212.3 MB → 6.2 MB (97% smaller)** across 53 compressed chunks.
   - One SQL query JOINs profiles with time-series trends: "show everyone in the family with hypertension and their monthly blood pressure."
-  **[CHECK: confirm it's connected on the live site]**
+  Live and verified: `/api/tiger/stats` on the deployed site reports all 2,102,400 rows, 53/53 compressed chunks and the benchmark in real time.
 - **Public medical data, no patient data:**
   - **openFDA** for official drug labels: uses, boxed warnings, side effects, interactions
   - **RxNorm** (National Library of Medicine) to turn brand names and typos into standard drug names
   - **MedlinePlus Connect** (NLM) for plain-language condition and drug explanations
   - **NLM Clinical Tables** for condition lookup with ICD-10 codes
   - **NPI Registry** (CMS) for real, licensed specialists by specialty and location
-- **Typesense** for fast medicine search, indexed with RxNorm brand names and FDA "uses" text. **[CHECK: confirm it's seeded and used on the live site]**
+- **Typesense** for fast, typo-tolerant medicine search: our 38 medicines indexed with every RxNorm brand name (so a store brand like "Wal-Zyr" finds cetirizine) and the official FDA "uses" text. **[CHECK: confirm the search page queries Typesense on the live site, after Jam's PR]**
 - **Google Gemini** **[WHEN BUILT: what Gemini does: check-in conversation, summaries]**
 - **Chert** **[WHEN BUILT: how the FaceTime integration works]**
 - The Rivera family's data is **generated deterministically**, so every teammate, and the judges, see identical numbers. Each person's year tells a story the app can surface: a new walking routine, a flu week, a stressful work stretch, a medication review.
@@ -72,6 +72,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - Five public health databases working together behind one simple app, with no API keys needed for them.
 - Specialist suggestions that are real, licensed doctors near each family member.
 - Safety built in from the start: no real patient data, FDA warnings shown prominently, and "not medical advice" everywhere.
+- Fitting a year of minute-by-minute vitals for a whole family (2.1M readings) into 6.2 MB, with every dashboard query answering in a few milliseconds.
 - **[ADD as features land]**
 
 ## What we learned
@@ -105,7 +106,7 @@ Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB
 
 ## Prize tracks to select
 - **Healthcare** track
-- **Best Use of Tiger Data:** ~2.1M minute-level vitals in a hypertable; relational profiles and metric streams in one database; continuous aggregates powering lag-free dashboard charts; compression; measured raw-vs-aggregate speedups shown live in the demo (`/api/tiger/stats`). **[CHECK: sponsor's requirements]**
+- **Best Use of Tiger Data:** 2.1M minute-level vitals in a hypertable; relational profiles and metric streams side by side in one database (one SQL JOIN for "everyone with hypertension and their monthly BP"); 3 continuous aggregates powering lag-free dashboard charts (2–4 ms); **97% compression (212.3 MB → 6.2 MB)**; and a live raw-vs-aggregate benchmark (~22 ms vs ~3 ms) shown in the demo. **[CHECK: sponsor's requirements]**
 - **Best Use of Gemini API** **[CHECK: only if Gemini is live in the demo; describe exactly how it's used]**
 - **[CHECK: any other MLH prizes we qualify for, e.g. domain or DEV writing]**
 
