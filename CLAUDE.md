@@ -106,32 +106,118 @@ Each person gets their own workspace (Cam's is `gldnch/IDoc`; don't share one).
 - ✅ Check: `coder list` shows your workspace as **Started**.
 
 **Step 7. Open your workspace**
-Pick one:
-- **In the browser:** click your workspace, then **VS Code** (or **Terminal**).
-- **In VS Code on your computer:** install the **Coder** extension, then click **Open in VS Code** on your workspace page.
-- **From a terminal:** `coder ssh <workspace-name>`
+Before you start, make sure your workspace exists and is running:
+1. Go to https://coder.c1.workshop.cdr.dev/ and sign in, then click **Workspaces** at the top.
+2. Your workspace (e.g. `idoc-ish`) should show a green **Running/Started** status.
+   - **No workspace?** Go back to Step 6. The first start can take a few minutes.
+   - **Stopped?** Click it, click **Start**, and wait for Running.
+
+Open it in the browser (easiest):
+1. Click your workspace's name to open its page.
+2. You'll see app buttons: **code-server**, **Claude Code**, **Terminal**, and a few others you can ignore (Dev Web UI, Dev coderd API).
+3. Click **code-server**. VS Code opens in a new browser tab.
+   - Nothing happens? Your browser blocked the pop-up. Allow pop-ups for the site and click again.
+   - Unhealthy or stuck loading? It's still starting. Wait a minute and refresh.
+4. Open a terminal: **☰ → Terminal → New Terminal** (or **Ctrl + `**).
+5. This is a **Linux bash** terminal inside the workspace. Everything from Step 8 on goes here, **not in PowerShell**.
+
+> code-server opens a folder called `coder` by default. That's Coder's own sample project, so **don't work in it**. Step 8 clones our repo next to it.
+
+Other ways to open it: install the **Coder** extension in VS Code on your computer and click **Open in VS Code** on the workspace page, or run `coder ssh <workspace-name>` from PowerShell.
+
+- ✅ Check: you have a terminal in code-server and its prompt shows `coder@...`.
 
 **Step 8. Get the code (inside your Coder workspace)**
-In the workspace terminal:
+Git, the GitHub CLI and Node 22 are **already installed** in the workspace, so you don't install anything. In the workspace terminal:
 ```
-gh auth login            # same choices as Step 4 (the workspace is a separate computer)
+cd ~
+gh auth login
+```
+Choose **GitHub.com → HTTPS → Yes → Login with a web browser**. It prints a code and a link. Open the link in your own browser, paste the code and click **Authorize**. (The workspace is a separate computer, so signing in on your laptop in Step 4 does not carry over.) Then:
+```
 gh auth setup-git
 git config --global user.name "Your Name"
 git config --global user.email "you@example.com"
 git clone https://github.com/GldnCh/EmoryHacks2026.git
 cd EmoryHacks2026
 ```
+Then open the project in VS Code: **☰ → File → Open Folder →** `/home/coder/EmoryHacks2026` → **OK**.
 - ✅ Check: `git remote -v` shows `GldnCh/EmoryHacks2026`.
 
-**Step 9. Install the project and add your keys** *(once the app has been scaffolded)*
+**Step 9. Install the project, add your keys and run the app**
+All of this is in the **workspace terminal**.
+
+*9a. Get the latest code*
 ```
-node --version           # needs 18 or higher
+cd ~/EmoryHacks2026
+git checkout main
+git pull
+```
+- ✅ Check: the prompt ends with `EmoryHacks2026`, and `git pull` says "Already up to date" or lists updated files.
+
+*9b. Check Node.js*
+```
+node --version
+```
+- ✅ Check: it prints `v22.x`. That's already installed; the project needs 18+.
+
+*9c. Install the project's packages*
+```
 npm install
+```
+This downloads Next.js, React, Gemini, Typesense, Supabase and so on into `node_modules`. It takes 1–2 minutes. Yellow `warn` lines and a "vulnerabilities" note are normal. If it ends with red `ERR!` lines, copy the error and ask Claude.
+- ✅ Check: it finishes with something like "added 400 packages".
+
+*9d. Create your private keys file*
+```
 cp .env.example .env.local
 ```
-- Open `.env.local` and paste in the API keys Cam or the key owner sent you.
-- Run `npm run dev` and open the URL it prints (in Coder, use the forwarded port link on the workspace page).
-- ✅ Check: the app loads in your browser.
+This copies the template (variable names only) into `.env.local`, where your real keys go. `.env.local` is **ignored by Git**, so it never gets pushed; in the VS Code file list it shows in gray, which is how you know it's ignored. **Only do this once.** Running it again wipes out keys you've already pasted.
+
+*9e. Paste in the keys*
+1. In code-server's file list, click **`.env.local`**.
+2. Paste each key right after its `=` sign, **with no spaces and no quotes**, e.g. `GEMINI_API_KEY=AIzaSyB...`
+3. Save with **Ctrl + S**.
+
+No keys yet? Leave the lines blank. The app still runs; it just can't use Gemini, Typesense or Supabase until the keys are added. Ish (Gemini, Chert) and Jam (Typesense, Supabase) create the keys using [docs/API-KEYS.md](docs/API-KEYS.md) and share them **privately** in team chat. **Never** post them on GitHub.
+
+*9f. Start the app*
+```
+npm run dev
+```
+You'll see:
+```
+⚠ Port 3000 is in use, trying 3001 instead.
+- Local:   http://localhost:3001
+✓ Ready
+```
+Port 3000 is taken by Coder's sample project, so the app uses **3001**. That's expected.
+- Leave this terminal running; closing it stops the app. Press **Ctrl + C** in it to stop the app yourself.
+- To run other commands meanwhile, open a second terminal with the **+** in the terminal panel.
+
+*9g. Open the app in your browser*
+`localhost` means the **workspace**, not your laptop, so typing `localhost:3001` in your own browser won't work. Instead:
+1. In code-server, click the **Ports** tab next to **Terminal**.
+2. Find port **3001** and click the **globe icon** (Open in Browser). If 3001 isn't listed, click **Add Port**, type `3001`, press Enter.
+- ✅ Check: a page shows **IDoc** with "AI-led wellness checkups…".
+
+*9h. Check your keys*
+Click **Check API key setup** on that page (or add `/api/health` to the address). You'll see something like:
+```json
+{ "ok": true, "configured": { "gemini": true, "typesense": false, "supabase": false } }
+```
+- `true` means the key is filled in; `false` means it's blank or misspelled in `.env.local`.
+- This only checks that a key is **filled in**, not that it's **valid**. A wrong key shows up as an error when the feature runs.
+- **After changing `.env.local`, restart the app** (Ctrl + C, then `npm run dev`). Next.js only reads keys at startup.
+
+*Common problems*
+| Problem | Fix |
+|---|---|
+| `npm: command not found` | You're in PowerShell. Use the terminal inside code-server. |
+| `No such file or directory: EmoryHacks2026` | Step 8 (clone) didn't finish. Run `cd ~` and the `git clone` command again. |
+| `.env.local` doesn't show in the file list | Run `ls -a` to confirm it exists, or open it with `code .env.local`. |
+| Page won't load from the globe icon | Make sure `npm run dev` is still running and says **Ready**, then try again. |
+| Health still shows `false` after adding a key | Save the file (Ctrl + S), then restart `npm run dev`. |
 
 **Step 10. Make your first branch and pull request**
 ```
@@ -148,15 +234,13 @@ gh pr create --fill
 - ✅ Check: your PR shows on https://github.com/GldnCh/EmoryHacks2026/pulls.
 
 **Step 11. (Optional) Claude Code**
-Claude Code is **not required**. Everything above (editing, running the app, Git, PRs) works in your Coder workspace's VS Code and terminal without it.
+Claude Code is **not required**. Everything above (editing, running the app, Git, PRs) works in code-server without it.
 
-If installing it on your own computer fails, install it **inside your Coder workspace** instead. The workspace is Linux, which avoids most Windows/Mac install problems:
-```
-curl -fsSL https://claude.ai/install.sh | bash
-# or, if that fails:
-npm install -g @anthropic-ai/claude-code
-```
-Then run `claude` inside the `EmoryHacks2026` folder and sign in when asked. It reads this file automatically.
+It's **already installed and set up in your Coder workspace**, so you don't need to install it on your own computer:
+- Click the **Claude Code** button on your workspace page, **or**
+- In the workspace terminal, run `cd ~/EmoryHacks2026` then `claude`.
+
+Start it inside the `EmoryHacks2026` folder so it reads this file automatically. If it asks you to sign in, follow the prompt.
 
 ### Accounts and API keys (owner creates, then shares privately)
 Step-by-step instructions for each key: **[docs/API-KEYS.md](docs/API-KEYS.md)**. After filling in `.env.local`, open `/api/health` in the running app to check which keys work.
