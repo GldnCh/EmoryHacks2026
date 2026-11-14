@@ -17,6 +17,7 @@
 | [docs/MEDICAL-DATA.md](docs/MEDICAL-DATA.md) | Public medical databases, Tiger Data, and every API route |
 | [docs/TEAM-PROMPTS.md](docs/TEAM-PROMPTS.md) | Copy-paste Claude Code prompts for each teammate's task, plus the PR review prompt |
 | [docs/DEVPOST.md](docs/DEVPOST.md) | Submission draft and pre-submit checklist |
+| [docs/DEMO.md](docs/DEMO.md) | 2-minute demo script, backups and likely judge questions |
 
 ## What we built vs. what we used
 Emory Hacks requires separating original work from frameworks. Update this as features land.
