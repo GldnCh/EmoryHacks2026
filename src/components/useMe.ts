@@ -1,5 +1,6 @@
 "use client";
-// Who is using iCare on this device (client-side). Re-fetches when anyone signs in/out or switches (iCare:auth event).
+// Whose iPhone this is (client-side), who they can see, and how many connection requests are waiting.
+// Re-fetches whenever connections change anywhere on the page (icare:auth event).
 import { useCallback, useEffect, useState } from "react";
 import type { Account, Capability, Level } from "@/lib/auth/types";
 
@@ -13,10 +14,10 @@ export interface MePerson {
   capabilities: Capability[];
 }
 export interface Me {
-  signedIn: boolean;
+  setUp: boolean;
   account: Account | null;
-  deviceAccounts: Account[];
   people: MePerson[];
+  incomingRequests: number;
 }
 
 export const AUTH_EVENT = "icare:auth";
@@ -29,7 +30,7 @@ export function useMe() {
       const res = await fetch("/api/auth/me", { cache: "no-store" });
       setMe(await res.json());
     } catch {
-      setMe({ signedIn: false, account: null, deviceAccounts: [], people: [] });
+      setMe({ setUp: false, account: null, people: [], incomingRequests: 0 });
     }
   }, []);
   useEffect(() => {
@@ -40,13 +41,27 @@ export function useMe() {
   return { me, reload: load };
 }
 
-export async function signInAs(accountId: string) {
-  const res = await fetch("/api/auth/signin", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ accountId }) });
-  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "Couldn't sign in.");
+/** One-time "Whose iPhone is this?" setup. demoSwitch lets a presenter act as another family member's iPhone. */
+export async function setUpDevice(accountId: string, demoSwitch = false) {
+  const res = await fetch("/api/device", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ accountId, demoSwitch }),
+  });
+  if (!res.ok) throw new Error((await res.json().catch(() => null))?.error ?? "Couldn't set up this iPhone.");
   notifyAuthChanged();
 }
 
-export async function signOut() {
-  await fetch("/api/auth/signout", { method: "POST" });
+/** Demo only: forget whose iPhone this is, so the presenter can show another person's phone. */
+export async function pretendAnotherIphone() {
+  await fetch("/api/device", { method: "DELETE" });
   notifyAuthChanged();
+}
+
+/** JSON fetch helper for the connection/sharing APIs: returns data or throws the server's error message. */
+export async function api<T = unknown>(url: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(url, { cache: "no-store", ...init, headers: { "content-type": "application/json", ...(init?.headers ?? {}) } });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error ?? "Something went wrong.");
+  return json as T;
 }

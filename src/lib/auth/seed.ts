@@ -28,3 +28,6 @@ export const SEED_SHARING: Omit<SharingGrant, "createdAt" | "updatedAt">[] = [
   // A good friend: basic only
   { subjectId: "jordan", viewerId: "alex", level: "basic", relationship: "friend", guardian: false, grantedBy: "jordan" },
 ];
+
+// A pending connection request for the demo: Grandma Rosa asks to connect with Mia (shows the accept flow).
+export const SEED_REQUESTS = [{ fromId: "rosa", toId: "mia", fromLevel: "basic" as const, relationship: "grandchild" }];

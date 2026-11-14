@@ -40,3 +40,20 @@ CREATE TABLE IF NOT EXISTS activity_log (
 );
 
 CREATE INDEX IF NOT EXISTS activity_subject_idx ON activity_log (subject_id, at DESC);
+
+-- Connection requests: sharing starts with a request that the other person accepts (like a friend request).
+-- from_level = what the recipient will see of the sender. On accept the recipient picks what the sender sees of
+-- them (or nothing), and the matching rows are created in `sharing`. Either side can disconnect later.
+CREATE TABLE IF NOT EXISTS connection_requests (
+  id           BIGSERIAL PRIMARY KEY,
+  from_id      TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  to_id        TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  from_level   TEXT NOT NULL CHECK (from_level IN ('full', 'summary', 'basic')),
+  relationship TEXT,          -- how the recipient relates to the sender, e.g. "spouse", "friend"
+  status       TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'cancelled')),
+  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
+  responded_at TIMESTAMPTZ,
+  CHECK (from_id <> to_id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS connection_requests_one_pending ON connection_requests (from_id, to_id) WHERE status = 'pending';

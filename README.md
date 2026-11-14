@@ -73,7 +73,7 @@ Emory Hacks requires separating original work from frameworks.
 - Gemini AI layer (`src/lib/ai/`): shared safety rules, an emergency red-flag check that runs before any AI call, compact member context from Tiger Data trends, and JSON-validated Gemini calls with retry
 - Gemini routes: monthly/yearly health summaries (`/api/ai/summary/<id>`), wellness check-in chat (`/api/ai/checkin`), plain-language FDA label explanations (`/api/ai/explain-label`), and the voice agent's prompt and red-flag routes
 - The `/checkin` page: check-in chat, family member picker and monthly/yearly summary panel
-- Accounts and Family Sharing (`src/lib/auth/`, `/signin`, `/account`): demo sign-in standing in for Sign in with Apple, signed session cookies, one-device multi-account switching, Full / Health summary / Basic sharing levels with guardians, and an activity log, stored in Tiger Data
+- Accounts and connections (`src/lib/auth/`, `/setup`, `/account`): the iPhone as identity (one-time setup, no sign-in), connection requests with accept/decline/cancel, disconnect from either side with warnings, Full / Health summary / Basic levels with guardians, and an activity log, stored in Tiger Data
 - The Chert FaceTime check-in agent (`chert-agent/agent.mjs`): Gemini Live voice, iCare's shared prompts and safety rules, emergency check on every caller sentence
 
 **Frameworks, libraries and services used:**

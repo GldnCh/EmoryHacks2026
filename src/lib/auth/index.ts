@@ -1,6 +1,6 @@
 // The one place features ask "who is using iCare, and what may they do?" (server-only).
 //
-//   const me = await currentAccount();                       // null if nobody is signed in on this device
+//   const me = await currentAccount();                       // the owner of this iPhone (null until set up)
 //   const ok = await authorize("appointments", "mia");       // throws AuthError (401/403) if not allowed
 //   const people = await visiblePeople(me.id);               // everyone this account can see, with capabilities
 //
@@ -8,7 +8,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { capabilitiesFor, LEVELS } from "./permissions";
-import { DEVICE_COOKIE, readDeviceAccounts, readSessionToken, SESSION_COOKIE } from "./session";
+import { OWNER_COOKIE, readOwnerToken } from "./session";
 import { getAccount, getGrant, grantsForViewer, listAccounts } from "./store";
 import type { Account, Capability, Level } from "./types";
 
@@ -21,23 +21,16 @@ export class AuthError extends Error {
   }
 }
 
+/** Whose iPhone this is (the native app knows this from the device; the web demo asks once at /setup). */
 export async function currentAccount(): Promise<Account | null> {
-  const jar = await cookies();
-  const id = readSessionToken(jar.get(SESSION_COOKIE)?.value);
+  const id = readOwnerToken((await cookies()).get(OWNER_COOKIE)?.value);
   return id ? getAccount(id) : null;
 }
 
 export async function requireAccount(): Promise<Account> {
   const me = await currentAccount();
-  if (!me) throw new AuthError(401, "Sign in to continue.");
+  if (!me) throw new AuthError(401, "Set up this iPhone first.");
   return me;
-}
-
-export async function deviceAccounts(): Promise<Account[]> {
-  const jar = await cookies();
-  const ids = readDeviceAccounts(jar.get(DEVICE_COOKIE)?.value);
-  const all = await listAccounts();
-  return ids.map((id) => all.find((a) => a.id === id)).filter((a): a is Account => Boolean(a));
 }
 
 export interface VisiblePerson {

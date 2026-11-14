@@ -121,3 +121,62 @@ export async function recentActivity(subjectId: string, limit = 20) {
     [subjectId, limit],
   );
 }
+
+// ---------- connection requests ----------
+export interface ConnectionRequest {
+  id: number;
+  fromId: string;
+  toId: string;
+  fromLevel: Level; // what the recipient will see of the sender
+  relationship: string | null; // how the recipient relates to the sender
+  status: "pending" | "accepted" | "declined" | "cancelled";
+  createdAt: string;
+  respondedAt: string | null;
+}
+type RequestRow = {
+  id: string | number; from_id: string; to_id: string; from_level: Level; relationship: string | null;
+  status: ConnectionRequest["status"]; created_at: Date; responded_at: Date | null;
+};
+const toRequest = (r: RequestRow): ConnectionRequest => ({
+  id: Number(r.id), fromId: r.from_id, toId: r.to_id, fromLevel: r.from_level, relationship: r.relationship, status: r.status,
+  createdAt: r.created_at.toISOString(), respondedAt: r.responded_at ? r.responded_at.toISOString() : null,
+});
+const memRequests: ConnectionRequest[] = [];
+let memRequestId = 1;
+
+/** Pending requests sent by or to this account. */
+export async function pendingRequestsFor(accountId: string): Promise<ConnectionRequest[]> {
+  if (!(await dbAvailable())) return memRequests.filter((r) => r.status === "pending" && (r.fromId === accountId || r.toId === accountId));
+  return (await tigerQuery<RequestRow>(
+    "SELECT * FROM connection_requests WHERE status = 'pending' AND (from_id = $1 OR to_id = $1) ORDER BY created_at DESC",
+    [accountId],
+  )).map(toRequest);
+}
+
+export async function getRequest(id: number): Promise<ConnectionRequest | null> {
+  if (!(await dbAvailable())) return memRequests.find((r) => r.id === id) ?? null;
+  const rows = await tigerQuery<RequestRow>("SELECT * FROM connection_requests WHERE id = $1", [id]);
+  return rows[0] ? toRequest(rows[0]) : null;
+}
+
+export async function createRequest(fromId: string, toId: string, fromLevel: Level, relationship: string | null): Promise<ConnectionRequest> {
+  if (!(await dbAvailable())) {
+    const r: ConnectionRequest = { id: memRequestId++, fromId, toId, fromLevel, relationship, status: "pending", createdAt: new Date().toISOString(), respondedAt: null };
+    memRequests.push(r);
+    return r;
+  }
+  const rows = await tigerQuery<RequestRow>(
+    "INSERT INTO connection_requests (from_id, to_id, from_level, relationship) VALUES ($1,$2,$3,$4) RETURNING *",
+    [fromId, toId, fromLevel, relationship],
+  );
+  return toRequest(rows[0]);
+}
+
+export async function setRequestStatus(id: number, status: ConnectionRequest["status"]): Promise<void> {
+  if (!(await dbAvailable())) {
+    const r = memRequests.find((x) => x.id === id);
+    if (r) Object.assign(r, { status, respondedAt: new Date().toISOString() });
+    return;
+  }
+  await tigerQuery("UPDATE connection_requests SET status = $2, responded_at = now() WHERE id = $1", [id, status]);
+}

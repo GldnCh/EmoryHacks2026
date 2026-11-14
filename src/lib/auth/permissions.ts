@@ -37,3 +37,12 @@ export function capabilitiesFor(viewerId: string, subjectId: string, grant?: Pic
 }
 
 export const isLevel = (v: unknown): v is Level => v === "full" || v === "summary" || v === "basic";
+
+/** `relationship` describes the viewer (Jordan is Rosa's "son"); this gives the other side's word ("mother"). */
+export const INVERSE_RELATIONSHIP: Record<string, string> = {
+  son: "mother", daughter: "mother", parent: "child", child: "parent", mother: "son", father: "son",
+  "daughter-in-law": "mother-in-law", "son-in-law": "mother-in-law", "mother-in-law": "daughter-in-law",
+  grandmother: "grandchild", grandchild: "grandmother", spouse: "spouse", partner: "partner", friend: "friend",
+  sibling: "sibling", caregiver: "cared-for person",
+};
+export const inverseRelationship = (rel: string | null | undefined) => (rel ? INVERSE_RELATIONSHIP[rel] ?? rel : null);

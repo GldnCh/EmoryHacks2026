@@ -6,7 +6,7 @@
 import { readFile } from "node:fs/promises";
 import pg from "pg";
 import { tigerConnectionConfig } from "../src/lib/tiger-ca.ts";
-import { SEED_ACCOUNTS, SEED_SHARING } from "../src/lib/auth/seed.ts";
+import { SEED_ACCOUNTS, SEED_REQUESTS, SEED_SHARING } from "../src/lib/auth/seed.ts";
 
 const reset = process.argv.includes("--reset");
 if (!process.env.TIGER_DATABASE_URL) {
@@ -20,7 +20,7 @@ try {
     .split("\n").filter((l) => !l.trim().startsWith("--")).join("\n")
     .split(/;\s*\n/).map((s) => s.trim()).filter(Boolean);
   for (const stmt of sql) await db.query(stmt);
-  console.log("✓ Tables ready: accounts, sharing, activity_log");
+  console.log("✓ Tables ready: accounts, sharing, activity_log, connection_requests");
 
   for (const a of SEED_ACCOUNTS) {
     await db.query(
@@ -33,6 +33,7 @@ try {
 
   if (reset) {
     await db.query("DELETE FROM sharing");
+    await db.query("DELETE FROM connection_requests");
     console.log("  (reset: sharing cleared)");
   }
   let added = 0;
@@ -46,11 +47,24 @@ try {
   }
   console.log(`✓ Default family sharing: ${added} added (${SEED_SHARING.length - added} already present)`);
 
+  // Demo connection requests (only if those two aren't already connected or waiting)
+  for (const r of SEED_REQUESTS) {
+    const { rowCount: busy } = await db.query(
+      `SELECT 1 FROM sharing WHERE (subject_id = $1 AND viewer_id = $2) OR (subject_id = $2 AND viewer_id = $1)
+       UNION SELECT 1 FROM connection_requests WHERE status = 'pending' AND from_id = $1 AND to_id = $2`,
+      [r.fromId, r.toId],
+    );
+    if (!busy) {
+      await db.query("INSERT INTO connection_requests (from_id, to_id, from_level, relationship) VALUES ($1,$2,$3,$4)", [r.fromId, r.toId, r.fromLevel, r.relationship]);
+      console.log(`✓ Demo request: ${r.fromId} → ${r.toId}`);
+    }
+  }
+
   // Teammates' read-only login may use the app tables (not the health data or the schema).
   const { rowCount } = await db.query("SELECT 1 FROM pg_roles WHERE rolname = 'idoc_team'");
   if (rowCount) {
-    await db.query("GRANT SELECT, INSERT, UPDATE, DELETE ON accounts, sharing, activity_log TO idoc_team");
-    await db.query("GRANT USAGE, SELECT ON SEQUENCE activity_log_id_seq TO idoc_team");
+    await db.query("GRANT SELECT, INSERT, UPDATE, DELETE ON accounts, sharing, activity_log, connection_requests TO idoc_team");
+    await db.query("GRANT USAGE, SELECT ON SEQUENCE activity_log_id_seq, connection_requests_id_seq TO idoc_team");
     console.log("✓ idoc_team can read/write the app tables (health data stays read-only)");
   }
 

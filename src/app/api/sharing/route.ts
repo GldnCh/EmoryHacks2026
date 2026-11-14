@@ -2,7 +2,8 @@
 //
 // GET    /api/sharing[?subjectId=mia]   -> who can see this person (seenBy), whom they can see (canSee), levels
 //                                          (subjectId defaults to you; for someone else you must be their guardian)
-// POST   /api/sharing { subjectId?, viewerId, level, relationship?, guardian? }  -> add or change a person
+// POST   /api/sharing { subjectId?, viewerId, level, relationship?, guardian? }  -> change what a connected person
+//                                          sees (new people: send a connection request; guardians may add directly)
 // DELETE /api/sharing?subjectId=&viewerId=                                         -> stop sharing
 //
 // Rules: you control your own sharing; guardians (parents of a child, caregivers of an elderly parent) can manage
@@ -50,6 +51,11 @@ export const POST = withAuthErrors(async (req: Request) => {
   if (!viewer || viewer.id === subject.id) return NextResponse.json({ error: "Pick someone else to share with." }, { status: 400 });
 
   const existing = await getGrant(subject.id, viewer.id);
+  // New people come in through a connection request they accept. Only guardians may add someone directly
+  // to the person they care for (e.g. a parent adding a grandparent to their child's sharing).
+  if (!existing && !isGuardian) {
+    return NextResponse.json({ error: `To share with ${viewer.displayName}, send them a connection request.` }, { status: 403 });
+  }
   const wantGuardian = Boolean(body.guardian);
   // A child can't change or remove a guardian's access, or appoint new guardians.
   if (subject.kind === "child" && !isGuardian) {
