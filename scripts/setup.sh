@@ -8,7 +8,6 @@ set -euo pipefail
 REPO="GldnCh/EmoryHacks2026"
 DIR="$HOME/EmoryHacks2026"
 say() { printf '\n\033[1m%s\033[0m\n' "$*"; }
-ask() { local reply; read -r -p "$1" reply </dev/tty; printf '%s' "$reply"; }
 
 for tool in git gh node npm; do
   command -v "$tool" >/dev/null || { echo "Missing '$tool'. Are you in the Coder workspace terminal (not your laptop)?"; exit 1; }
@@ -24,11 +23,14 @@ fi
 gh auth setup-git
 
 say "2/5 Git name and email"
+# Filled in from your GitHub account (no questions). Uses GitHub's private no-reply email so commits
+# link to your profile without exposing your address. Change later with: git config --global user.email ...
 if [ -z "$(git config --global user.name || true)" ]; then
-  git config --global user.name "$(ask 'Your name: ')"
+  name="$(gh api user --jq '.name // .login')"
+  git config --global user.name "${name:-$(gh api user --jq .login)}"
 fi
 if [ -z "$(git config --global user.email || true)" ]; then
-  git config --global user.email "$(ask 'Email on your GitHub account: ')"
+  git config --global user.email "$(gh api user --jq '"\(.id)+\(.login)@users.noreply.github.com"')"
 fi
 echo "Commits will be by: $(git config --global user.name) <$(git config --global user.email)>"
 
