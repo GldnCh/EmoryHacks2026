@@ -3,6 +3,7 @@
 // If TIGER_DATABASE_URL isn't set, API routes fall back to the in-memory sample data.
 import { Pool } from "pg";
 import type { MonthlySummary } from "@/lib/sample-data/health";
+import { tigerConnectionConfig } from "@/lib/tiger-ca";
 
 let pool: Pool | null = null;
 
@@ -10,7 +11,7 @@ export const tigerConfigured = () => Boolean(process.env.TIGER_DATABASE_URL);
 
 function getPool() {
   if (!process.env.TIGER_DATABASE_URL) throw new Error("TIGER_DATABASE_URL is missing. See docs/API-KEYS.md.");
-  pool ??= new Pool({ connectionString: process.env.TIGER_DATABASE_URL, ssl: { rejectUnauthorized: false }, max: 3 });
+  pool ??= new Pool({ ...tigerConnectionConfig(process.env.TIGER_DATABASE_URL), max: 3 });
   return pool;
 }
 
@@ -51,10 +52,10 @@ export async function getTrendsFromTiger(memberId: string, period: "1 week" | "1
 /** One day, hour by hour, from the `vitals_hourly` continuous aggregate (built from minute readings). */
 export async function getHourlyFromTiger(memberId: string, date: string) {
   const { rows, queryMs } = await timed<Record<string, unknown>>(
-    `SELECT extract(hour FROM hour AT TIME ZONE 'America/New_York')::int AS h, avg_hr, min_hr, max_hr, steps
+    `SELECT extract(hour FROM hour AT TIME ZONE 'Etc/GMT+5')::int AS h, avg_hr, min_hr, max_hr, steps
        FROM vitals_hourly
-      WHERE member_id = $1 AND hour >= ($2::date)::timestamp AT TIME ZONE 'America/New_York'
-        AND hour < ($2::date + 1)::timestamp AT TIME ZONE 'America/New_York'
+      WHERE member_id = $1 AND hour >= ($2::date)::timestamp AT TIME ZONE 'Etc/GMT+5'
+        AND hour < ($2::date + 1)::timestamp AT TIME ZONE 'Etc/GMT+5'
       ORDER BY hour`,
     [memberId, date],
   );

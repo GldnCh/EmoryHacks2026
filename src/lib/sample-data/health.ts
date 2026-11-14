@@ -282,7 +282,7 @@ export function getMonthlySummaries(memberId: string): MonthlySummary[] {
 // (resting HR while asleep, workouts at the member's usual time, flu week, etc.).
 
 export interface MinuteVital {
-  minute: number; // 0..1439, local time (America/New_York, no DST shift)
+  minute: number; // 0..1439, local time (fixed UTC-5 / Eastern Standard Time, no DST shift; Tiger queries use Etc/GMT+5)
   heartRate: number; // bpm
   steps: number;
 }

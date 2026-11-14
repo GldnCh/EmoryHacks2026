@@ -55,8 +55,9 @@ Notes: the free tier has rate limits. If you hit them during testing, wait a min
 ## 3. Tiger Data (our database) — owner: Jam
 Tiger Data (TimescaleDB, built on PostgreSQL) is IDoc's **only database**. It stores the family profiles and their daily health history as a time series, powers the monthly/yearly trend queries, and enters us for the MLH **Best Use of Tiger Data** prize.
 
-1. Go to https://console.cloud.timescale.com (Tiger Data's console) and sign up, e.g. with GitHub. Ask the Tiger Data / MLH table about hackathon credits if it asks for payment.
-2. Click **Create service**. Choose a **Time-series** (TimescaleDB / PostgreSQL) service, the smallest size, and a US East region.
+1. Sign up through MLH's link: **https://mlh.link/tigerdata-quickstart** (Google or GitHub sign-in works). New accounts get **$1,000 in credits for 30 days**, no credit card needed. The console is at https://console.cloud.timescale.com.
+   > **IDoc's database already exists** (service `idoc`, us-east-1, created by Cam). Teammates don't need their own: get `TIGER_DATABASE_URL` from Cam privately and skip to step 4.
+2. Click **Create service**: **0.5 CPU** (covered by credits), **AWS US East (N. Virginia)** (same region as our Vercel app), **Development**, no add-ons. Name it `idoc`.
 3. When it's ready, copy the **connection string** (a `postgres://...` URL that includes the password). Download the config file it offers; the password is shown only once.
 4. Put it in `.env.local` (it's a secret, server-only):
    ```
@@ -70,11 +71,11 @@ Tiger Data (TimescaleDB, built on PostgreSQL) is IDoc's **only database**. It st
    ```
    ✓ Schema ready: family_members, health_metrics + vitals_minute hypertables, 3 continuous aggregates.
    ✓ 4 profiles and 1460 daily records loaded.
-     jordan: 525,600 minute readings in 40s
+     jordan: 525,600 minute readings in 10s
      ...
    ✓ Continuous aggregates refreshed (hourly, daily, monthly) with auto-refresh policies.
-   ✓ Compression on: vitals_minute 180.0 MB → 15.0 MB (92% smaller).
-   ✓ Benchmark (Jordan's daily heart rate + steps for a year): raw minutes 300 ms vs continuous aggregate 5 ms.
+   ✓ Compression on: vitals_minute 212.3 MB → 6.2 MB (97% smaller).
+   ✓ Benchmark (Jordan's daily heart rate + steps for a year): raw minutes 60 ms vs continuous aggregate 24 ms.
    Loaded into Tiger Data: jordan=365 days/525,600 minutes, ...
    ```
    - `--dry-run` first checks everything without a database. `--skip-minute` loads only profiles + daily data (fast). `--reset` reloads the minute data from scratch.
@@ -84,6 +85,7 @@ Tiger Data (TimescaleDB, built on PostgreSQL) is IDoc's **only database**. It st
 Notes:
 - The connection string contains the database password. Never put it in browser code, a `NEXT_PUBLIC_` variable, or the repo.
 - Without it, the app still runs: `/api/trends` falls back to the built-in sample data.
+- TLS: Tiger's URL ends in `?sslmode=require`. Our code (`src/lib/tiger-ca.ts`) removes it and verifies the server certificate itself against Node's public CAs **plus** Timescale's own CA (new services briefly use it). Never "fix" a certificate error by turning verification off.
 - The tables are in `db/tiger/schema.sql`: `health_metrics` (a hypertable, one row per person per day) and `family_members`.
 
 ✅ Check: `/api/health` shows `"tigerData": true`, `/api/trends/jordan` says `"source": "Tiger Data"`, and `/api/tiger/stats` shows the row counts, compression savings and benchmark.

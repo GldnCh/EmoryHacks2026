@@ -61,7 +61,7 @@ WITH NO DATA;
 CREATE MATERIALIZED VIEW IF NOT EXISTS vitals_daily
 WITH (timescaledb.continuous, timescaledb.materialized_only = false) AS
 SELECT member_id,
-       time_bucket(INTERVAL '1 day', ts, 'America/New_York') AS day,
+       time_bucket(INTERVAL '1 day', ts, 'Etc/GMT+5') AS day,
        avg(heart_rate)::real                AS avg_hr,
        min(heart_rate)                      AS min_hr,
        max(heart_rate)                      AS max_hr,
@@ -69,7 +69,7 @@ SELECT member_id,
        count(*) FILTER (WHERE steps > 60)   AS brisk_minutes,
        count(*) FILTER (WHERE heart_rate > 120) AS high_hr_minutes
 FROM vitals_minute
-GROUP BY member_id, time_bucket(INTERVAL '1 day', ts, 'America/New_York')
+GROUP BY member_id, time_bucket(INTERVAL '1 day', ts, 'Etc/GMT+5')
 WITH NO DATA;
 
 CREATE MATERIALIZED VIEW IF NOT EXISTS health_monthly

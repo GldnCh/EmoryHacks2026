@@ -11,6 +11,7 @@ import { readFile } from "node:fs/promises";
 import pg from "pg";
 // Node 22.18+ runs TypeScript directly, so we reuse the exact same generator as the app.
 import { getFamily, getDailyMetrics, getMinuteVitals, SAMPLE_START, SAMPLE_END } from "../src/lib/sample-data/health.ts";
+import { tigerConnectionConfig } from "../src/lib/tiger-ca.ts";
 
 const args = new Set(process.argv.slice(2));
 const dryRun = args.has("--dry-run");
@@ -40,7 +41,7 @@ if (!url) {
   process.exit(1);
 }
 
-const db = new pg.Client({ connectionString: url, ssl: { rejectUnauthorized: false } });
+const db = new pg.Client(tigerConnectionConfig(url)); // TLS verified against Tiger's CA (see src/lib/tiger-ca.ts)
 await db.connect();
 const q = (sql, params) => db.query(sql, params);
 /** Try each SQL variant in order (TimescaleDB renamed some APIs between versions). */
@@ -161,7 +162,7 @@ try {
 
   // 5. compression (columnstore): segment by person, newest first
   if (!skipMinute) {
-    const before = (await q("SELECT hypertable_size('vitals_minute') AS b")).rows[0].b;
+    let before = (await q("SELECT hypertable_size('vitals_minute') AS b")).rows[0].b;
     const enabled = await tryEach("enable compression", [
       `ALTER TABLE vitals_minute SET (timescaledb.enable_columnstore = true, timescaledb.segmentby = 'member_id', timescaledb.orderby = 'ts DESC')`,
       `ALTER TABLE vitals_minute SET (timescaledb.compress, timescaledb.compress_segmentby = 'member_id', timescaledb.compress_orderby = 'ts DESC')`,
@@ -174,8 +175,19 @@ try {
       await tryEach("compress existing chunks", [
         `SELECT compress_chunk(c, if_not_compressed => true) FROM show_chunks('vitals_minute', older_than => INTERVAL '7 days') c`,
       ]);
-      const after = (await q("SELECT hypertable_size('vitals_minute') AS b")).rows[0].b;
-      const saved = Number(before) > 0 ? Math.round((1 - Number(after) / Number(before)) * 100) : 0;
+      let after = (await q("SELECT hypertable_size('vitals_minute') AS b")).rows[0].b;
+      let saved = Number(before) > 0 ? Math.round((1 - Number(after) / Number(before)) * 100) : 0;
+      // on re-runs the data is already compressed, so report Tiger's own before/after stats instead
+      try {
+        const s = (await q("SELECT before_compression_total_bytes AS b, after_compression_total_bytes AS a FROM hypertable_compression_stats('vitals_minute')")).rows[0];
+        if (s && Number(s.b) > 0) {
+          before = s.b;
+          after = s.a;
+          saved = Math.round((1 - Number(s.a) / Number(s.b)) * 100);
+        }
+      } catch {
+        // stats function unavailable on this version; keep the measured sizes
+      }
       console.log(`✓ Compression on: vitals_minute ${mb(before)} → ${mb(after)} (${saved}% smaller).`);
     }
   }
