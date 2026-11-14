@@ -14,7 +14,8 @@
 // Each result keeps { id?, name, brandNames, drugClass?, uses, prescriptionRequired, source } and adds highlights[].
 import { NextResponse } from "next/server";
 import { normalizeDrug } from "@/lib/medical/rxnorm";
-import { searchLabelsByUse } from "@/lib/medical/openfda";
+import { ingredientKey, searchLabelsByUse, shortDrugName } from "@/lib/medical/openfda";
+import { trimText } from "@/lib/medical/http";
 import {
   type EngineResult,
   type Facets,
@@ -95,14 +96,20 @@ export async function GET(req: Request) {
   // 3. widen with openFDA labels when we have fewer than 3 matches.
   // FDA labels have no drug class here, so skip them when a class filter is on.
   if (results.length < 3 && !filters.drugClass) {
-    const known = new Set(hits.map((h) => h.med.genericName.toLowerCase()));
+    // compare by ingredients, so FDA "FLUTICASONE PROPIONATE NASAL" doesn't repeat our "Fluticasone (nasal)"
+    const known = new Set(hits.map((h) => ingredientKey(h.med.genericName)));
     for (const label of await searchLabelsByUse(q, 5)) {
-      if (known.has(label.genericName!.toLowerCase())) continue;
+      if (known.has(ingredientKey(label.genericName!))) continue;
       if (filters.rx !== undefined && label.isPrescription !== filters.rx) continue;
       results.push({
-        name: label.genericName,
-        brandNames: label.brandNames,
-        uses: label.purpose ?? label.indications,
+        id: label.genericName!.toLowerCase(), // detail page key; full name, not the shortened one
+        name: shortDrugName(label.genericName!),
+        // many generic labels list the generic name as the "brand"; only keep real brand names
+        brandNames: label.brandNames
+          .filter((b) => ingredientKey(b) !== ingredientKey(label.genericName!))
+          .map((b) => shortDrugName(b, 40))
+          .slice(0, 3),
+        uses: trimText(label.purpose ?? label.indications, 220),
         prescriptionRequired: label.isPrescription,
         source: "openFDA",
         highlights: [],
