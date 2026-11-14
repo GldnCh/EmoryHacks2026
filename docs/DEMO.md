@@ -31,16 +31,16 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 **Then:** start a check-in, type: *"I've been dizzy when I stand up."* Show the gentle follow-up question.
 **Optional safety moment:** type *"I have chest pain"* → it immediately says to call 911, without even asking the AI.
-> "Over Chert, this check-in happens face-to-face on FaceTime." *(Say this only if the Chert integration works; otherwise say "Next, this runs over a FaceTime-style video call with Chert.")*
+> "Over Chert, this check-in happens face-to-face on FaceTime." *(Say this only if a full Chert FaceTime call has worked; otherwise say "Next, this runs over a FaceTime call with Chert." The `/checkin` chat is the reliable path.)*
 
-**Backup:** skip the live AI; describe it in one sentence and move on.
+**Backup:** skip the live AI; describe it in one sentence and move on. (The summary is cached after the first click, so pre-run it before presenting.)
 
 ### 1:05–1:25 · Medicine search ⏳ Jam
 **Click:** Medicines → type **"wal-zyr"** (a store brand).
 > "Rosa's neighbor gave her 'Wal-Zyr'. What is it? IDoc knows every brand name from the National Library of Medicine: it's cetirizine, an allergy medicine."
 
-**Click:** Lisinopril (Rosa's blood pressure med) → point to the red **FDA boxed warning**.
-> "Every medicine shows the official FDA label, boxed warnings first, plus a plain-language guide."
+**Click:** Lisinopril (Rosa's blood pressure med) → point to the red **FDA boxed warning** → click **✨ Explain this label simply**.
+> "Every medicine shows the official FDA label, boxed warnings first, and Gemini explains it in plain language using only the label's own text."
 
 **Safe searches:** `wal-zyr`, `zyrtec`, `lisinopril`, `allergies`, `heartburn`. (Avoid `allergy` until Jam's Typesense search is merged.)
 **Backup:** open `/api/medicines/lisinopril` and read the `boxedWarning` line.
