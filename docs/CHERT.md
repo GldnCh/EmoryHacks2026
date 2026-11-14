@@ -6,8 +6,8 @@ Owner: Ish. Chert gives an AI agent a real Apple line: people FaceTime it from a
 - **`chert-agent/`**: a LiveKit video agent from Chert's starter (`chert new chert-agent --video`), with OpenAI swapped for **Gemini Live** (`@livekit/agents-plugin-google`, native audio). It shows an animated face, asks who is calling, and runs iCare's wellness check-in. How to run it: `chert-agent/README.md`.
 - **`GET /api/ai/voice-prompt`**: the agent's instructions: our `SAFETY_RULES` + the shared check-in steps (`src/lib/ai/checkin-prompt.ts`) + all four Rivera profiles with Tiger Data trends. One source of truth for chat and voice.
 - **`POST /api/ai/red-flag`**: the same emergency-phrase check the text chat runs before Gemini. The agent checks every sentence the caller says (Gemini transcribes the audio) and on a match interrupts and reads the 911/988 message word for word. Gemini's own emergency rule is a second layer.
-- **`POST /api/ai/call-summary`**: when a call ends, the agent sends the call transcript here. Gemini works out which family member the check-in was about and writes 2 to 5 points plus one next step, under the same `SAFETY_RULES`. The emergency check runs over everything the caller said and is saved with the summary. Only the summary is stored, never the transcript, in the Tiger Data table `checkin_summaries`.
-- **`GET /api/checkins/<memberId>`**: that member's saved check-in history, newest first.
+- **`POST /api/ai/call-summary`**: when a call ends, the agent sends the call transcript here. Gemini works out which family member the check-in was about and writes 2 to 5 points plus one next step, under the same `SAFETY_RULES`. The emergency check runs over everything the caller said and is saved with the summary. Only the summary is stored, never the transcript, in the Tiger Data table `checkin_summaries`. **Only the agent can call it:** it must send the `x-icare-agent-token` header with the `CHERT_AGENT_TOKEN` value (Cam sends it privately; put it in `chert-agent/.env.local`). Other callers get 401.
+- **`GET /api/checkins/<memberId>`**: that member's saved check-in history, newest first. Health data, so it needs the `checkins` permission: only that person's iPhone, or someone they share **Full** with, can read it (401 if this iPhone isn't set up, 403 otherwise). See `docs/ACCOUNTS.md`.
 - **Voice and tone:** Gemini's warm voice **Sulafat** (override with `GEMINI_LIVE_VOICE`). The greeting thanks the caller and welcomes them, and the agent uses their first name, reacts kindly to what they share and invites them to call again. The safety rules are unchanged.
 
 ## Our Chert setup (no secrets here)
@@ -43,7 +43,7 @@ Our first end-to-end call: an iPhone FaceTime Video call to our Chert line, answ
 | Ended | The caller hung up; the agent closed cleanly |
 | Result | Ish confirmed the agent responded properly |
 
-The words of this call were not saved: the agent did not keep transcripts or summaries until this change. Every call from now on is summarized and saved, and judges can see the summaries at `GET /api/checkins/<memberId>`.
+The words of this call were not saved: the agent did not keep transcripts or summaries until this change. Every call from now on is summarized and saved, and they appear at `GET /api/checkins/<memberId>` for that person and their Full-access connections.
 
 ## Creating the `checkin_summaries` table (Cam, once)
 Teammates' `idoc_team` login is read-only, so Cam runs this with the admin login (Tiger console SQL editor or `psql`). It's safe to re-run and changes no existing data. The `CREATE` statements match `db/tiger/schema.sql`.

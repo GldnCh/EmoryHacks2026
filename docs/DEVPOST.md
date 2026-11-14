@@ -124,6 +124,7 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - **Clinician review** of AI summaries before they reach patients
 - **Booking and sharing:** send a monthly summary to a chosen doctor, or book with a suggested specialist
 - **Medication reminders and adherence tracking**, which would have caught Rosa's missed doses sooner
+- **Caller identity from the iPhone:** today the FaceTime assistant asks who it's talking to when a family shares the line. In the native app, each person's iPhone would identify them to the call, so check-ins file under the right person automatically
 - Support for **more languages and reading levels**
 - **[MOVE any unfinished features from "What it does" here]**
 
