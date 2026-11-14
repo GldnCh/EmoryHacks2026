@@ -1,32 +1,87 @@
 // GET /api/medicines/search?q=zyrtec
-// Searches our 38 sample medicines first, then widens with public data:
-//   - RxNorm turns brand names / typos into the standard generic name ("zyrtec" -> cetirizine)
-//   - openFDA finds more drugs by what they're used for ("heartburn") when our list has few matches
-// Once Typesense is seeded, the local step can switch to Typesense; the response shape stays the same.
+// Optional filters: &rx=true (prescription only) | &rx=false (over the counter only) · &class=Antihistamine
+//
+// 1. Search our 38 medicines with Typesense (typo-tolerant, ranked, facets, highlights).
+//    If Typesense isn't configured or errors, the same search runs on the local list, so the demo never breaks.
+// 2. RxNorm turns brand names / typos into the standard generic name ("zyrtec" -> cetirizine); runs in parallel.
+// 3. openFDA finds more drugs by what they're used for ("heartburn") when we have fewer than 3 hits.
+//
+// Response (backward compatible): { query, rxnorm, count, results[], disclaimer }
+//   + source   "Typesense" | "Local list"   (which engine searched our list)
+//   + facets   { drugClass: [{value,count}], prescriptionRequired: [{value:"true"|"false",count}] } before filters
+//   + searchMs round trip of the search step in ms
+//   + filters  the filters that were applied
+// Each result keeps { id?, name, brandNames, drugClass?, uses, prescriptionRequired, source } and adds highlights[].
 import { NextResponse } from "next/server";
-import data from "@/data/medicines.json";
 import { normalizeDrug } from "@/lib/medical/rxnorm";
 import { searchLabelsByUse } from "@/lib/medical/openfda";
+import {
+  type EngineResult,
+  type Facets,
+  type Med,
+  type SearchFilters,
+  passesFilters,
+  searchLocal,
+  searchTypesense,
+  typesenseConfigured,
+} from "@/lib/medicine-search";
 
-type Med = (typeof data.medicines)[number];
+const DISCLAIMER = "General reference information, not medical advice. Confirm with a pharmacist or doctor.";
 
-const matches = (m: Med, q: string) =>
-  [m.genericName, ...m.brandNames, m.drugClass, ...m.commonUses].join(" ").toLowerCase().includes(q);
+function parseFilters(sp: URLSearchParams): SearchFilters {
+  const rx = sp.get("rx")?.toLowerCase();
+  const drugClass = sp.get("class")?.trim();
+  return {
+    rx: rx === "true" ? true : rx === "false" ? false : undefined,
+    drugClass: drugClass || undefined,
+  };
+}
 
-export async function GET(req: Request) {
-  const q = new URL(req.url).searchParams.get("q")?.trim() ?? "";
-  if (q.length < 2) return NextResponse.json({ error: "q must be at least 2 characters" }, { status: 400 });
-  const lower = q.toLowerCase();
-
-  // 1. our sample list, plus RxNorm normalization for brand names and misspellings
-  const rxnorm = await normalizeDrug(q);
-  const found = new Map<string, Med>();
-  for (const m of data.medicines) {
-    if (matches(m, lower) || (rxnorm && m.genericName.toLowerCase().includes(rxnorm.ingredient.toLowerCase()))) {
-      found.set(m.id, m);
+/** Typesense first; on any error, the local list. */
+async function searchOurList(q: string, filters: SearchFilters): Promise<EngineResult> {
+  if (typesenseConfigured()) {
+    try {
+      return await searchTypesense(q, filters);
+    } catch (err) {
+      console.warn("[medicines/search] Typesense failed, using local list:", err instanceof Error ? err.message : err);
     }
   }
-  const results: Record<string, unknown>[] = [...found.values()].map((m) => ({
+  return searchLocal(q, filters);
+}
+
+/** Add one medicine to facet counts (used when RxNorm finds a match the engine missed). */
+function bump(facets: Facets, m: Med): Facets {
+  const inc = (list: { value: string; count: number }[], value: string) =>
+    list.some((f) => f.value === value)
+      ? list.map((f) => (f.value === value ? { ...f, count: f.count + 1 } : f))
+      : [...list, { value, count: 1 }];
+  return {
+    drugClass: inc(facets.drugClass, m.drugClass),
+    prescriptionRequired: inc(facets.prescriptionRequired, String(m.prescriptionRequired)),
+  };
+}
+
+export async function GET(req: Request) {
+  const sp = new URL(req.url).searchParams;
+  const q = sp.get("q")?.trim() ?? "";
+  if (q.length < 2) return NextResponse.json({ error: "q must be at least 2 characters" }, { status: 400 });
+  const filters = parseFilters(sp);
+
+  // 1 + 2. our list and RxNorm in parallel
+  const [engine, rxnorm] = await Promise.all([searchOurList(q, filters), normalizeDrug(q)]);
+  let { hits, facets } = engine;
+
+  // If RxNorm recognised a drug on our list that the engine missed, put it first.
+  if (rxnorm) {
+    const ingredient = rxnorm.ingredient.toLowerCase();
+    const extra = searchLocal(rxnorm.ingredient, {}).hits.filter(
+      (h) => h.med.genericName.toLowerCase().includes(ingredient) && !hits.some((x) => x.med.id === h.med.id),
+    );
+    for (const h of extra) facets = bump(facets, h.med);
+    hits = [...extra.filter((h) => passesFilters(h.med, filters)), ...hits];
+  }
+
+  const results: Record<string, unknown>[] = hits.map(({ med: m, highlights }) => ({
     id: m.id,
     name: m.genericName,
     brandNames: m.brandNames,
@@ -34,19 +89,23 @@ export async function GET(req: Request) {
     uses: m.commonUses,
     prescriptionRequired: m.prescriptionRequired,
     source: "IDoc sample list",
+    highlights,
   }));
 
-  // 2. widen with openFDA labels when we have fewer than 3 matches
-  if (results.length < 3) {
-    const known = new Set([...found.values()].map((m) => m.genericName.toLowerCase()));
+  // 3. widen with openFDA labels when we have fewer than 3 matches.
+  // FDA labels have no drug class here, so skip them when a class filter is on.
+  if (results.length < 3 && !filters.drugClass) {
+    const known = new Set(hits.map((h) => h.med.genericName.toLowerCase()));
     for (const label of await searchLabelsByUse(q, 5)) {
       if (known.has(label.genericName!.toLowerCase())) continue;
+      if (filters.rx !== undefined && label.isPrescription !== filters.rx) continue;
       results.push({
         name: label.genericName,
         brandNames: label.brandNames,
         uses: label.purpose ?? label.indications,
         prescriptionRequired: label.isPrescription,
         source: "openFDA",
+        highlights: [],
       });
     }
   }
@@ -56,6 +115,10 @@ export async function GET(req: Request) {
     rxnorm, // e.g. { ingredient: "cetirizine", brandNames: [...] } or null
     count: results.length,
     results,
-    disclaimer: "General reference information, not medical advice. Confirm with a pharmacist or doctor.",
+    source: engine.engine,
+    facets,
+    searchMs: engine.searchMs,
+    filters,
+    disclaimer: DISCLAIMER,
   });
 }

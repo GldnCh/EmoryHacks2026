@@ -72,9 +72,16 @@ export async function getDrugLabel(name: string): Promise<DrugLabel | null> {
   const q = safeTerm(name);
   if (!q) return null;
   const data = await fetchJson<{ results?: Raw[] }>(
-    url(`openfda.generic_name:"${q}" OR openfda.brand_name:"${q}"`, 1),
+    url(`openfda.generic_name:"${q}" OR openfda.brand_name:"${q}"`, 10),
   );
-  return data?.results?.[0] ? toLabel(data.results[0]) : null;
+  const results = data?.results ?? [];
+  // Prefer the single-ingredient label ("LISINOPRIL") over combinations ("LISINOPRIL AND HYDROCHLOROTHIAZIDE").
+  const lower = q.toLowerCase();
+  const exact = results.find((r) =>
+    [...(r.openfda?.generic_name ?? []), ...(r.openfda?.brand_name ?? [])].some((n) => n.toLowerCase() === lower),
+  );
+  const best = exact ?? results[0];
+  return best ? toLabel(best) : null;
 }
 
 /** Search labels by what the drug is used for, e.g. "heartburn". Used when our own list has no match. */

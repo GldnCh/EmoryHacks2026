@@ -28,6 +28,7 @@ Emory Hacks requires separating original work from frameworks. Update this as fe
 - Connectors for openFDA, RxNorm, MedlinePlus, NLM Clinical Tables and the NPI Registry, with condition-to-specialist matching
 - Tiger Data schema (hypertables, continuous aggregates, compression), seed script and trend/cohort queries
 - Typesense indexing enriched with RxNorm and FDA data
+- Medicine search on Typesense (typo tolerance, facets, highlights, Rx/OTC and drug-class filters, local fallback if Typesense is down), a live search page with filter chips and voice search, a medicine detail page with FDA boxed warnings, and a specialist finder page (per family member or any specialty near a city or ZIP)
 - App shell and screens: landing page, family dashboard (latest month vs. the month before), per-person pages with 12-month trend charts and an hour-by-hour "zoom into a day" view, and a "Powered by Tiger Data" page with live storage, compression, benchmark and cohort charts
 - (add Gemini and Chert features as they land)
 
@@ -35,6 +36,7 @@ Emory Hacks requires separating original work from frameworks. Update this as fe
 - Next.js, React, TypeScript, Tailwind CSS (scaffolded with `create-next-app`)
 - Google Gemini API (`@google/genai`)
 - Typesense Cloud (`typesense`)
+- Web Speech API (built into the browser, no package): voice search on the Medicines page
 - Recharts (`recharts`): charts on the dashboard, family and Tiger Data pages
 - Tiger Data / TimescaleDB (`pg`): our database for health history
 - Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
