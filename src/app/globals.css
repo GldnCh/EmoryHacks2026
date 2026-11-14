@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* IDoc design tokens (TD), inspired by iOS Light Mode.
+/* iCare design tokens (TD), inspired by iOS Light Mode.
    Grouped-background gray behind white cards, soft shadows instead of borders, one teal tint color.
    Text grays are darker than iOS defaults so small text keeps at least 4.5:1 contrast on white and on #f2f2f7.
    --series-1 / --series-2 are a colorblind-checked pair for charts (blue, orange).

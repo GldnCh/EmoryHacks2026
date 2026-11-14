@@ -45,7 +45,7 @@ const SPECIALTIES = [
   "Family Medicine",
 ];
 
-const NOTE = "Public directory data from the NPI Registry. IDoc suggests, it doesn't endorse or book.";
+const NOTE = "Public directory data from the NPI Registry. iCare suggests, it doesn't endorse or book.";
 
 function ProviderList({ providers }: { providers: Provider[] }) {
   if (!providers.length) return <p className="text-subhead text-secondary">No providers found here. Try a nearby city or a ZIP code.</p>;

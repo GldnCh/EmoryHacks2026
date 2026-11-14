@@ -4,7 +4,7 @@ Everyone codes with **Claude Code inside their Coder workspace**. Copy your prom
 
 ## Before you paste (browser only, ~5 minutes)
 1. Accept the GitHub invite.
-2. Sign in at **https://coder.c1.workshop.cdr.dev/** → **Workspaces → New workspace → `coder-dev-environment`**, name it `idoc-<name>`, and extend the stop time to Sunday.
+2. Sign in at **https://coder.c1.workshop.cdr.dev/** → **Workspaces → New workspace → `coder-dev-environment`**, name it `icare-<name>`, and extend the stop time to Sunday.
 3. On the workspace page click **Terminal** and run:
    `curl -fsSL https://raw.githubusercontent.com/GldnCh/EmoryHacks2026/main/scripts/setup.sh | bash`
 4. Get your keys from Cam privately and paste them with `code ~/EmoryHacks2026/.env.local`.
@@ -31,7 +31,7 @@ Full details: [QUICKSTART.md](../QUICKSTART.md). How we review and merge: [WORKF
 
 ## TD: dashboard and app shell
 ```
-You are helping me (TD, Frontend & Apple Health Engineer) on IDoc, our Emory Hacks 2026 project. Read CLAUDE.md, QUICKSTART.md, docs/SAMPLE-DATA.md and docs/MEDICAL-DATA.md first, and follow every rule in CLAUDE.md (Git workflow, safety rules, credits). Work step by step, tell me what you are doing at each step, and stop and ask me if anything fails twice.
+You are helping me (TD, Frontend & Apple Health Engineer) on iCare, our Emory Hacks 2026 project. Read CLAUDE.md, QUICKSTART.md, docs/SAMPLE-DATA.md and docs/MEDICAL-DATA.md first, and follow every rule in CLAUDE.md (Git workflow, safety rules, credits). Work step by step, tell me what you are doing at each step, and stop and ask me if anything fails twice.
 
 PART A: VERIFY MY ENVIRONMENT (do not skip)
 1. Confirm we are in the Coder workspace in ~/EmoryHacks2026 (run pwd, node --version should be v22+, gh auth status should be logged in). If the repo is missing, run: curl -fsSL https://raw.githubusercontent.com/GldnCh/EmoryHacks2026/main/scripts/setup.sh | bash
@@ -43,7 +43,7 @@ PART A: VERIFY MY ENVIRONMENT (do not skip)
 PART B: BUILD THE APP SHELL AND HEALTH DASHBOARD (my area: all screens, layout, design)
 Use Next.js App Router + TypeScript + Tailwind (already installed). Pages are client components that fetch our existing API routes; do NOT change files in src/lib/ or src/app/api/ (those belong to Jam and Ish). Install recharts for charts (npm install recharts) and add it to the README "Frameworks, libraries and services used" list.
 
-1. App shell: edit src/app/layout.tsx to add a header with the IDoc name and nav links: Dashboard (/dashboard), Check-in (/checkin), Medicines (/medicines), Specialists (/specialists), Tiger Data (/data). Some of those pages will be built by Ish and Jam; links can 404 until their PRs merge. Add a footer on every page: "Not medical advice. Demo uses a fictional family with fabricated data." Make it look clean and calm (healthcare feel), and make it work on a phone-width screen.
+1. App shell: edit src/app/layout.tsx to add a header with the iCare name and nav links: Dashboard (/dashboard), Check-in (/checkin), Medicines (/medicines), Specialists (/specialists), Tiger Data (/data). Some of those pages will be built by Ish and Jam; links can 404 until their PRs merge. Add a footer on every page: "Not medical advice. Demo uses a fictional family with fabricated data." Make it look clean and calm (healthcare feel), and make it work on a phone-width screen.
 2. Shared components in src/components/ : Card, StatTile (big number + label + change vs last month, green when improving, amber when worsening), TrendChart (recharts line chart wrapper), Disclaimer.
 3. src/app/page.tsx: replace the placeholder with a landing page: one-line pitch, 3 feature tiles linking to Dashboard, Medicines, Specialists, and a "Meet the Rivera family" strip.
 4. src/app/dashboard/page.tsx: family overview. Fetch /api/sample/family for the 4 members (jordan, sam, mia, rosa), and /api/trends/<id> for each. Show one card per person: name, relationship, home city, conditions, and latest-month stat tiles (avg steps, resting heart rate, sleep, plus blood pressure and glucose for Jordan and Rosa) with the change vs the previous month. Highlight Rosa as "tracked remotely from Savannah". Each card links to /family/<id>.
@@ -68,13 +68,13 @@ PART C: TEST, THEN OPEN A PULL REQUEST
 
 ## Ish: Gemini check-in, summaries, Chert
 ```
-You are helping me (Ish, AI & Video Engineer) on IDoc, our Emory Hacks 2026 project. Read CLAUDE.md, QUICKSTART.md, docs/SAMPLE-DATA.md and docs/MEDICAL-DATA.md first, and follow every rule in CLAUDE.md, especially the safety rules: IDoc never diagnoses, never invents doses or drugs, always says "not medical advice", and tells people to seek care for anything serious. Work step by step, tell me what you are doing, and stop and ask me if anything fails twice.
+You are helping me (Ish, AI & Video Engineer) on iCare, our Emory Hacks 2026 project. Read CLAUDE.md, QUICKSTART.md, docs/SAMPLE-DATA.md and docs/MEDICAL-DATA.md first, and follow every rule in CLAUDE.md, especially the safety rules: iCare never diagnoses, never invents doses or drugs, always says "not medical advice", and tells people to seek care for anything serious. Work step by step, tell me what you are doing, and stop and ask me if anything fails twice.
 
 PART A: VERIFY MY ENVIRONMENT (do not skip)
 1. Confirm we are in the Coder workspace in ~/EmoryHacks2026 (pwd, node --version v22+, gh auth status logged in). If the repo is missing run: curl -fsSL https://raw.githubusercontent.com/GldnCh/EmoryHacks2026/main/scripts/setup.sh | bash
 2. git checkout main && git pull && npm install
 3. Check .env.local: report only "set" or "empty" (NEVER print values) for GEMINI_API_KEY, GEMINI_MODEL, TIGER_DATABASE_URL. GEMINI_API_KEY and TIGER_DATABASE_URL must be set; if not, tell me to get them from Cam and wait. GEMINI_MODEL may be empty (the default is gemini-3.5-flash-lite in src/lib/gemini.ts).
-4. Write a tiny throwaway script (do not commit it) that imports getGemini and GEMINI_MODEL from src/lib/gemini.ts and asks the model to reply "IDoc ready". Show me the reply and how long it took. Delete the script.
+4. Write a tiny throwaway script (do not commit it) that imports getGemini and GEMINI_MODEL from src/lib/gemini.ts and asks the model to reply "iCare ready". Show me the reply and how long it took. Delete the script.
 5. Start npm run dev in the background (port 3001) and curl /api/health, /api/family/jordan/profile and /api/trends/rosa to confirm the data we will feed Gemini.
 6. git checkout -b ish/gemini
 
@@ -104,7 +104,7 @@ PART D: TEST, THEN OPEN A PULL REQUEST
 
 ## Jam: Typesense search, medicine and specialist pages
 ```
-You are helping me (Jam, Search & Backend Engineer) on IDoc, our Emory Hacks 2026 project. Read CLAUDE.md, QUICKSTART.md, docs/MEDICAL-DATA.md, docs/SAMPLE-DATA.md and docs/API-KEYS.md first, and follow every rule in CLAUDE.md. Work step by step, tell me what you are doing, and stop and ask me if anything fails twice.
+You are helping me (Jam, Search & Backend Engineer) on iCare, our Emory Hacks 2026 project. Read CLAUDE.md, QUICKSTART.md, docs/MEDICAL-DATA.md, docs/SAMPLE-DATA.md and docs/API-KEYS.md first, and follow every rule in CLAUDE.md. Work step by step, tell me what you are doing, and stop and ask me if anything fails twice.
 
 PART A: VERIFY MY ENVIRONMENT (do not skip)
 1. Confirm we are in the Coder workspace in ~/EmoryHacks2026 (pwd, node --version v22+, gh auth status logged in). If the repo is missing run: curl -fsSL https://raw.githubusercontent.com/GldnCh/EmoryHacks2026/main/scripts/setup.sh | bash
@@ -122,7 +122,7 @@ PART B: BACKEND (my area: search, API routes, data libraries in src/lib/ and src
 PART C: PAGES (coordinate styling with TD; use plain Tailwind and TD's components from src/components/ if they exist on main, otherwise simple Tailwind)
 1. src/app/medicines/page.tsx: search box with live results (debounced ~250 ms) calling /api/medicines/search, filter chips from the facets, a "Prescription / Over the counter" badge, and a voice search (microphone) button using the browser Web Speech API (window.SpeechRecognition or webkitSpeechRecognition; hide the button if unsupported). Show the RxNorm match line, e.g. "Showing results for cetirizine (you searched zyrtec)". Example searches to test: zyrtec, wal-zyr, heartburn, insomnia, lisinoprl (typo).
 2. src/app/medicines/[name]/page.tsx: detail page from /api/medicines/<name>: name, brands, class, uses, FDA boxed warning in a red callout when present, warnings, side effects, interactions, "Read the full FDA label" (dailyMedUrl) and "Plain-language guide" (MedlinePlus url) links, and the disclaimer. Leave a placeholder button "Explain this label simply" that will call Ish's /api/ai/explain-label once it exists (just disable it if the route returns 404).
-3. src/app/specialists/page.tsx: supports ?memberId= (from TD's family pages): show that member's specialist groups from /api/specialists?memberId=<id> (specialty, which conditions it's for, providers with name, credential, address, phone as a tel: link). Also a free search form: specialty dropdown (Cardiovascular Disease, Endocrinology, Diabetes & Metabolism, Allergy & Immunology, Pediatrics, Pulmonary Disease, Family Medicine) + city/state or ZIP. Note on the page: "Public directory data from the NPI Registry. IDoc suggests, it doesn't endorse or book."
+3. src/app/specialists/page.tsx: supports ?memberId= (from TD's family pages): show that member's specialist groups from /api/specialists?memberId=<id> (specialty, which conditions it's for, providers with name, credential, address, phone as a tel: link). Also a free search form: specialty dropdown (Cardiovascular Disease, Endocrinology, Diabetes & Metabolism, Allergy & Immunology, Pediatrics, Pulmonary Disease, Family Medicine) + city/state or ZIP. Note on the page: "Public directory data from the NPI Registry. iCare suggests, it doesn't endorse or book."
 4. Image search (stretch, only if time allows): a "Photo of a pill bottle" upload that sends the image to a server route which asks Gemini to read only the drug name from the label, then runs the normal search. Coordinate with Ish before building it (Gemini is Ish's area).
 
 PART D: TEST, THEN OPEN A PULL REQUEST
@@ -137,7 +137,7 @@ PART D: TEST, THEN OPEN A PULL REQUEST
 ## Cam: reviewing a pull request
 Replace `<NUMBER>` with the PR number, or just tell Claude "review PR 13".
 ```
-I'm Cam, the Lead on IDoc. Read CLAUDE.md. Review pull request #<NUMBER> on GldnCh/EmoryHacks2026 with gh: summarize what it changes in plain language, check it follows CLAUDE.md (no secrets or .env.local committed, no real patient data, disclaimers present, stays in the author's area, README credits updated for new libraries), check out the branch, run npm install, npm run lint and npm run build, start the app on port 3001 and test the pages/routes it adds. Also open the PR's Vercel preview link and check it works. Then tell me: what works, any problems (most important first), and whether you recommend merging. Do not merge until I say "merge PR <NUMBER>".
+I'm Cam, the Lead on iCare. Read CLAUDE.md. Review pull request #<NUMBER> on GldnCh/EmoryHacks2026 with gh: summarize what it changes in plain language, check it follows CLAUDE.md (no secrets or .env.local committed, no real patient data, disclaimers present, stays in the author's area, README credits updated for new libraries), check out the branch, run npm install, npm run lint and npm run build, start the app on port 3001 and test the pages/routes it adds. Also open the PR's Vercel preview link and check it works. Then tell me: what works, any problems (most important first), and whether you recommend merging. Do not merge until I say "merge PR <NUMBER>".
 ```
 
 ## Round 2 prompts (after the first PRs merged)
@@ -151,7 +151,7 @@ Use these for the next tasks. Each starts by syncing with `main`.
 
 ### Ish (round 2): push the check-in work now, then finish
 ```
-I'm Ish on IDoc. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Priority: get my work onto GitHub NOW so Cam can review it; I can keep pushing to the same branch afterwards. Merge cutoff is Sun 6:30AM.
+I'm Ish on iCare. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Priority: get my work onto GitHub NOW so Cam can review it; I can keep pushing to the same branch afterwards. Merge cutoff is Sun 6:30AM.
 
 1. Show me git status and git branch -vv in ~/EmoryHacks2026. Commit any uncommitted work to my branch ish/gemini (create it if needed; never commit to main). Never commit .env.local or any key.
 2. Sync with main: git fetch origin && git merge origin/main, then npm install. Main now has TD's dashboard/redesign and Jam's medicines + specialists pages. Jam already fixed the openFDA combination-label bug and Cam fixed RxNorm combination brands, so do NOT re-fix those. Resolve any conflicts and show me what you changed.
@@ -167,7 +167,7 @@ I'm Ish on IDoc. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Prio
 
 ### Jam (round 2): search polish + family medicine chips
 ```
-I'm Jam on IDoc. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merge cutoff is Sun 6:30AM.
+I'm Jam on iCare. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merge cutoff is Sun 6:30AM.
 
 1. git checkout main && git pull && npm install, then git checkout -b jam/search-polish.
 2. Fix messy openFDA results in /api/medicines/search: try q=allergy. A homeopathic product with a 300-character ingredient-list name appears. Skip openFDA labels that are homeopathic or have very long / multi-ingredient generic names (e.g. more than ~60 characters or containing ", " lists), and cap displayed names at a sensible length. Keep our own list and Typesense results unchanged. Show me before/after results for allergy, heartburn and insomnia.
@@ -180,7 +180,7 @@ I'm Jam on IDoc. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merg
 
 ### TD (round 2): demo-flow polish + phone check
 ```
-I'm TD on IDoc. Read CLAUDE.md, docs/WORKFLOW.md and docs/DEMO.md first and follow them. Merge cutoff is Sun 6:30AM.
+I'm TD on iCare. Read CLAUDE.md, docs/WORKFLOW.md and docs/DEMO.md first and follow them. Merge cutoff is Sun 6:30AM.
 
 1. git checkout main && git pull && npm install, then git checkout -b td/demo-polish.
 2. Demo flow: on /family/<id>, open the 12-month trends on the BP tab by default for members who have blood pressure data (Jordan, Rosa), and Steps for others. Support ?tab=bp|steps|heart|sleep|glucose in the URL so the demo can link straight to it.

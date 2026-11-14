@@ -1,11 +1,12 @@
-# IDoc — Emory Hacks 2026
+# iCare — Emory Hacks 2026
 
-IDoc is a family telehealth platform: AI-led wellness check-ins over Chert's iPhone FaceTime feature, medicine search by text/voice/image, nearby specialists, family health tracking, and monthly and yearly health summaries.
+iCare is a family telehealth platform: AI-led wellness check-ins over Chert's iPhone FaceTime feature, medicine search by text/voice/image, nearby specialists, family health tracking, and monthly and yearly health summaries.
 
 Built at **Emory Hacks 2026** (Healthcare track), Fri Nov 13 to Sun Nov 15, 2026.
 
-- **Live app:** https://idoc-wall-e9.vercel.app (Vercel project `idoc`, team Wall-E, owner: Cam). Every merge to `main` redeploys it; each PR gets a preview link. The site is public.
+- **Live app:** https://icare-wall-e9.vercel.app (Vercel project `idoc`, team Wall-E, owner: Cam). Every merge to `main` redeploys it; each PR gets a preview link. The site is public.
 - **Repo:** https://github.com/GldnCh/EmoryHacks2026 (public)
+- **Name:** the project is **iCare** (renamed from "IDoc" on Sat Nov 14). Use "iCare" in all UI, AI wording, docs and Devpost. A few **technical IDs keep the old name on purpose** (renaming them would break existing setups): Vercel project `idoc` (old URL https://idoc-wall-e9.vercel.app still works), Tiger Data service `idoc` and read-only role `idoc_team`, the Chert agent name `idoc-checkin`, and the `IDOC_API_URL` variable in `chert-agent/`. Coder workspaces created before the rename may be called `idoc-<name>`; that's fine.
 - **New teammate?** Follow **[QUICKSTART.md](QUICKSTART.md)** (browser only, about 10 minutes), then paste your task prompt from **[docs/TEAM-PROMPTS.md](docs/TEAM-PROMPTS.md)**, which also lists who owns which files. Everyone works in a **Coder workspace** (https://coder.c1.workshop.cdr.dev/) where Git, GitHub CLI, Node 22 and Claude Code are pre-installed.
 
 ## Event rules (do not break these)

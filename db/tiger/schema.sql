@@ -1,4 +1,4 @@
--- Tiger Data (TimescaleDB) schema for IDoc. Applied by `npm run seed:tiger`, one statement at a time.
+-- Tiger Data (TimescaleDB) schema for iCare. Applied by `npm run seed:tiger`, one statement at a time.
 -- Safe to re-run. Compression and refresh policies are added by the seed script (with version fallbacks).
 --
 -- What lives here (profiles and metrics side by side in ONE database):

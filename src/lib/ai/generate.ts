@@ -1,4 +1,4 @@
-// One place where IDoc calls Gemini. Owner: Ish. Server-only (uses GEMINI_API_KEY via src/lib/gemini.ts).
+// One place where iCare calls Gemini. Owner: Ish. Server-only (uses GEMINI_API_KEY via src/lib/gemini.ts).
 // Every call gets SAFETY_RULES prepended to its system instruction, so no feature can skip them.
 import type { Content } from "@google/genai";
 import { getGemini, GEMINI_MODEL } from "@/lib/gemini";

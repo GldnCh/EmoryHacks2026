@@ -1,9 +1,9 @@
-# IDoc
+# iCare
 
 > Family telehealth platform: AI-led wellness check-ins over Chert FaceTime, medicine search, specialist finder, family health tracking, and monthly/yearly health trends.
 > Built at Emory Hacks 2026 (Healthcare track). **Not medical advice.** Demo uses fabricated data only.
 
-**🌐 Live app: https://idoc-wall-e9.vercel.app** (auto-deploys from `main`)
+**🌐 Live app: https://icare-wall-e9.vercel.app** (auto-deploys from `main`)
 
 **👋 Teammates: start with [QUICKSTART.md](QUICKSTART.md).** Browser only, about 10 minutes, Claude Code included.
 
@@ -26,7 +26,7 @@
 Emory Hacks requires separating original work from frameworks. Update this as features land.
 
 **Built during the hackathon (after 8PM Fri Nov 13, 2026):**
-- The IDoc Next.js app and its API routes
+- The iCare Next.js app and its API routes
 - The Rivera family sample-data generator (daily and minute-level vitals) and the 38-medicine list
 - Connectors for openFDA, RxNorm, MedlinePlus, NLM Clinical Tables and the NPI Registry, with condition-to-specialist matching
 - Tiger Data schema (hypertables, continuous aggregates, compression), seed script and trend/cohort queries
@@ -36,7 +36,7 @@ Emory Hacks requires separating original work from frameworks. Update this as fe
 - Gemini AI layer (`src/lib/ai/`): shared safety rules, an emergency red-flag check that runs before any AI call, compact member context from Tiger Data trends, and JSON-validated Gemini calls with retry
 - Gemini routes: monthly/yearly health summaries (`/api/ai/summary/<id>`), wellness check-in chat (`/api/ai/checkin`), plain-language FDA label explanations (`/api/ai/explain-label`), and the voice agent's prompt and red-flag routes
 - The `/checkin` page: check-in chat, family member picker and monthly/yearly summary panel
-- The Chert FaceTime check-in agent (`chert-agent/agent.mjs`): Gemini Live voice, IDoc's shared prompts and safety rules, emergency check on every caller sentence
+- The Chert FaceTime check-in agent (`chert-agent/agent.mjs`): Gemini Live voice, iCare's shared prompts and safety rules, emergency check on every caller sentence
 
 **Frameworks, libraries and services used:**
 - Next.js, React, TypeScript, Tailwind CSS (scaffolded with `create-next-app`)
