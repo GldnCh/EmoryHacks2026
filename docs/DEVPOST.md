@@ -13,14 +13,14 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 | Field | State |
 |---|---|
 | Name / elevator pitch | ✅ **iCare** / "Your family's health, explained..." |
-| About the project | ✅ Full story, matches what is live: dashboard, trends, day view, Tiger Data, medicine search + FDA labels + Gemini explanations, specialists, Gemini check-in and summaries. Chert described honestly (connects; browser check-in is the reliable path) |
+| About the project | ✅ Full story, matches what is live: dashboard, trends, day view, Tiger Data, medicine search + FDA labels + Gemini explanations, specialists, Gemini check-in and summaries. Chert FaceTime check-in confirmed working |
 | Built with | ✅ 17 tags |
 | Try it out | ✅ https://icare-wall-e9.vercel.app + GitHub |
 | Video demo link | ✅ Added by the team. Re-record if the demo flow changes (docs/DEMO.md) |
 | Judging title / track | ✅ iCare / Healthcare |
-| Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense, Gemini. ⚠️ **Chert**: keep only if a full FaceTime call works before 7:30 AM; otherwise remove it |
+| Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense, Gemini, **Chert (a full FaceTime call worked, so keep it)** |
 | Gemini Project Number | ⚠️ Optional field for the Gemini prize: AI Studio → API key → Project Number |
-| Gen-AI question | ✅ Answered (Claude Code for development; Gemini live in the app; Chert agent in testing) |
+| Gen-AI question | ✅ Answered (Claude Code for development; Gemini live in the app; Chert FaceTime agent with Gemini Live working) |
 
 **Before 7:30 AM Sun:** re-check every claim against the live site, decide the Chert opt-in, update the story for anything merged after this point.
 
@@ -67,7 +67,7 @@ iCare is a family telehealth companion. Our demo follows the **Rivera family**, 
 - **Specialist finder:** iCare matches each person's conditions to the right kind of specialist and finds real, licensed doctors near them using the national NPI Registry. Rosa, in Savannah, gets local endocrinologists and cardiologists.
 - **Condition explanations:** every condition on a profile links to a plain-language explanation from the National Library of Medicine.
 - **AI wellness check-in:** a warm, one-question-at-a-time check-in about sleep, energy, pain, mood, medications and new symptoms, personalized with the person's own trends, ending with a short summary and a suggested next step ("mention the missed doses to your doctor"). Works as a chat on the `/checkin` page.
-- **…over FaceTime (Chert):** FaceTime iCare's number from an iPhone and the same check-in answers with an animated face and a natural Gemini voice. It asks who's calling (Jordan, Sam, Mia's parent or Grandma Rosa) and uses that person's data. **[CHECK: confirm a full FaceTime call works before demo day]**
+- **…over FaceTime (Chert):** FaceTime iCare's number from an iPhone and the same check-in answers with an animated face and a natural Gemini voice. It asks who's calling (Jordan, Sam, Mia's parent or Grandma Rosa) and uses that person's data. Emergency phrases heard on the call are checked by the same red-flag check and get the 911/988 message.
 - **Emergency safety net:** if anyone mentions chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts, iCare immediately tells them to call 911 (and 988), before the AI is even asked. In chat and on FaceTime.
 - **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text, from the "Explain this label simply" button on every medicine page.
 - **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).

@@ -30,7 +30,7 @@ Priority order. **Core** features make the demo; the rest are **stretch**. Cam h
 
 | # | Feature | Owner | Priority | Status on the live site |
 |---|---|---|---|---|
-| 1 | AI wellness check-in (Gemini), in the browser and over Chert FaceTime | Ish | Core | ✅ Live: `/checkin` chat + red-flag check. ⚠️ Chert FaceTime agent (`chert-agent/`, runs separately in Coder) is connected but a full call is not yet confirmed |
+| 1 | AI wellness check-in (Gemini), in the browser and over Chert FaceTime | Ish | Core | ✅ Live: `/checkin` chat + red-flag check. ✅ Chert FaceTime check-in: a full call works (confirmed Sat Nov 14). The agent (`chert-agent/`) runs separately in Ish's Coder workspace and must be running during the demo |
 | 2 | Medicine search (Typesense, typo-tolerant, voice) + medicine pages with FDA boxed warnings and Gemini "Explain this label simply" | Jam + Ish | Core | ✅ Live: `/medicines`, `/medicines/<name>`, `/api/ai/explain-label`. Photo search: not built |
 | 3 | Monthly and yearly health summaries (Gemini) | Ish | Core | ✅ Live: `/checkin` summary panel, `/api/ai/summary/<id>?period=month\|year` |
 | 4 | Family health dashboard, 12-month trends, hour-by-hour day view | TD | Core | ✅ Live: `/dashboard`, `/family/<id>` |
@@ -73,6 +73,7 @@ Teammates can add tools; add each one here and to the README credits.
 - **No real patient or personal health data.** Only the fabricated Rivera family.
 - All AI health output must say it is **not medical advice** and recommend a clinician for anything serious.
 - AI must never invent diagnoses, doses or drugs. When unsure, say so and point to a professional. Show the `disclaimer` the medical routes return.
+- **Approved pharmacist wording (Cam, Sat Nov 14):** AI output may suggest **questions for the user to ask** their pharmacist or doctor (e.g. "Questions to ask your pharmacist: ...") and may end with "ask your pharmacist or doctor". It must **never tell the user what to do** about a medicine (take, stop, double, skip, switch). Any new medicine-related advice wording needs Cam's approval first.
 
 ## Schedule
 | When | Goal |
