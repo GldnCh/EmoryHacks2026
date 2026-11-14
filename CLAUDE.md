@@ -50,14 +50,112 @@ Teammates can add tools they need. Add each one here and to the README credits.
 - **Dev environment:** Coder
 - **Hosting:** Vercel, deployed from this repo
 
-## Dev environment (Coder)
-- Deployment: https://coder.c1.workshop.cdr.dev/
-- Team workspace: `gldnch/IDoc`. It uses the `coder-dev-environment` template and stops after 1 day, so restart it if it's down.
-- Setup for each teammate:
-  1. Sign in at the deployment URL in a browser.
-  2. Install the CLI: `winget install --id Coder.Coder --exact --source winget` (Windows) or see Coder's docs.
-  3. Run `coder login https://coder.c1.workshop.cdr.dev/` and paste the session token it gives you.
-  4. Check with `coder list`.
+## Onboarding: getting every teammate connected
+Do these steps in order. Commands marked **Windows** use PowerShell; **Mac** uses Terminal with [Homebrew](https://brew.sh). Each step ends with a check so you know it worked. If a step fails, ask Claude, paste the error, and say which step you're on.
+
+### Cam does first (one time, for the whole team)
+1. Collect everyone's GitHub username.
+2. Add each teammate as a collaborator: GitHub → `GldnCh/EmoryHacks2026` → **Settings → Collaborators → Add people**. Or ask Claude to send the invites with `gh`.
+3. *(Recommended)* Protect `main`: **Settings → Branches → Add rule** for `main` → tick **Require a pull request before merging** (1 approval).
+4. Share API keys **privately** (DM or team chat, never in the repo) as each owner creates them (see "Accounts and API keys" below).
+
+### Every teammate (Cam, Ish, Jam, TD)
+**Step 1. GitHub account and repo access**
+- Create a GitHub account at https://github.com if you don't have one, and send your username to Cam.
+- Accept the collaborator invite: check your email, or go to https://github.com/GldnCh/EmoryHacks2026/invitations.
+- ✅ Check: you can open the repo page and see a **Settings** tab or a green **Code** button you can push to.
+
+**Step 2. Install Git**
+- Windows: `winget install --id Git.Git -e` · Mac: `brew install git`
+- Close and reopen your terminal.
+- ✅ Check: `git --version` prints a version.
+
+**Step 3. Set your Git name and email** (use the email on your GitHub account)
+```
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+```
+- ✅ Check: `git config --global user.email` prints your email.
+
+**Step 4. Install the GitHub CLI and sign in**
+- Windows: `winget install --id GitHub.cli -e` · Mac: `brew install gh`
+- Open a **new** terminal window, then run `gh auth login` and choose **GitHub.com → HTTPS → Yes → Login with a web browser**. Paste the code in your browser and click **Authorize**.
+- Run `gh auth setup-git` so Git uses this sign-in when you push.
+- ✅ Check: `gh auth status` says "Logged in to github.com".
+
+**Step 5. Sign in to Coder**
+- Open https://coder.c1.workshop.cdr.dev/ in your browser and sign in (use the option the page offers, e.g. GitHub).
+- Install the Coder CLI — Windows: `winget install --id Coder.Coder --exact --source winget` · Mac: `brew install coder`
+- Open a **new** terminal window, run `coder login https://coder.c1.workshop.cdr.dev/`, and paste the session token from your browser. **Never share or commit this token.**
+- ✅ Check: `coder list` runs without an error.
+
+**Step 6. Create your own Coder workspace**
+Each person gets their own workspace (Cam's is `gldnch/IDoc`; don't share one).
+- In the Coder website: **Workspaces → New workspace →** pick the `coder-dev-environment` template → name it `idoc-<yourname>` → **Create**.
+- Workspaces stop automatically after about 1 day. If yours is stopped, click **Start** (or run `coder start <workspace-name>`).
+- ✅ Check: `coder list` shows your workspace as **Started**.
+
+**Step 7. Open your workspace**
+Pick one:
+- **In the browser:** click your workspace, then **VS Code** (or **Terminal**).
+- **In VS Code on your computer:** install the **Coder** extension, then click **Open in VS Code** on your workspace page.
+- **From a terminal:** `coder ssh <workspace-name>`
+
+**Step 8. Get the code (inside your Coder workspace)**
+In the workspace terminal:
+```
+gh auth login            # same choices as Step 4 (the workspace is a separate computer)
+gh auth setup-git
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"
+git clone https://github.com/GldnCh/EmoryHacks2026.git
+cd EmoryHacks2026
+```
+- ✅ Check: `git remote -v` shows `GldnCh/EmoryHacks2026`.
+
+**Step 9. Install the project and add your keys** *(once the app has been scaffolded)*
+```
+node --version           # needs 18 or higher
+npm install
+cp .env.example .env.local
+```
+- Open `.env.local` and paste in the API keys Cam or the key owner sent you.
+- Run `npm run dev` and open the URL it prints (in Coder, use the forwarded port link on the workspace page).
+- ✅ Check: the app loads in your browser.
+
+**Step 10. Make your first branch and pull request**
+```
+git checkout main
+git pull
+git checkout -b <yourname>/<feature>      # e.g. jam/typesense-search
+# ...make changes...
+git add .
+git commit -m "Short description of the change"
+git push -u origin <yourname>/<feature>
+gh pr create --fill
+```
+- Ask Cam (or any teammate) to review and approve, then merge on GitHub.
+- ✅ Check: your PR shows on https://github.com/GldnCh/EmoryHacks2026/pulls.
+
+**Step 11. (Optional) Claude Code in your workspace**
+- In the workspace terminal: `npm install -g @anthropic-ai/claude-code`, then run `claude` inside the project folder. It reads this file automatically.
+
+### Accounts and API keys (owner creates, then shares privately)
+| Service | Owner | Where | Variable in `.env.local` |
+|---|---|---|---|
+| Gemini API | Ish | https://aistudio.google.com/apikey | `GEMINI_API_KEY` |
+| Chert | Ish | Chert sponsor docs / dashboard | *(per Chert's docs)* |
+| Typesense Cloud | Jam | https://cloud.typesense.org | `TYPESENSE_HOST`, `TYPESENSE_API_KEY` (admin key server-side only; give the frontend a search-only key) |
+| Supabase | Jam | https://supabase.com/dashboard | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| Vercel | Cam | https://vercel.com (import the GitHub repo) | Add all the above in **Project → Settings → Environment Variables** |
+| Devpost | Cam | Emory Hacks Devpost page | Add teammates to the submission |
+
+Whenever someone adds a new key, they must also add the variable **name** (no value) to `.env.example` and tell the team.
+
+### Daily routine
+1. Start your Coder workspace if it's stopped.
+2. `git checkout main && git pull`, then switch to your branch and run `git merge main`.
+3. Work, commit often, push, and open or update your PR.
 
 ## Git workflow
 - **Never push straight to `main`.**
