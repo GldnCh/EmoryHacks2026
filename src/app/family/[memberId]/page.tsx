@@ -29,6 +29,7 @@ import { usePeople, type PersonWithHealth } from "@/components/usePeople";
 import { NotConnected, SetupPrompt } from "@/components/SetupPrompt";
 import { BasicCard } from "@/components/PersonCards";
 import MedReminders from "@/components/MedReminders";
+import FamilyAlerts, { type AlertsResponse } from "@/components/FamilyAlerts";
 
 const FIRST_DAY = "2025-11-01";
 const LAST_DAY = "2026-10-31";
@@ -331,6 +332,7 @@ export default function FamilyMemberPage() {
   const p = people?.find((x) => x.member.id === memberId);
   // The profile route is public (names, conditions and medicines of the fictional family); trends and vitals are not.
   const { data, error, loading, status, retry } = useJson<ProfileResponse>(`/api/family/${memberId}/profile`);
+  const alerts = useJson<AlertsResponse>(p ? "/api/alerts" : null);
   const m = data?.member;
 
   if (status === 404) return <MemberNotFound />;
@@ -386,6 +388,7 @@ export default function FamilyMemberPage() {
   return (
     <div className="flex flex-col gap-6">
       {header}
+      {alerts.data && <FamilyAlerts data={alerts.data} onlyAccount={p.person.account.id} title="Alerts" />}
       {!p.can("conditions") && !p.can("medications") && !p.can("trends") && <BasicCard p={p} />}
       {(p.can("conditions") || p.can("medications")) && (loading ? <CardSkeleton lines={2} /> : <HealthRecords data={data} p={p} />)}
       {p.can("reminders") && (

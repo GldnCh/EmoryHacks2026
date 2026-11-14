@@ -9,6 +9,7 @@ import { PillIcon } from "@/components/Icons";
 import { CardSkeleton, ErrorNote } from "@/components/Status";
 import { useJson } from "@/components/useJson";
 import { api } from "@/components/useMe";
+import { clockLabel, medicineLabel } from "@/lib/reminders/labels";
 
 type DoseStatus = "taken" | "skipped" | "due" | "upcoming" | "missed";
 interface Dose {
@@ -44,12 +45,8 @@ const STATUS: Record<DoseStatus, { text: string; cls: string; mark: string }> = 
   missed: { text: "Missed", cls: "bg-[#fde8e6] text-danger", mark: "✕" },
 };
 
-export const medicineName = (id: string) => id.charAt(0).toUpperCase() + id.slice(1);
-
-export function clock(hhmm: string) {
-  const [h, m] = hhmm.split(":").map(Number);
-  return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`;
-}
+const medicineName = medicineLabel;
+const clock = clockLabel;
 
 const weekday = (date: string) => new Date(`${date}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "short", timeZone: "UTC" });
 
