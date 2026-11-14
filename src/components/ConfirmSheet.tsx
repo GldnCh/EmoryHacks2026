@@ -1,7 +1,8 @@
 "use client";
 // iOS-style confirmation sheet for actions that change who can see someone's health.
 // Shows a clear warning and a list of exactly what changes, then Confirm / Cancel. Escape or the backdrop cancels.
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 interface ConfirmSheetProps {
   open: boolean;
@@ -19,6 +20,13 @@ interface ConfirmSheetProps {
 }
 
 export default function ConfirmSheet({ open, title, warning, details, confirmLabel, destructive, busy, onConfirm, onCancel, children }: ConfirmSheetProps) {
+  // Rendered into <body> (portal): the page-transition wrapper uses a transform, which would otherwise trap
+  // `position: fixed` inside the page and leave the backdrop off-center.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -28,8 +36,8 @@ export default function ConfirmSheet({ open, title, warning, details, confirmLab
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onCancel]);
 
-  if (!open) return null;
-  return (
+  if (!open || !mounted) return null;
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/35 p-3 sm:items-center" onClick={onCancel}>
       <div
         role="alertdialog"
@@ -66,6 +74,7 @@ export default function ConfirmSheet({ open, title, warning, details, confirmLab
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

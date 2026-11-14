@@ -136,11 +136,12 @@ export default function MyICarePage() {
                     <span className="block text-headline">{c.account.displayName}</span>
                     <span className="block text-footnote text-secondary">{theirRole(c.relationship)}</span>
                   </span>
-                  {c.iSee && c.account.memberId && (
+                  {c.iSee && c.iSee.level !== "basic" && c.account.memberId && (
                     <Link href={`/family/${c.account.memberId}`} className="btn btn-secondary min-h-11 px-3 text-[15px]">
                       Open {first(c.account)}&apos;s iCare
                     </Link>
                   )}
+                  {c.iSee?.level === "basic" && <span className="text-footnote text-secondary">You&apos;ll see if they need help</span>}
                 </div>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   <div className="rounded-2xl bg-fill p-3">
