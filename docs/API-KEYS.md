@@ -15,6 +15,7 @@ The team's keys already exist. **Cam holds and distributes all of them** by priv
 | `TYPESENSE_HOST`, `TYPESENSE_API_KEY` | Medicine search (admin key) | Cam → Jam | ✅ yes |
 | `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY` | Search-only key, safe in the browser | Cam → Jam | ❌ public by design |
 | `TIGER_DATABASE_URL` | Tiger Data database (health history). **Teammates get the read-only `idoc_team` login**; only Cam has the admin login | Cam → everyone | ✅ yes |
+| `CHERT_AGENT_TOKEN` | Shared secret so only the FaceTime agent can save check-in summaries. Same value in Vercel (Production + Preview, Sensitive) and in `chert-agent/.env.local`. Without it, production refuses check-in saves | Cam → Ish | ✅ yes |
 | Chert / LiveKit variables | Video check-ins: Ish adds the names to `.env.example` in their PR and sends values to Cam for Vercel | Ish | ✅ yes |
 | `OPENFDA_API_KEY` | Optional, only if we hit openFDA's free daily limit | — | ✅ yes |
 

@@ -1,15 +1,20 @@
 // GET /api/checkins/<memberId>   Owner: Ish.
 // A family member's saved check-in history (FaceTime call summaries), newest first, from Tiger Data.
+// Health data: only that person, or someone they share "Full" with (check-ins capability), may read it.
 import { NextResponse } from "next/server";
 import { getMember } from "@/lib/sample-data/health";
 import { getCheckinSummaries, tigerConfigured } from "@/lib/tiger";
 import { DISCLAIMER } from "@/lib/ai/safety";
+import { authorize, withAuthErrors } from "@/lib/auth";
+import { listAccounts } from "@/lib/auth/store";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(_req: Request, { params }: { params: Promise<{ memberId: string }> }) {
+export const GET = withAuthErrors(async (_req: Request, { params }: { params: Promise<{ memberId: string }> }) => {
   const { memberId } = await params;
   if (!getMember(memberId)) return NextResponse.json({ error: `Unknown member "${memberId}"` }, { status: 404 });
+  const account = (await listAccounts()).find((a) => a.memberId === memberId);
+  await authorize("checkins", account?.id ?? memberId); // 401 if this iPhone isn't set up, 403 without Full access
   if (!tigerConfigured()) return NextResponse.json({ memberId, checkins: [], source: "none (TIGER_DATABASE_URL is not set)" });
   try {
     const { checkins, queryMs } = await getCheckinSummaries(memberId);
@@ -20,4 +25,4 @@ export async function GET(_req: Request, { params }: { params: Promise<{ memberI
     console.error("Loading check-in history failed:", err);
     return NextResponse.json({ error: "Couldn't load check-in history." }, { status: 500 });
   }
-}
+});

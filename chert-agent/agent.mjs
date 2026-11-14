@@ -53,7 +53,8 @@ async function saveCallSummary(call) {
   try {
     const res = await fetch(`${IDOC_API_URL}/api/ai/call-summary`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      // Shared secret so only this agent can save check-ins (CHERT_AGENT_TOKEN, same value as in Vercel).
+      headers: { 'content-type': 'application/json', 'x-icare-agent-token': process.env.CHERT_AGENT_TOKEN ?? '' },
       body: JSON.stringify(call),
       signal: AbortSignal.timeout(20_000),
     });

@@ -1,5 +1,6 @@
 // POST /api/ai/call-summary   Owner: Ish.
-// Called by the FaceTime agent (chert-agent/) when a call ends.
+// Called ONLY by the FaceTime agent (chert-agent/) when a call ends: requires the x-icare-agent-token header
+// (CHERT_AGENT_TOKEN), so nobody else can write check-ins into a family member's history.
 // Body: { callId?, startedAt, endedAt, transcript: [{ "role": "user" | "model", "text": "..." }] }
 // Gemini identifies which family member called and writes a short summary under the shared SAFETY_RULES.
 // The summary (never the transcript) is saved to Tiger Data `checkin_summaries` as that member's history.
@@ -9,6 +10,7 @@ import { getFamily } from "@/lib/sample-data/health";
 import { aiErrorMessage, asStringArray, generateJson } from "@/lib/ai/generate";
 import { checkRedFlags, DISCLAIMER } from "@/lib/ai/safety";
 import { saveCheckinSummary, tigerConfigured } from "@/lib/tiger";
+import { isAgentRequest } from "@/lib/auth/agent-token";
 
 const MAX_LINES = 120; // a 5-minute call is well under this
 const MAX_TEXT = 1000;
@@ -41,6 +43,7 @@ function parseBody(body: unknown) {
 }
 
 export async function POST(req: Request) {
+  if (!isAgentRequest(req)) return NextResponse.json({ error: "Only the iCare FaceTime agent can save check-ins." }, { status: 401 });
   const parsed = parseBody(await req.json().catch(() => null));
   if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
   const { callId, startedAt, endedAt, transcript } = parsed;
