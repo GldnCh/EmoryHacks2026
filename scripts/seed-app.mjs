@@ -7,6 +7,7 @@ import { readFile } from "node:fs/promises";
 import pg from "pg";
 import { tigerConnectionConfig } from "../src/lib/tiger-ca.ts";
 import { SEED_ACCOUNTS, SEED_REQUESTS, SEED_SHARING } from "../src/lib/auth/seed.ts";
+import { DEMO_TIMEZONE, SEED_SCHEDULES } from "../src/lib/reminders/seed.ts";
 
 const reset = process.argv.includes("--reset");
 if (!process.env.TIGER_DATABASE_URL) {
@@ -20,7 +21,7 @@ try {
     .split("\n").filter((l) => !l.trim().startsWith("--")).join("\n")
     .split(/;\s*\n/).map((s) => s.trim()).filter(Boolean);
   for (const stmt of sql) await db.query(stmt);
-  console.log("✓ Tables ready: accounts, sharing, activity_log, connection_requests");
+  console.log("✓ Tables ready: accounts, sharing, activity_log, connection_requests, med_schedules, dose_log");
 
   for (const a of SEED_ACCOUNTS) {
     await db.query(
@@ -60,11 +61,28 @@ try {
     }
   }
 
+  // Demo medicine schedules (reset: also clears dose taps and reminders added in the app)
+  if (reset) {
+    await db.query("DELETE FROM med_schedules");
+    console.log("  (reset: reminders and dose log cleared)");
+  }
+  let schedulesAdded = 0;
+  for (const s of SEED_SCHEDULES) {
+    const { rowCount: exists } = await db.query("SELECT 1 FROM med_schedules WHERE account_id = $1 AND medicine = $2 AND demo", [s.accountId, s.medicine]);
+    if (exists) continue;
+    await db.query(
+      "INSERT INTO med_schedules (account_id, medicine, label, times, timezone, demo, created_by) VALUES ($1,$2,$3,$4,$5,true,'seed')",
+      [s.accountId, s.medicine, s.label, s.times, DEMO_TIMEZONE],
+    );
+    schedulesAdded++;
+  }
+  console.log(`✓ Demo medicine schedules: ${schedulesAdded} added (${SEED_SCHEDULES.length - schedulesAdded} already present)`);
+
   // Teammates' read-only login may use the app tables (not the health data or the schema).
   const { rowCount } = await db.query("SELECT 1 FROM pg_roles WHERE rolname = 'idoc_team'");
   if (rowCount) {
-    await db.query("GRANT SELECT, INSERT, UPDATE, DELETE ON accounts, sharing, activity_log, connection_requests TO idoc_team");
-    await db.query("GRANT USAGE, SELECT ON SEQUENCE activity_log_id_seq, connection_requests_id_seq TO idoc_team");
+    await db.query("GRANT SELECT, INSERT, UPDATE, DELETE ON accounts, sharing, activity_log, connection_requests, med_schedules, dose_log TO idoc_team");
+    await db.query("GRANT USAGE, SELECT ON SEQUENCE activity_log_id_seq, connection_requests_id_seq, med_schedules_id_seq, dose_log_id_seq TO idoc_team");
     console.log("✓ idoc_team can read/write the app tables (health data stays read-only)");
   }
 

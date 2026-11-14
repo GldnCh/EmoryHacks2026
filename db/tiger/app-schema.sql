@@ -57,3 +57,33 @@ CREATE TABLE IF NOT EXISTS connection_requests (
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS connection_requests_one_pending ON connection_requests (from_id, to_id) WHERE status = 'pending';
+
+-- Medication reminders: one row per medicine schedule, copied from the prescription label by the person or a
+-- guardian (times are local, e.g. {08:00,20:00}). demo = seeded for the fictional family (history before today
+-- is generated relative to today; see src/lib/reminders/seed.ts). Removing a reminder sets active = false.
+CREATE TABLE IF NOT EXISTS med_schedules (
+  id          SERIAL PRIMARY KEY,
+  account_id  TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+  medicine    TEXT NOT NULL,
+  label       TEXT NOT NULL,
+  times       TEXT[] NOT NULL,
+  timezone    TEXT NOT NULL DEFAULT 'America/New_York',
+  demo        BOOLEAN NOT NULL DEFAULT false,
+  active      BOOLEAN NOT NULL DEFAULT true,
+  created_by  TEXT,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS med_schedules_account_idx ON med_schedules (account_id) WHERE active;
+
+-- Dose log: what someone tapped ("taken" or "skipped") for one scheduled dose.
+CREATE TABLE IF NOT EXISTS dose_log (
+  id            BIGSERIAL PRIMARY KEY,
+  schedule_id   INT NOT NULL REFERENCES med_schedules(id) ON DELETE CASCADE,
+  account_id    TEXT NOT NULL,
+  scheduled_for TIMESTAMPTZ NOT NULL,
+  status        TEXT NOT NULL CHECK (status IN ('taken', 'skipped')),
+  logged_by     TEXT NOT NULL,
+  logged_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (schedule_id, scheduled_for)
+);

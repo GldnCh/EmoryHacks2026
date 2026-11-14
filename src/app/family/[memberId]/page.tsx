@@ -28,6 +28,7 @@ import { useJson } from "@/components/useJson";
 import { usePeople, type PersonWithHealth } from "@/components/usePeople";
 import { NotConnected, SetupPrompt } from "@/components/SetupPrompt";
 import { BasicCard } from "@/components/PersonCards";
+import MedReminders from "@/components/MedReminders";
 
 const FIRST_DAY = "2025-11-01";
 const LAST_DAY = "2026-10-31";
@@ -387,6 +388,9 @@ export default function FamilyMemberPage() {
       {header}
       {!p.can("conditions") && !p.can("medications") && !p.can("trends") && <BasicCard p={p} />}
       {(p.can("conditions") || p.can("medications")) && (loading ? <CardSkeleton lines={2} /> : <HealthRecords data={data} p={p} />)}
+      {p.can("reminders") && (
+        <MedReminders memberId={memberId} firstName={data.member.name.split(" ")[0]} self={p.person.self} medicines={data.member.medications} />
+      )}
       {p.can("trends") && <YearTrends memberId={memberId} />}
       {p.can("vitals") ? (
         <DayZoom memberId={memberId} />
