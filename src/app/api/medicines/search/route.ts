@@ -4,23 +4,29 @@
 // 1. Search our 38 medicines with Typesense (typo-tolerant, ranked, facets, highlights).
 //    If Typesense isn't configured or errors, the same search runs on the local list, so the demo never breaks.
 // 2. RxNorm turns brand names / typos into the standard generic name ("zyrtec" -> cetirizine); runs in parallel.
-// 3. openFDA finds more drugs by what they're used for ("heartburn") when we have fewer than 3 hits.
+// 3. Spelling: a misspelled use or symptom ("insomnea") is corrected (src/lib/spelling.ts: MedlinePlus, then our own
+//    vocabulary, up to 3 wrong letters on long words). Used to re-search our list and for openFDA. Skipped for drug names.
+// 4. openFDA finds more drugs by what they're used for ("heartburn") when we have fewer than 3 hits.
 //
 // Response (backward compatible): { query, rxnorm, count, results[], disclaimer }
 //   + source   "Typesense" | "Local list"   (which engine searched our list)
 //   + facets   { drugClass: [{value,count}], prescriptionRequired: [{value:"true"|"false",count}] } before filters
 //   + searchMs round trip of the search step in ms
 //   + filters  the filters that were applied
+//   + spelling { corrected, source } when the query was misspelled, else null
 // Each result keeps { id?, name, brandNames, drugClass?, uses, prescriptionRequired, source } and adds highlights[].
 import { NextResponse } from "next/server";
 import { normalizeDrug } from "@/lib/medical/rxnorm";
 import { ingredientKey, searchLabelsByUse, shortDrugName } from "@/lib/medical/openfda";
 import { trimText } from "@/lib/medical/http";
+import { correctSpelling, looksLikeDrugName } from "@/lib/spelling";
 import {
   type EngineResult,
   type Facets,
   type Med,
   type SearchFilters,
+  countFacets,
+  isExactHit,
   passesFilters,
   searchLocal,
   searchTypesense,
@@ -68,9 +74,33 @@ export async function GET(req: Request) {
   if (q.length < 2) return NextResponse.json({ error: "q must be at least 2 characters" }, { status: 400 });
   const filters = parseFilters(sp);
 
-  // 1 + 2. our list and RxNorm in parallel
-  const [engine, rxnorm] = await Promise.all([searchOurList(q, filters), normalizeDrug(q)]);
+  // 1 + 2. our list, RxNorm and the spelling check in parallel (so the spelling check adds no wait)
+  const [engine, rxMatch, correction] = await Promise.all([searchOurList(q, filters), normalizeDrug(q), correctSpelling(q)]);
   let { hits, facets } = engine;
+  // A drug name ("zyrtec", "lisinoprl") is RxNorm's job: never spell-correct those. RxNorm's fuzzy search always
+  // returns something ("insmonia" -> ethanol), so only trust it when the match looks like what was typed.
+  const isDrugName = looksLikeDrugName(q, rxMatch);
+  const rxnorm = isDrugName ? rxMatch : null;
+  const spelling = isDrugName ? null : correction;
+
+  // For uses and symptoms, drop hits that only matched through a typo ("acne" -> "ACE inhibitor", "aches").
+  // Misspellings are handled by the spelling correction below instead, with a real medical dictionary.
+  if (!isDrugName) {
+    const exact = hits.filter((h) => isExactHit(h, q));
+    if (exact.length < hits.length) {
+      hits = exact;
+      facets = countFacets(exact.map((h) => h.med));
+    }
+  }
+
+  // A misspelled use or symptom ("insomnea", or a 3-letter typo that's past Typesense's 2-typo limit):
+  // search our list again with the corrected words and add anything new.
+  if (spelling && hits.length < 3) {
+    const again = await searchOurList(spelling.corrected, filters);
+    const fresh = again.hits.filter((h) => isExactHit(h, spelling.corrected) && !hits.some((x) => x.med.id === h.med.id));
+    facets = hits.length ? fresh.reduce((f, h) => bump(f, h.med), facets) : again.facets;
+    hits = [...hits, ...fresh];
+  }
 
   // If RxNorm recognised a drug on our list that the engine missed, put it first.
   if (rxnorm) {
@@ -98,7 +128,8 @@ export async function GET(req: Request) {
   if (results.length < 3 && !filters.drugClass) {
     // compare by ingredients, so FDA "FLUTICASONE PROPIONATE NASAL" doesn't repeat our "Fluticasone (nasal)"
     const known = new Set(hits.map((h) => ingredientKey(h.med.genericName)));
-    for (const label of await searchLabelsByUse(q, 5)) {
+    // openFDA only matches exact words, so it gets the corrected spelling
+    for (const label of await searchLabelsByUse(spelling?.corrected ?? q, 5)) {
       if (known.has(ingredientKey(label.genericName!))) continue;
       if (filters.rx !== undefined && label.isPrescription !== filters.rx) continue;
       results.push({
@@ -120,6 +151,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     query: q,
     rxnorm, // e.g. { ingredient: "cetirizine", brandNames: [...] } or null
+    spelling, // e.g. { corrected: "insomnia", source: "MedlinePlus" } or null
     count: results.length,
     results,
     source: engine.engine,

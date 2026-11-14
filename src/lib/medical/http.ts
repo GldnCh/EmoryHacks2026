@@ -23,3 +23,13 @@ export function trimText(text: string | undefined, max = 600): string | undefine
 
 /** Remove characters that would break an API's query syntax. */
 export const safeTerm = (s: string) => s.replace(/["\\:()[\]{}^~*?]/g, " ").trim().slice(0, 100);
+
+/** Like fetchJson, for services that answer in XML or plain text. Cached a day; null on any error. */
+export async function fetchText(url: string, timeoutMs = 4000): Promise<string | null> {
+  try {
+    const res = await fetch(url, { signal: AbortSignal.timeout(timeoutMs), next: { revalidate: 86400 } });
+    return res.ok ? await res.text() : null;
+  } catch {
+    return null;
+  }
+}
