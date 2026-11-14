@@ -7,6 +7,23 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 - Owners: Cam keeps this file up to date. Each teammate updates their own feature's lines when it lands.
 - Before submitting, check the prize rules at the sponsor tables and fill in the **[CHECK]** items.
 
+## Submission status on Devpost (updated by Cam's Claude)
+The real submission is on Devpost: Emory Hacks 2026 → **My projects** → **IDoc** → Edit (Cam's account). Steps done: Manage team ✅ · Project overview ✅ · Project details ✅ except video · Additional info ✅ · Submit ⏸️
+
+| Field | State |
+|---|---|
+| Name / elevator pitch | ✅ IDoc / "Your family's health, explained..." |
+| About the project | ✅ Full story, matches what is live (Gemini described as in progress) |
+| Built with | ✅ 17 tags |
+| Try it out | ✅ Live site + GitHub |
+| **Video demo link** | ❌ **Required.** Cam records (<2 min, public/unlisted YouTube or Vimeo) following docs/DEMO.md |
+| Track | ✅ Healthcare |
+| Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense. ⚠️ Gemini (needs Gemini live + Gemini Project Number). ⚠️ Chert (only keep if the Chert check-in works) |
+| Gen-AI question | ✅ Answered (Claude Code for development; Gemini in progress) |
+| Terms checkbox + Submit | ⏸️ Cam, after the video, by Sun 7:30 AM |
+
+**When Ish's check-in merges:** update the About story (What it does, How we built it), the gen-AI answer and the Gemini/Chert prize decisions, then resolve the markers below.
+
 ---
 
 ## Project name
@@ -101,7 +118,8 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - Connectors for openFDA, RxNorm, MedlinePlus, Clinical Tables and the NPI Registry, including condition-to-specialist matching
 - Tiger Data schema, seed script and trend queries; Typesense indexing with RxNorm/FDA enrichment
 - Medicine search (Typesense, filters, voice search) and the medicine detail and specialist finder pages
-- **[ADD: Chert check-in, Gemini summaries, dashboard UI]**
+- Dashboard, family pages, day view and Tiger Data page (TD); medicine search, medicine and specialist pages (Jam)
+- **[ADD: Chert check-in and Gemini summaries when merged]**
 
 **Frameworks, libraries and services used (not built by us):**
 Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB/PostgreSQL, `pg`), Typesense, Google Gemini API, Chert, openFDA, RxNorm/RxNav, MedlinePlus Connect, NLM Clinical Tables, NPI Registry.

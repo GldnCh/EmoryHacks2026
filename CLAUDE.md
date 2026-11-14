@@ -17,28 +17,28 @@ Built at **Emory Hacks 2026** (Healthcare track), Fri Nov 13 to Sun Nov 15, 2026
 ## Team
 | Person | Role | Owns |
 |---|---|---|
-| **Cam** | Lead / Product & Pitch | Scope and priorities, PR reviews and merges, README, Devpost, demo, Vercel, Tiger Data account |
+| **Cam** | Lead / Product & Pitch | Scope and priorities, PR reviews and merges, keys, Vercel, Tiger Data account, Devpost, demo video |
 | **Ish** | AI & Video Engineer | Chert FaceTime check-ins, Gemini prompts, check-in and summary logic, safety wording |
 | **Jam** | Search & Backend Engineer | Typesense search, Tiger Data queries, API routes, sample data |
-| **TD** | Frontend & Apple Health Engineer | App screens, dashboard and charts, design, mobile layout, testing. **Holds the team's API keys** |
+| **TD** | Frontend & Apple Health Engineer | App shell, dashboard and charts, design system and shared components, mobile layout, testing |
 
 When asked to do work, keep inside the requester's area. If a change touches someone else's area, say so, so they can be looped in.
 
 ## Features
 Priority order. **Core** features make the demo; the rest are **stretch**. Cam has the final say on scope. If time runs short, drop from the bottom up.
 
-| # | Feature | Owner | Priority | Backend status |
+| # | Feature | Owner | Priority | Status on the live site |
 |---|---|---|---|---|
-| 1 | AI-led wellness check-in over Chert FaceTime (Gemini) | Ish | Core | Not started; needs Chert docs |
-| 2 | Medicine search (text now; voice/image via Typesense) | Jam | Core | ✅ `/api/medicines/search`, `/api/medicines/<name>` |
-| 3 | Monthly and yearly health summaries (Gemini) | Ish + TD | Core | Data ready: `/api/trends/<id>`, `/api/family/<id>/profile` |
-| 4 | Health dashboard with Apple Health-style data | TD | Core | Data ready: `/api/trends/<id>`, `/api/vitals/<id>`, `/api/tiger/stats` |
-| 5 | Find specialists in your area | Jam + TD | Stretch | ✅ `/api/specialists` |
-| 6 | Connect with providers for long-distance tracking | Jam | Stretch | Data ready: `/api/tiger/cohort` |
-| 7 | Family health tracking | Jam + TD | Stretch | ✅ `/api/sample/family`, `/api/family/<id>/profile` |
+| 1 | AI wellness check-in over Chert video (Gemini), with a browser `/checkin` chat fallback | Ish | Core | 🚧 In progress on Ish's branch (Chert via LiveKit Agents + Gemini Live); not merged yet |
+| 2 | Medicine search (Typesense, typo-tolerant, voice) + medicine detail pages with FDA boxed warnings | Jam | Core | ✅ Live: `/medicines`, `/medicines/<name>`. Photo search waits for Ish |
+| 3 | Monthly and yearly health summaries (Gemini) | Ish | Core | 🚧 In progress. Data ready: `/api/trends/<id>`, `/api/family/<id>/profile` |
+| 4 | Family health dashboard, 12-month trends, hour-by-hour day view | TD | Core | ✅ Live: `/dashboard`, `/family/<id>` |
+| 5 | Find specialists near a family member | Jam + TD | Stretch | ✅ Live: `/specialists?memberId=<id>` |
+| 6 | Track family health remotely (Rosa in Savannah), cohort view | TD + Jam | Stretch | ✅ Live: Rosa's dashboard card, `/data` cohort chart |
+| 7 | "Powered by Tiger Data" page (prize) | TD | Stretch | ✅ Live: `/data` |
 | 8 | Live Apple HealthKit (native iOS app) | TD | Stretch | Pitch as the next step |
 
-No screens exist yet beyond the home page: the next work is UI on top of these routes.
+How we build, review and ship: **[docs/WORKFLOW.md](docs/WORKFLOW.md)**.
 
 ## Tech stack
 Teammates can add tools; add each one here and to the README credits.
@@ -53,17 +53,19 @@ Teammates can add tools; add each one here and to the README credits.
 - **Dev environment:** Coder · **Hosting:** Vercel (region iad1, same AWS region as the database)
 
 ## Working in this repo
+- **After every `git pull`, run `npm install`** (teammates add libraries; the build fails with `Module not found` otherwise).
 - **Run:** `npm run dev`. In Coder it starts on **port 3001** (3000 is taken); open it from code-server's **Ports** tab. Check keys at `/api/health`.
 - **Before opening a PR:** `npm run lint` and `npm run build` must pass, and test the routes/pages you touched.
 - **Data scripts:** `npm run seed:tiger` (Cam; database already loaded), `npm run seed:typesense` (loads medicines into Typesense).
-- **Keys:** `.env.local` (copy of `.env.example`). **TD has the team's API keys**; **Cam has `TIGER_DATABASE_URL`**. Get values from them privately. Production keys live in Vercel (**Project → Settings → Environment Variables**, sensitive type), and Cam adds them. See `docs/API-KEYS.md`.
+- **Keys:** `.env.local` (copy of `.env.example`). **Cam holds and distributes all keys** by private DM; teammates get a **read-only** Tiger Data login. Never print, commit or paste key values; to check them, report only "set"/"empty". Production and preview keys live in Vercel and Cam adds them. See `docs/API-KEYS.md`.
 - **TLS:** never "fix" a database certificate error by disabling verification; use `tigerConnectionConfig()` from `src/lib/tiger-ca.ts`.
 
 ## Git workflow
 - **Never push straight to `main`** (it's protected).
 - Start each session by pulling `main`, then work on a branch named `<name>/<feature>`, e.g. `td/dashboard`, `ish/checkup`.
 - Commit small and often with clear messages. Pull `main` into your branch often.
-- Open a **pull request into `main`**. Cam reviews and merges; if Cam is unavailable, any teammate can approve. Check the PR's Vercel preview link before asking for review.
+- Open a **pull request into `main`** and send Cam the PR link + Vercel preview link. Cam reviews and merges (only on an explicit "merge PR <number>"). Keep PRs inside your own files (ownership map in `docs/WORKFLOW.md`), credit new libraries in the README, and list new env var names.
+- **Push early**: unpushed work only exists in your workspace.
 
 ## Safety and privacy rules
 - **Never commit secrets.** Keys go in `.env.local` (git-ignored). `.env.example` has names only. Never put secrets in `NEXT_PUBLIC_` variables.

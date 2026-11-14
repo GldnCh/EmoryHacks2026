@@ -30,7 +30,7 @@ It signs you in to GitHub (if needed), sets your Git name/email, clones the repo
 ✅ It ends with **"Setup complete"**.
 
 ## 7. Add the API keys
-**TD has the team's API keys** (Cam has the Tiger Data one). Ask them **privately** (DM), then:
+**Cam sends you the keys you need privately** (DM): everyone gets the read-only Tiger Data login, Ish gets the Gemini key, Jam gets the Typesense keys. Then:
 ```
 code ~/EmoryHacks2026/.env.local
 ```

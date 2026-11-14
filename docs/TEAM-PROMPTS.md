@@ -10,7 +10,7 @@ Everyone codes with **Claude Code inside their Coder workspace**. Copy your prom
 4. Get your keys from Cam privately and paste them with `code ~/EmoryHacks2026/.env.local`.
 5. Run `cd ~/EmoryHacks2026 && claude`, then paste **your** prompt.
 
-Full details: [QUICKSTART.md](../QUICKSTART.md).
+Full details: [QUICKSTART.md](../QUICKSTART.md). How we review and merge: [WORKFLOW.md](WORKFLOW.md).
 
 | Teammate | Prompt | Branch |
 |---|---|---|
@@ -18,6 +18,8 @@ Full details: [QUICKSTART.md](../QUICKSTART.md).
 | Ish | [Gemini check-in, summaries, Chert](#ish-gemini-check-in-summaries-chert) | `ish/gemini` |
 | Jam | [Typesense search, medicine and specialist pages](#jam-typesense-search-medicine-and-specialist-pages) | `jam/search` |
 | Cam | [Reviewing a pull request](#cam-reviewing-a-pull-request) | — |
+
+**Round 2 tasks:** [jump to the round 2 prompts](#round-2-prompts-after-the-first-prs-merged).
 
 **Who owns which files** (so PRs don't collide):
 - **TD:** `src/app/layout.tsx`, `src/app/page.tsx`, `src/components/`, `src/app/dashboard/`, `src/app/family/`, `src/app/data/`
@@ -137,6 +139,58 @@ Replace `<NUMBER>` with the PR number, or just tell Claude "review PR 13".
 ```
 I'm Cam, the Lead on IDoc. Read CLAUDE.md. Review pull request #<NUMBER> on GldnCh/EmoryHacks2026 with gh: summarize what it changes in plain language, check it follows CLAUDE.md (no secrets or .env.local committed, no real patient data, disclaimers present, stays in the author's area, README credits updated for new libraries), check out the branch, run npm install, npm run lint and npm run build, start the app on port 3001 and test the pages/routes it adds. Also open the PR's Vercel preview link and check it works. Then tell me: what works, any problems (most important first), and whether you recommend merging. Do not merge until I say "merge PR <NUMBER>".
 ```
+
+## Round 2 prompts (after the first PRs merged)
+Use these for the next tasks. Each starts by syncing with `main`.
+
+| Teammate | Task | Branch |
+|---|---|---|
+| Ish | Push the check-in work now, sync with main, finish safely | `ish/gemini` |
+| Jam | Search polish + family medicine chips | `jam/search-polish` |
+| TD | Demo-flow polish + phone check | `td/demo-polish` |
+
+### Ish (round 2): push the check-in work now, then finish
+```
+I'm Ish on IDoc. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Priority: get my work onto GitHub NOW so Cam can review it; I can keep pushing to the same branch afterwards. Merge cutoff is Sun 6:30AM.
+
+1. Show me git status and git branch -vv in ~/EmoryHacks2026. Commit any uncommitted work to my branch ish/gemini (create it if needed; never commit to main). Never commit .env.local or any key.
+2. Sync with main: git fetch origin && git merge origin/main, then npm install. Main now has TD's dashboard/redesign and Jam's medicines + specialists pages. Jam already fixed the openFDA combination-label bug and Cam fixed RxNorm combination brands, so do NOT re-fix those. Resolve any conflicts and show me what you changed.
+3. Make sure these work and are safe even if Chert or LiveKit is unavailable:
+   - /checkin (browser chat fallback) works on its own with only GEMINI_API_KEY set.
+   - The red-flag check (e.g. "I have chest pain") returns the 911 message WITHOUT calling Gemini.
+   - Any LiveKit/Chert code is optional: if its env vars are missing, the page hides the video option instead of crashing.
+4. Jam's medicine detail page has a disabled "Explain this label simply" button that POSTs { name, label } to /api/ai/explain-label and displays the "explanation" (or "text"/"summary") field. If you built that route, make sure it accepts that body and returns { explanation, disclaimer }. If not, add it: fetch the label with getDrugLabel(name), explain only facts from the label, keep any boxed warning, end with "ask your pharmacist".
+5. Add README credits for every new library/service (LiveKit Agents, Gemini Live, Chert, anything else in package.json). Add any new variable NAMES (no values) to .env.example and list them for me so Cam can add them to Vercel. Update docs/DEVPOST.md Gemini/Chert lines with exactly what works (don't claim anything that doesn't).
+6. npm run lint and npm run build must pass. Start the app on port 3001 and curl /checkin, /api/ai/summary/rosa?period=year, the check-in route with a normal message and a red-flag message, and /api/ai/explain-label with {"name":"lisinopril"}. Show me the outputs.
+7. Push and open the PR with gh pr create: list routes/pages, new libraries, new env var names, how to test, and what still depends on Chert. Give me the PR link and the Vercel preview link to send to Cam.
+```
+
+### Jam (round 2): search polish + family medicine chips
+```
+I'm Jam on IDoc. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merge cutoff is Sun 6:30AM.
+
+1. git checkout main && git pull && npm install, then git checkout -b jam/search-polish.
+2. Fix messy openFDA results in /api/medicines/search: try q=allergy. A homeopathic product with a 300-character ingredient-list name appears. Skip openFDA labels that are homeopathic or have very long / multi-ingredient generic names (e.g. more than ~60 characters or containing ", " lists), and cap displayed names at a sensible length. Keep our own list and Typesense results unchanged. Show me before/after results for allergy, heartburn and insomnia.
+3. Fix the repeated FDA boxed warning on /medicines/<name>: on /medicines/lisinopril the warning text appears twice (the FDA text contains it twice). De-duplicate repeated sentences/paragraphs before displaying, without dropping any distinct warning. Tell me where you put the helper.
+4. Add "Family medicines" chips to /medicines: one group per family member (Jordan, Sam, Mia, Rosa) showing their medications from /api/family/<id>/profile (e.g. Rosa: metformin, amlodipine, atorvastatin). Tapping a chip opens /medicines/<name>. Support /medicines?member=rosa to pre-select Rosa's group. Keep it compact on phones. Use TD's components.
+5. Do NOT build photo search yet (it waits for Ish's Gemini PR), and do NOT add any "ask your pharmacist" advice text until Cam approves the exact wording.
+6. npm run lint and npm run build must pass. Start on port 3001, test /medicines, /medicines?member=rosa, /medicines/lisinopril, the three searches above, and show me results.
+7. Update README "Built" list if needed. Commit, push, gh pr create (what changed + how to test). Give me the PR link and the Vercel preview link to send to Cam.
+```
+
+### TD (round 2): demo-flow polish + phone check
+```
+I'm TD on IDoc. Read CLAUDE.md, docs/WORKFLOW.md and docs/DEMO.md first and follow them. Merge cutoff is Sun 6:30AM.
+
+1. git checkout main && git pull && npm install, then git checkout -b td/demo-polish.
+2. Demo flow: on /family/<id>, open the 12-month trends on the BP tab by default for members who have blood pressure data (Jordan, Rosa), and Steps for others. Support ?tab=bp|steps|heart|sleep|glucose in the URL so the demo can link straight to it.
+3. Connect the pages: on /family/<id>, make each medication name link to /medicines/<name> (Jam's detail page), and add a "See all of <name>'s medicines" link to /medicines?member=<id> (Jam is adding that view; until it merges the link still opens /medicines safely).
+4. Check the Medicines and Specialists pages Jam built (/medicines, /medicines/lisinopril, /specialists?memberId=rosa) for visual consistency with your design system: spacing, cards, headers, mobile layout. Only fix styling in shared components or globals.css; if a page file needs a change, list it for me so Jam can do it, unless it's a one-line class fix.
+5. Phone check: run npm run build and npm start on port 3001, then help me open it on my real phone (via the Coder port link). List anything broken at phone width (bottom tab bar, charts, long medicine names, specialist phone buttons) and fix what's in your area.
+6. npm run lint and npm run build must pass. Commit, push, gh pr create with before/after notes. Give me the PR link and the Vercel preview link to send to Cam.
+```
+
+---
 
 ## Tips for everyone
 - **Start each Claude session with:** "Pull the latest main, then switch to my branch."
