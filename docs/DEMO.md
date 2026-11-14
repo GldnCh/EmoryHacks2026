@@ -17,13 +17,15 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 **Screen:** home page `/`
 
 ### 0:15–0:40 · The family dashboard ⏳ TD
-**Click:** Dashboard → point to Rosa's card ("tracked remotely from Savannah").
-> "This is the Rivera family: a year of Apple Watch–style data for all four of them. Grandma Rosa lives in Savannah. Look: her blood pressure jumped to 151 over 90 this summer."
+**Before the demo:** this laptop must be set up as **Jordan's iPhone** (`/setup` → Jordan). The dashboard only shows you and the people you're connected to, at the level each one shares.
 
-**Click:** Rosa's card → in **12-month trends**, click the **BP** tab (the page opens on Steps) → her blood pressure chart: the "BP rise" band in Jun–Jul, then the "Med review" line in August.
+**Click:** Dashboard → point to Rosa's card ("tracked remotely from Savannah") and the "Shares: Full · you're a guardian" chip.
+> "This is the Rivera family, seen from Jordan's iPhone. Everyone chooses what they share: Rosa shares everything with her son, Sam shares a health summary. This is a year of Apple Watch–style data for all four of them. Grandma Rosa lives in Savannah. Look: her blood pressure jumped to 151 over 90 this summer."
+
+**Click:** Rosa's card → **12-month trends** opens on the **BP** tab (direct link: `/family/rosa?tab=bp`) → her blood pressure chart: the "BP rise" band in Jun–Jul, then the "Med review" line in August.
 > "iCare spotted it. It turned out she'd been missing doses. After a medication review in August, it came back down."
 
-**Backup:** open `/api/trends/rosa` and point at July (`avgSystolic: 150`) vs October (`128`).
+**Backup:** open `/api/trends/rosa` (in the same browser, so it knows whose iPhone this is) and point at July (`avgSystolic: 150`) vs October (`128`).
 
 ### 0:40–1:05 · AI check-in and summary ⏳ Ish
 **Click:** Check-in → pick Rosa → "Get yearly summary".
@@ -65,7 +67,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ---
 
 ## 30-second version (if time is cut)
-1. Dashboard → Rosa → **BP** tab: the spike and recovery (10 s)
+1. Dashboard → Rosa (opens on the **BP** tab): the spike and recovery (10 s)
 2. Medicine search "wal-zyr" → cetirizine (8 s)
 3. Tiger Data page: 2.1M readings, 97% compression, ~3 ms (8 s)
 4. Close line (4 s)
@@ -73,6 +75,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ---
 
 ## Before you present (do this 15 minutes before)
+- [ ] On the demo laptop's browser, open `/setup` and choose **Jordan** (once; it's remembered). To show another person's view, use "Pretend to be another iPhone" on `/account`, or a private window
 - [ ] Open every page once on the live site to warm it up (first loads are slower): `/`, `/dashboard`, `/family/rosa`, `/checkin`, `/medicines?member=rosa`, `/medicines/lisinopril`, `/specialists?memberId=rosa`, `/data`
 - [ ] Run each AI action once (Rosa's yearly summary) so the cached answer is instant during the demo
 - [ ] Check `/api/health` shows `gemini`, `typesense` and `tigerData` all `true`
