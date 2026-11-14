@@ -31,7 +31,9 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 **Then:** start a check-in, type: *"I've been dizzy when I stand up."* Show the gentle follow-up question.
 **Optional safety moment:** type *"I have chest pain"* → it immediately says to call 911, without even asking the AI.
-> "Over Chert, this check-in happens face-to-face on FaceTime." *(Say this only if a full Chert FaceTime call has worked; otherwise say "Next, this runs over a FaceTime call with Chert." The `/checkin` chat is the reliable path.)*
+**FaceTime moment (Chert, confirmed working):** call iCare's Chert FaceTime number from an iPhone and let the check-in greet you with its face and voice for ~10 seconds.
+> "And it doesn't have to be a website. Grandma Rosa can just FaceTime iCare, and the same check-in answers, by voice, with her own health data."
+*(Ish's agent must be running in Ish's Coder workspace before the demo. If the call doesn't connect within ~5 seconds, hang up and continue with `/checkin`.)*
 
 **Backup:** skip the live AI; describe it in one sentence and move on. (The summary is cached after the first click, so pre-run it before presenting.)
 
@@ -71,9 +73,10 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ---
 
 ## Before you present (do this 15 minutes before)
-- [ ] Open every page once on the live site to warm it up (first loads are slower): `/`, `/dashboard`, `/family/rosa`, `/checkin`, `/medicines`, `/specialists?memberId=rosa`, `/data`
+- [ ] Open every page once on the live site to warm it up (first loads are slower): `/`, `/dashboard`, `/family/rosa`, `/checkin`, `/medicines?member=rosa`, `/medicines/lisinopril`, `/specialists?memberId=rosa`, `/data`
 - [ ] Run each AI action once (Rosa's yearly summary) so the cached answer is instant during the demo
 - [ ] Check `/api/health` shows `gemini`, `typesense` and `tigerData` all `true`
+- [ ] **Ish: start the Chert FaceTime agent** in your Coder workspace (see `chert-agent/README.md`) and place one test FaceTime call; keep the workspace awake through the demo
 - [ ] Laptop: browser zoom 125–150%, notifications off, charger plugged in, other tabs closed
 - [ ] Open the site on a phone once too (bottom tab bar), in case a judge asks to see mobile
 - [ ] Have the **backup video** open in another tab (see below)
