@@ -51,7 +51,17 @@ Teammates can add tools they need. Add each one here and to the README credits.
 - **Hosting:** Vercel, deployed from this repo
 
 ## Onboarding: getting every teammate connected
-Do these steps in order. Commands marked **Windows** use PowerShell; **Mac** uses Terminal with [Homebrew](https://brew.sh). Each step ends with a check so you know it worked. If a step fails, ask Claude, paste the error, and say which step you're on.
+Do these steps in order. Each step ends with a check so you know it worked. If a step fails, ask Claude, paste the error, and say which step you're on.
+
+**Where to run each step:**
+
+| Steps | Where | Shell |
+|---|---|---|
+| **1–6** (GitHub, Git, GitHub CLI, Coder sign-in, create workspace) | **Your own computer** | **PowerShell** on Windows (`winget` commands) · **Terminal** on Mac (`brew` commands, needs [Homebrew](https://brew.sh)) |
+| **7–11** (open workspace, clone, install, branches/PRs, Claude Code) | **Inside your Coder workspace** (its browser VS Code terminal, or after `coder ssh`) | **Linux bash**, not PowerShell |
+
+- The Coder workspace is a separate computer. Signing in to GitHub on your laptop does **not** carry over, so Step 8 signs in again inside the workspace.
+- Commands like `cp`, `curl` and `&&` in Steps 8–11 and the daily routine are bash commands. Some fail in Windows PowerShell, so run them in the workspace terminal.
 
 ### Cam does first (one time, for the whole team)
 1. Collect everyone's GitHub username.
