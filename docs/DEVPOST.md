@@ -7,11 +7,24 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 - Owners: Cam keeps this file up to date. Each teammate updates their own feature's lines when it lands.
 - Before submitting, check the prize rules at the sponsor tables and fill in the **[CHECK]** items.
 
-## Submission status on Devpost (updated by Cam's Claude)
-The real submission is on Devpost: Emory Hacks 2026 → **My projects** → **iCare** → Edit (Cam's account). Steps done: Manage team ✅ · Project overview ✅ · Project details ✅ except video · Additional info ✅ · Submit ⏸️
+## Submission status on Devpost (updated by Cam's Claude, Sat Nov 14 afternoon)
+**Status: SUBMITTED (5/5 steps).** We can keep editing until the 8 AM deadline. Edit: Emory Hacks 2026 → **My projects** → **iCare** → Edit (Cam's account).
 
 | Field | State |
 |---|---|
+| Name / elevator pitch | ✅ **iCare** / "Your family's health, explained..." |
+| About the project | ✅ Full story, matches what is live: dashboard, trends, day view, Tiger Data, medicine search + FDA labels + Gemini explanations, specialists, Gemini check-in and summaries. Chert described honestly (connects; browser check-in is the reliable path) |
+| Built with | ✅ 17 tags |
+| Try it out | ✅ https://icare-wall-e9.vercel.app + GitHub |
+| Video demo link | ✅ Added by the team. Re-record if the demo flow changes (docs/DEMO.md) |
+| Judging title / track | ✅ iCare / Healthcare |
+| Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense, Gemini. ⚠️ **Chert**: keep only if a full FaceTime call works before 7:30 AM; otherwise remove it |
+| Gemini Project Number | ⚠️ Optional field for the Gemini prize: AI Studio → API key → Project Number |
+| Gen-AI question | ✅ Answered (Claude Code for development; Gemini live in the app; Chert agent in testing) |
+
+**Before 7:30 AM Sun:** re-check every claim against the live site, decide the Chert opt-in, update the story for anything merged after this point.
+
+---|---|
 | Name / elevator pitch | ✅ iCare / "Your family's health, explained..." |
 | About the project | ✅ Full story, matches what is live (Gemini described as in progress) |
 | Built with | ✅ 17 tags |
