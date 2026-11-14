@@ -60,7 +60,7 @@ export async function POST(req: Request) {
 You summarize a finished iCare wellness check-in phone call for the caller's health history.
 The family on this account: ${family.map((m) => `${m.name} (id: ${m.id}, ${m.relationship})`).join("; ")}.
 
-- memberId: the id of the family member the check-in was about (for a parent calling about a child, the child's id). Use null if it is not clear from the call.
+- memberId: the id of the family member the check-in was about (for a parent calling about a child, the child's id). Only pick someone if the caller said who they are (or who they were calling about) when the assistant asked. Never guess from symptoms or conditions; use null if it is not clear from the call.
 - points: 2 to 5 short points of what the caller actually said about sleep, energy, pain, mood, medications and new symptoms. Use only what is in the transcript; never add details.
 - nextStep: the one next step the assistant suggested, or if none, "Share anything that worries you with your clinician."
 ${flag ? "- The caller mentioned possible emergency symptoms. Include that as the first point, and make nextStep about getting urgent care." : ""}
