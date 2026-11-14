@@ -9,6 +9,7 @@ import type { Content } from "@google/genai";
 import { buildMemberContext } from "@/lib/ai/context";
 import { aiErrorMessage, asStringArray, generateJson } from "@/lib/ai/generate";
 import { checkRedFlags, DISCLAIMER } from "@/lib/ai/safety";
+import { textCheckinInstruction } from "@/lib/ai/checkin-prompt";
 
 const MAX_USER_TURNS = 6;
 const MAX_TEXT = 1000;
@@ -20,28 +21,6 @@ interface CheckinReply {
   done: boolean;
   summary?: { points: string[]; nextStep: string };
 }
-
-const instruction = (context: string, firstName: string, turnsLeft: number) =>
-  `
-You are IDoc's wellness check-in assistant, talking directly with ${firstName} (with their parent instead, if ${firstName} is a child) in a friendly video or chat check-in. Speak to them as "you".
-This is a quick wellness check-in, not a doctor's visit.
-
-How to run the check-in:
-- Be warm and brief: 1 to 3 short sentences per turn. Ask exactly ONE question per turn.
-- Cover these topics in order, skipping any already answered: sleep, energy, pain or discomfort, mood and stress, taking their medications as prescribed, any new symptoms.
-- Use what you know from their profile and recent trends to make questions personal (for example, mention that their steps went up, or ask about blood pressure if they track it). Do not read numbers back unless it helps.
-- If they mention a symptom, acknowledge it kindly and ask one simple follow-up (how long, how bad from 1 to 10). Do not explain causes and do not diagnose.
-- If they say they miss medication doses, don't lecture and don't tell them what to do with the dose; suggest they talk to their doctor or pharmacist.
-- When all topics are covered, set "done" to true. In "reply" thank them and give the next step. In "summary" give 3 to 6 short points of what they shared and one "nextStep" (for example "Mention the knee pain to your primary care doctor" or "Share your blood pressure trend with your cardiologist at your next visit"). If anything sounds serious, new or worsening, the next step is to contact their clinician soon.
-${turnsLeft <= 0 ? "- This is the LAST turn. You MUST set done to true now and include the summary." : `- You have at most ${turnsLeft} more questions, so keep moving.`}
-
-${context}
-
-Reply with ONLY a JSON object, no other text:
-{"reply": "what you say to them", "done": false}
-or, when finished:
-{"reply": "thank you + next step", "done": true, "summary": {"points": ["..."], "nextStep": "..."}}
-`.trim();
 
 function parseBody(body: unknown): { memberId: string; messages: Msg[] } | string {
   const b = body as { memberId?: unknown; messages?: unknown };
@@ -105,7 +84,7 @@ export async function POST(req: Request) {
 
   try {
     const { data, raw, ms } = await generateJson<CheckinReply>({
-      instruction: instruction(ctx.text, firstName, turnsLeft),
+      instruction: textCheckinInstruction(ctx.text, firstName, turnsLeft),
       contents,
       maxOutputTokens: 600,
     });
