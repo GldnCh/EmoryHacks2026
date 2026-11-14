@@ -2,7 +2,6 @@
 // iOS-style navigation (TD).
 // Phones: a translucent top bar (back button or logo, plus the page title once the large title scrolls away)
 // and a frosted tab bar at the bottom. Larger screens: the logo plus a floating pill tab bar, like iPadOS.
-// Check-in (Ish), Medicines and Specialists (Jam) show a "not ready yet" screen until their pull requests merge.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
