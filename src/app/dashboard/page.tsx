@@ -14,8 +14,9 @@ import { useJson } from "@/components/useJson";
 import { usePeople, type PersonWithHealth } from "@/components/usePeople";
 import { SetupPrompt } from "@/components/SetupPrompt";
 import { BasicCard, LevelChip } from "@/components/PersonCards";
+import FamilyAlerts, { StatusPill, type AlertsResponse, type PersonAlerts } from "@/components/FamilyAlerts";
 
-function MemberCard({ p }: { p: PersonWithHealth }) {
+function MemberCard({ p, status }: { p: PersonWithHealth; status?: PersonAlerts }) {
   const member = p.member;
   const { data, error, loading, retry } = useJson<TrendsResponse>(`/api/trends/${member.id}`);
   const remote = member.relationship === "parent" && !p.person.self;
@@ -40,6 +41,7 @@ function MemberCard({ p }: { p: PersonWithHealth }) {
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
+        {status && <StatusPill status={status.status} text={status.statusText} />}
         <LevelChip p={p} />
         {remote && (
           <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-caption font-semibold text-[var(--brand-pressed)]">
@@ -119,8 +121,26 @@ function MemberCard({ p }: { p: PersonWithHealth }) {
   );
 }
 
+/** What a Basic connection sees: a coarse status and, if something is urgent, a nudge to call. */
+function BasicStatus({ s, first }: { s: PersonAlerts; first: string }) {
+  return (
+    <div className="flex flex-col items-start gap-2">
+      <StatusPill status={s.status} text={s.statusText} />
+      <p className="text-subhead text-secondary">
+        {s.status === "urgent"
+          ? `Something may need urgent attention. Consider calling ${first}.`
+          : s.status === "check-in"
+            ? `${first} might appreciate a quick call.`
+            : `${first} shares whether they're doing okay, plus important alerts. Health details stay private.`}
+      </p>
+    </div>
+  );
+}
+
 export default function DashboardPage() {
   const { me, people, error, retry } = usePeople();
+  const alerts = useJson<AlertsResponse>(me?.setUp ? "/api/alerts" : null);
+  const statusOf = (p: PersonWithHealth) => alerts.data?.people.find((x) => x.accountId === p.person.account.id);
 
   return (
     <div className="flex flex-col gap-6">
@@ -148,8 +168,17 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
+        <>
+        {alerts.data && <FamilyAlerts data={alerts.data} />}
         <div className="grid gap-4 lg:grid-cols-2">
-          {people.map((p) => (p.can("trends") ? <MemberCard key={p.member.id} p={p} /> : <BasicCard key={p.member.id} p={p} />))}
+          {people.map((p) => {
+            const s = statusOf(p);
+            return p.can("trends") ? (
+              <MemberCard key={p.member.id} p={p} status={s} />
+            ) : (
+              <BasicCard key={p.member.id} p={p} status={s ? <BasicStatus s={s} first={p.member.name.split(" ")[0]} /> : undefined} />
+            );
+          })}
           {people.length === 0 && (
             <p className="card p-6 text-subhead text-secondary">
               No health profile is linked to this iPhone yet, and nobody has shared with you. Connect with family from{" "}
@@ -160,6 +189,7 @@ export default function DashboardPage() {
             </p>
           )}
         </div>
+        </>
       )}
 
       <Disclaimer />
