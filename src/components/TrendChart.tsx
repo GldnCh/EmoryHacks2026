@@ -13,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { AXIS_TICK, GRID_STROKE, TOOLTIP_LABEL_STYLE, TOOLTIP_STYLE } from "@/components/chartTheme";
 
 export interface Series {
   key: string;
@@ -43,11 +44,12 @@ interface TrendChartProps {
   markers?: Marker[];
   /** Line charts zoom to the data by default; set to start the y-axis at zero. */
   zeroBased?: boolean;
+  /** Lowest the y-axis starts at (it still goes lower if the data does), so small dips don't look dramatic. */
+  yMin?: number;
   ariaLabel: string;
 }
 
 const PALETTE = ["var(--series-1)", "var(--series-2)"];
-const AXIS = { fontSize: 11, fill: "var(--text-muted)" };
 
 export default function TrendChart({
   data,
@@ -60,6 +62,7 @@ export default function TrendChart({
   formatTooltipX = formatX,
   markers = [],
   zeroBased = false,
+  yMin,
   ariaLabel,
 }: TrendChartProps) {
   const fmt = (v: unknown) =>
@@ -69,14 +72,20 @@ export default function TrendChart({
     <div role="img" aria-label={ariaLabel} style={{ height }} className="w-full">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 18, right: 12, bottom: 0, left: -12 }}>
-          <CartesianGrid vertical={false} stroke="var(--grid)" />
-          <XAxis dataKey={xKey} tickFormatter={formatX} tick={AXIS} tickLine={false} axisLine={{ stroke: "var(--grid)" }} minTickGap={16} />
+          <CartesianGrid vertical={false} stroke={GRID_STROKE} />
+          <XAxis dataKey={xKey} tickFormatter={formatX} tick={AXIS_TICK} tickLine={false} axisLine={false} minTickGap={16} />
           <YAxis
-            tick={AXIS}
+            tick={AXIS_TICK}
             tickLine={false}
             axisLine={false}
             width={52}
-            domain={zeroBased ? [0, "auto"] : ["auto", "auto"]}
+            domain={
+              zeroBased
+                ? [0, "auto"]
+                : yMin != null
+                  ? [(dataMin: number) => Math.min(yMin, Math.floor(dataMin)), (dataMax: number) => Math.ceil(dataMax)]
+                  : ["auto", "auto"]
+            }
             tickFormatter={(v: number) => (Math.abs(v) >= 10000 ? `${v / 1000}K` : v.toLocaleString("en-US"))}
           />
           {markers.map((m) =>
@@ -86,7 +95,8 @@ export default function TrendChart({
                 x1={m.from}
                 x2={m.to}
                 fill="var(--text-muted)"
-                fillOpacity={0.08}
+                fillOpacity={0.07}
+                radius={6}
                 label={{ value: m.label, position: "insideTop", fontSize: 11, fill: "var(--text-secondary)" }}
               />
             ) : (
@@ -94,7 +104,7 @@ export default function TrendChart({
                 key={m.label}
                 x={m.from}
                 stroke="var(--text-muted)"
-                strokeDasharray="0"
+                strokeDasharray="3 3"
                 label={{
                   value: m.label,
                   // a vertical line has zero width: "insideTopLeft" draws the text to its right, "insideTopRight" to its left
@@ -108,16 +118,11 @@ export default function TrendChart({
           <Tooltip
             formatter={(v, name) => [fmt(v), name]}
             labelFormatter={(x) => formatTooltipX(String(x))}
-            contentStyle={{
-              background: "var(--surface)",
-              border: "1px solid var(--border)",
-              borderRadius: 10,
-              fontSize: 12,
-              color: "var(--foreground)",
-            }}
-            cursor={{ stroke: "var(--text-muted)", strokeWidth: 1 }}
+            contentStyle={TOOLTIP_STYLE}
+            labelStyle={TOOLTIP_LABEL_STYLE}
+            cursor={{ stroke: "var(--text-muted)", strokeWidth: 1, strokeDasharray: "3 3" }}
           />
-          {series.length > 1 && <Legend iconType="plainline" wrapperStyle={{ fontSize: 12, color: "var(--text-secondary)" }} />}
+          {series.length > 1 && <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, color: "var(--text-secondary)", paddingTop: 6 }} />}
           {series.map((s, i) => (
             <Line
               key={s.key}
@@ -125,7 +130,7 @@ export default function TrendChart({
               dataKey={s.key}
               name={s.name}
               stroke={s.color ?? PALETTE[i % PALETTE.length]}
-              strokeWidth={2}
+              strokeWidth={2.25}
               dot={false}
               activeDot={{ r: 4, strokeWidth: 2, stroke: "var(--surface)" }}
               connectNulls

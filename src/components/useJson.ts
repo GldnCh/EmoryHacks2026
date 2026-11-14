@@ -7,6 +7,8 @@ export interface JsonState<T> {
   data: T | null;
   error: string | null;
   loading: boolean;
+  /** HTTP status of the last finished request (e.g. 404), or null before one finishes or on a network error. */
+  status: number | null;
   retry: () => void;
 }
 
@@ -14,6 +16,7 @@ export function useJson<T>(url: string | null): JsonState<T> {
   const [data, setData] = useState<T | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(Boolean(url));
+  const [status, setStatus] = useState<number | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
@@ -21,9 +24,11 @@ export function useJson<T>(url: string | null): JsonState<T> {
     const ctrl = new AbortController();
     setLoading(true);
     setError(null);
+    setStatus(null);
     fetch(url, { signal: ctrl.signal })
       .then(async (res) => {
         const body = await res.json().catch(() => null);
+        if (!ctrl.signal.aborted) setStatus(res.status);
         if (!res.ok) throw new Error(body?.error ?? `The server answered ${res.status}.`);
         setData(body as T);
       })
@@ -38,5 +43,5 @@ export function useJson<T>(url: string | null): JsonState<T> {
   }, [url, attempt]);
 
   const retry = useCallback(() => setAttempt((a) => a + 1), []);
-  return { data, error, loading, retry };
+  return { data, error, loading, status, retry };
 }

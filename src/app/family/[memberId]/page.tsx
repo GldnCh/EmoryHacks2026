@@ -3,16 +3,23 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
+import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
 import DayCharts from "@/components/DayCharts";
 import Disclaimer from "@/components/Disclaimer";
+import { CalendarIcon, InfoIcon, PinIcon, StethoscopeIcon } from "@/components/Icons";
+import { METRICS, type MetricKey } from "@/components/metrics";
+import PageHeader from "@/components/PageHeader";
+import SegmentedControl from "@/components/SegmentedControl";
+import { fmt } from "@/components/StatTile";
 import { CardSkeleton, ErrorNote, Skeleton, SourceBadge } from "@/components/Status";
-import TrendChart, { type Marker } from "@/components/TrendChart";
+import TrendChart, { type Marker, type Series } from "@/components/TrendChart";
 import {
   RELATIONSHIP,
   monthLabel,
   monthLong,
   type ProfileResponse,
+  type TrendRow,
   type TrendsResponse,
   type VitalsResponse,
 } from "@/components/types";
@@ -55,92 +62,113 @@ const MARKERS: Record<string, Marker[]> = {
   ],
 };
 
-function ProfileHeader({ memberId }: { memberId: string }) {
-  const { data, error, loading, retry } = useJson<ProfileResponse>(`/api/family/${memberId}/profile`);
-  if (error) return <ErrorNote message={error} onRetry={retry} />;
-  if (loading || !data) return <CardSkeleton lines={2} />;
-  const m = data.member;
+/** How each measure is charted in "12-month trends". */
+const TREND_CHARTS: Record<
+  MetricKey,
+  { series: Series[]; unit: string; decimals: number; zeroBased?: boolean; yMin?: number; ariaLabel: string; value: (t: TrendRow) => string | null }
+> = {
+  steps: {
+    series: [{ key: "avgSteps", name: "Steps" }],
+    unit: "steps",
+    decimals: 0,
+    zeroBased: true,
+    ariaLabel: "Average daily steps by month",
+    value: (t) => fmt(t.avgSteps),
+  },
+  heart: {
+    series: [{ key: "avgRestingHeartRate", name: "Resting heart rate" }],
+    unit: "bpm",
+    decimals: 1,
+    ariaLabel: "Average resting heart rate by month",
+    value: (t) => fmt(t.avgRestingHeartRate, 1),
+  },
+  sleep: {
+    series: [{ key: "avgSleepHours", name: "Sleep" }],
+    unit: "hr",
+    decimals: 1,
+    yMin: 5,
+    ariaLabel: "Average hours of sleep by month",
+    value: (t) => fmt(t.avgSleepHours, 1),
+  },
+  bp: {
+    series: [
+      { key: "avgSystolic", name: "Systolic (top)" },
+      { key: "avgDiastolic", name: "Diastolic (bottom)" },
+    ],
+    unit: "mmHg",
+    decimals: 0,
+    ariaLabel: "Average systolic and diastolic blood pressure by month",
+    value: (t) => (t.avgSystolic != null ? `${t.avgSystolic}/${t.avgDiastolic}` : null),
+  },
+  glucose: {
+    series: [{ key: "avgBloodGlucose", name: "Fasting glucose" }],
+    unit: "mg/dL",
+    decimals: 0,
+    ariaLabel: "Average fasting blood glucose by month",
+    value: (t) => (t.avgBloodGlucose != null ? fmt(t.avgBloodGlucose) : null),
+  },
+};
 
+function ExternalLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <Card>
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{m.name}</h1>
-          <p className="text-sm text-secondary">
-            {RELATIONSHIP[m.relationship]} · {m.age} · {m.location.city}, {m.location.state}
-          </p>
-          {m.relationship === "parent" && (
-            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-medium text-brand">
-              <span aria-hidden>📍</span> Tracked remotely from {m.location.city}
-            </p>
-          )}
-        </div>
-        <Link
-          href={`/specialists?memberId=${m.id}`}
-          className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-90"
-        >
-          Find specialists near {m.location.city}
-        </Link>
-      </div>
+    <a href={href} target="_blank" rel="noreferrer" className="-my-2 inline-flex min-h-11 items-center gap-1 text-footnote font-semibold text-brand hover:underline">
+      {children} <span aria-hidden>↗</span>
+      <span className="sr-only">(opens in a new tab)</span>
+    </a>
+  );
+}
 
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <div>
-          <h2 className="mb-2 text-sm font-semibold">Conditions</h2>
-          <ul className="flex flex-col gap-2">
-            {data.conditions.map((c) => (
-              <li key={c.name} className="rounded-xl bg-surface-muted p-3 text-sm">
-                <p className="font-medium">
-                  {c.name}
-                  {c.plainName && c.plainName !== c.name && <span className="font-normal text-secondary"> ({c.plainName})</span>}
-                </p>
-                {c.specialty && <p className="text-xs text-secondary">Usually seen by: {c.specialty}</p>}
-                {c.explanation && (
-                  <a href={c.explanation.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-medium text-brand underline">
-                    MedlinePlus: {c.explanation.title} ↗
-                  </a>
-                )}
-              </li>
-            ))}
-            {data.conditions.length === 0 && <li className="text-sm text-muted">None on file.</li>}
-          </ul>
-        </div>
-        <div>
-          <h2 className="mb-2 text-sm font-semibold">Medications</h2>
-          <ul className="flex flex-col gap-2">
-            {data.medications.map((med) => (
-              <li key={med.id} className="rounded-xl bg-surface-muted p-3 text-sm">
-                <p className="font-medium">
-                  {med.sample?.genericName ?? med.id}
-                  {med.sample?.brandNames.length ? (
-                    <span className="font-normal text-secondary"> ({med.sample.brandNames.join(", ")})</span>
-                  ) : null}
-                </p>
-                {med.sample && <p className="text-xs text-secondary">{med.sample.drugClass}</p>}
-                {med.info && (
-                  <a href={med.info.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs font-medium text-brand underline">
-                    MedlinePlus: {med.info.title} ↗
-                  </a>
-                )}
-              </li>
-            ))}
-            {data.medications.length === 0 && <li className="text-sm text-muted">None on file.</li>}
-          </ul>
-        </div>
-      </div>
-    </Card>
+function HealthRecords({ data }: { data: ProfileResponse }) {
+  const row = "py-3 first:pt-0 last:pb-0 [&+&]:border-t [&+&]:border-line";
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <Card title="Conditions">
+        <ul>
+          {data.conditions.map((c) => (
+            <li key={c.name} className={row}>
+              <p className="text-subhead font-semibold">
+                {c.name}
+                {c.plainName && c.plainName !== c.name && <span className="font-normal text-secondary"> ({c.plainName})</span>}
+              </p>
+              {c.specialty && <p className="mt-0.5 text-footnote text-secondary">Usually seen by: {c.specialty}</p>}
+              {c.explanation && <ExternalLink href={c.explanation.url}>MedlinePlus: {c.explanation.title}</ExternalLink>}
+            </li>
+          ))}
+          {data.conditions.length === 0 && <li className="text-subhead text-muted">None on file.</li>}
+        </ul>
+      </Card>
+      <Card title="Medications">
+        <ul>
+          {data.medications.map((med) => (
+            <li key={med.id} className={row}>
+              <p className="text-subhead font-semibold">
+                {med.sample?.genericName ?? med.id}
+                {med.sample?.brandNames.length ? <span className="font-normal text-secondary"> ({med.sample.brandNames.join(", ")})</span> : null}
+              </p>
+              {med.sample && <p className="mt-0.5 text-footnote text-secondary">{med.sample.drugClass}</p>}
+              {med.info && <ExternalLink href={med.info.url}>MedlinePlus: {med.info.title}</ExternalLink>}
+            </li>
+          ))}
+          {data.medications.length === 0 && <li className="text-subhead text-muted">None on file.</li>}
+        </ul>
+      </Card>
+    </div>
   );
 }
 
 function YearTrends({ memberId }: { memberId: string }) {
-  const { data, error, loading, retry } = useJson<TrendsResponse>(`/api/trends/${memberId}`);
+  const { data, error, loading, status, retry } = useJson<TrendsResponse>(`/api/trends/${memberId}`);
+  const [metric, setMetric] = useState<MetricKey>("steps");
+  if (status === 404) return null; // unknown member: the page shows one "not found" message
   if (error) return <ErrorNote message={error} onRetry={retry} />;
   if (loading || !data) return <CardSkeleton lines={3} />;
 
   const rows = data.trends as unknown as Record<string, unknown>[];
-  const markers = MARKERS[memberId] ?? [];
   const hasBP = data.trends.some((t) => t.avgSystolic != null);
   const hasGlucose = data.trends.some((t) => t.avgBloodGlucose != null);
-  const common = { data: rows, xKey: "month", formatX: monthLabel, formatTooltipX: monthLong, markers };
+  const keys: MetricKey[] = ["steps", "heart", "sleep", ...(hasBP ? (["bp"] as const) : []), ...(hasGlucose ? (["glucose"] as const) : [])];
+  const active = keys.includes(metric) ? metric : "steps";
+  const chart = TREND_CHARTS[active];
   const first = data.trends[0];
   const last = data.trends.at(-1)!;
 
@@ -150,45 +178,41 @@ function YearTrends({ memberId }: { memberId: string }) {
       subtitle={`Monthly averages, ${monthLong(first.month)} – ${monthLong(last.month)}`}
       action={<SourceBadge source={data.source} queryMs={data.queryMs} />}
     >
-      <div className="grid gap-6 md:grid-cols-2">
-        <div>
-          <h3 className="text-sm font-medium">Steps per day</h3>
-          <TrendChart {...common} series={[{ key: "avgSteps", name: "Steps" }]} unit="steps" zeroBased ariaLabel="Average daily steps by month" />
-        </div>
-        <div>
-          <h3 className="text-sm font-medium">Resting heart rate</h3>
-          <TrendChart {...common} series={[{ key: "avgRestingHeartRate", name: "Resting heart rate" }]} unit="bpm" decimals={1} ariaLabel="Average resting heart rate by month" />
-        </div>
-        <div>
-          <h3 className="text-sm font-medium">Sleep</h3>
-          <TrendChart {...common} series={[{ key: "avgSleepHours", name: "Sleep" }]} unit="hr" decimals={1} ariaLabel="Average hours of sleep by month" />
-        </div>
-        {hasBP && (
-          <div>
-            <h3 className="text-sm font-medium">
-              Blood pressure{" "}
-              <span className="font-normal text-muted">
-                {first.avgSystolic}/{first.avgDiastolic} → {last.avgSystolic}/{last.avgDiastolic} mmHg
-              </span>
-            </h3>
-            <TrendChart
-              {...common}
-              series={[
-                { key: "avgSystolic", name: "Systolic (top)" },
-                { key: "avgDiastolic", name: "Diastolic (bottom)" },
-              ]}
-              unit="mmHg"
-              height={230}
-              ariaLabel="Average systolic and diastolic blood pressure by month"
-            />
-          </div>
-        )}
-        {hasGlucose && (
-          <div>
-            <h3 className="text-sm font-medium">Fasting glucose</h3>
-            <TrendChart {...common} series={[{ key: "avgBloodGlucose", name: "Fasting glucose" }]} unit="mg/dL" ariaLabel="Average fasting blood glucose by month" />
-          </div>
-        )}
+      <SegmentedControl
+        ariaLabel="Choose a measure"
+        controls="trend-panel"
+        options={keys.map((k) => ({ value: k, label: METRICS[k].short }))}
+        value={active}
+        onChange={setMetric}
+      />
+
+      <div id="trend-panel" role="tabpanel" aria-label={METRICS[active].label} className="mt-5">
+        <p className="flex items-center gap-1.5 text-footnote font-semibold text-secondary">
+          <span style={{ color: METRICS[active].accent }}>{METRICS[active].icon}</span>
+          {METRICS[active].label} · {monthLong(last.month)}
+        </p>
+        <p className="mt-1 font-[family-name:var(--font-rounded)] text-[34px] font-semibold leading-tight tracking-tight">
+          {chart.value(last)}
+          <span className="ml-1.5 font-sans text-subhead font-medium text-secondary">{chart.unit}</span>
+        </p>
+        <p className="mb-3 text-footnote text-muted">
+          {monthLong(first.month)}: {chart.value(first)} {chart.unit}
+        </p>
+        <TrendChart
+          key={active}
+          data={rows}
+          xKey="month"
+          formatX={monthLabel}
+          formatTooltipX={monthLong}
+          markers={MARKERS[memberId] ?? []}
+          series={chart.series}
+          unit={chart.unit}
+          decimals={chart.decimals}
+          zeroBased={chart.zeroBased}
+          yMin={chart.yMin}
+          height={chart.series.length > 1 ? 270 : 240}
+          ariaLabel={chart.ariaLabel}
+        />
       </div>
     </Card>
   );
@@ -198,43 +222,53 @@ function DayZoom({ memberId }: { memberId: string }) {
   const examples = EXAMPLE_DAYS[memberId] ?? [];
   const [date, setDate] = useState(examples[0]?.date ?? LAST_DAY);
   const valid = /^\d{4}-\d{2}-\d{2}$/.test(date) && date >= FIRST_DAY && date <= LAST_DAY;
-  const { data, error, loading, retry } = useJson<VitalsResponse>(valid ? `/api/vitals/${memberId}?date=${date}` : null);
+  const { data, error, loading, status, retry } = useJson<VitalsResponse>(valid ? `/api/vitals/${memberId}?date=${date}` : null);
+  if (status === 404 && !data) return null; // unknown member: the page shows one "not found" message
 
   return (
     <Card title="Zoom into a day" subtitle="Hour by hour, rolled up from minute-by-minute readings" action={<SourceBadge source={data?.source} queryMs={data?.queryMs} />}>
-      <div className="mb-4 flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-sm">
-          <span className="text-secondary">Date</span>
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <label className="flex min-h-11 items-center gap-2 self-start rounded-xl bg-fill pl-3 pr-1 text-subhead">
+          <CalendarIcon size={18} className="text-muted" />
+          <span className="sr-only">Date</span>
           <input
             type="date"
             min={FIRST_DAY}
             max={LAST_DAY}
             value={date}
             onChange={(e) => setDate(e.target.value)}
-            className="rounded-lg border border-line bg-surface px-2 py-1.5"
+            className="min-h-11 bg-transparent pr-2 font-semibold text-foreground outline-none"
           />
         </label>
-        {examples.map((ex) => (
-          <button
-            key={ex.date}
-            onClick={() => setDate(ex.date)}
-            className={`rounded-full border px-3 py-1 text-xs font-medium ${
-              ex.date === date ? "border-brand bg-brand-soft text-brand" : "border-line text-secondary hover:bg-surface-muted"
-            }`}
-          >
-            {ex.why}
-          </button>
-        ))}
+        {examples.length > 0 && (
+          <div className="-mx-5 flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:px-0" role="group" aria-label="Example days">
+            {examples.map((ex) => {
+              const selected = ex.date === date;
+              return (
+                <button
+                  key={ex.date}
+                  onClick={() => setDate(ex.date)}
+                  aria-pressed={selected}
+                  className={`pressable min-h-11 shrink-0 rounded-full px-4 text-footnote font-semibold ${
+                    selected ? "bg-brand text-white shadow-sm" : "bg-fill text-secondary hover:bg-[var(--fill-strong)]"
+                  }`}
+                >
+                  {ex.why}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {!valid ? (
-        <p className="text-sm text-warn">Pick a date between Nov 1, 2025 and Oct 31, 2026.</p>
+        <p className="rounded-xl bg-warn-soft px-4 py-3 text-subhead font-medium text-warn">Pick a date between Nov 1, 2025 and Oct 31, 2026.</p>
       ) : error ? (
         <ErrorNote message={error} onRetry={retry} />
       ) : !data ? (
-        <Skeleton className="h-52 w-full" />
+        <Skeleton className="h-60 w-full rounded-2xl" />
       ) : (
-        <div className={loading ? "opacity-50 transition-opacity" : "transition-opacity"}>
+        <div className={`transition-opacity duration-300 ${loading ? "opacity-50" : ""}`}>
           <DayCharts hours={data.hours} />
         </div>
       )}
@@ -242,14 +276,58 @@ function DayZoom({ memberId }: { memberId: string }) {
   );
 }
 
+/** One message for /family/<unknown id>, instead of an error in every card. */
+function MemberNotFound() {
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader back={{ href: "/dashboard", label: "Dashboard" }} title="Family member not found" />
+      <div role="alert" className="card flex flex-col items-center px-6 py-12 text-center">
+        <span className="grid h-16 w-16 place-items-center rounded-full bg-fill text-muted">
+          <InfoIcon size={32} />
+        </span>
+        <h2 className="mt-5 text-title2">We couldn&apos;t find that person</h2>
+        <p className="mt-2 max-w-sm text-subhead text-secondary">
+          This link doesn&apos;t match anyone in the family. The demo includes Jordan, Sam, Mia and Rosa Rivera.
+        </p>
+        <Link href="/dashboard" className="btn btn-primary mt-6">
+          Back to the family dashboard
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function FamilyMemberPage() {
   const { memberId } = useParams<{ memberId: string }>();
+  const { data, error, loading, status, retry } = useJson<ProfileResponse>(`/api/family/${memberId}/profile`);
+  const m = data?.member;
+
+  if (status === 404) return <MemberNotFound />;
+
   return (
-    <div className="flex flex-col gap-5">
-      <Link href="/dashboard" className="text-sm font-medium text-brand">
-        ← Family dashboard
-      </Link>
-      <ProfileHeader memberId={memberId} />
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        back={{ href: "/dashboard", label: "Dashboard" }}
+        title={m?.name ?? (error ? "Family member" : undefined)}
+        leading={m ? <Avatar id={m.id} name={m.name} size={52} /> : undefined}
+        subtitle={m ? `${RELATIONSHIP[m.relationship]} · ${m.age} · ${m.location.city}, ${m.location.state}` : undefined}
+      >
+        {m && (
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <Link href={`/specialists?memberId=${m.id}`} className="btn btn-primary">
+              <StethoscopeIcon size={18} />
+              Find specialists near {m.location.city}
+            </Link>
+            {m.relationship === "parent" && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1.5 text-footnote font-semibold text-[var(--brand-pressed)]">
+                <PinIcon size={14} strokeWidth={2.2} /> Tracked remotely from {m.location.city}
+              </span>
+            )}
+          </div>
+        )}
+      </PageHeader>
+
+      {error ? <ErrorNote message={error} onRetry={retry} /> : loading || !data ? <CardSkeleton lines={2} /> : <HealthRecords data={data} />}
       <YearTrends memberId={memberId} />
       <DayZoom memberId={memberId} />
       <Disclaimer />

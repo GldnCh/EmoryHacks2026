@@ -1,4 +1,4 @@
-// A white rounded panel. Optional title row with a subtitle and an action on the right.
+// A white rounded card (iOS grouped style): soft shadow, no border. Optional title row with a subtitle and an action.
 import type { ReactNode } from "react";
 
 interface CardProps {
@@ -11,12 +11,12 @@ interface CardProps {
 
 export default function Card({ title, subtitle, action, className = "", children }: CardProps) {
   return (
-    <section className={`rounded-2xl border border-line bg-surface p-4 shadow-sm sm:p-5 ${className}`}>
+    <section className={`card p-5 sm:p-6 ${className}`}>
       {(title || action) && (
-        <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="mb-4 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
           <div className="min-w-0">
-            {title && <h2 className="text-base font-semibold">{title}</h2>}
-            {subtitle && <p className="text-sm text-secondary">{subtitle}</p>}
+            {title && <h2 className="text-headline">{title}</h2>}
+            {subtitle && <p className="mt-0.5 text-footnote text-secondary">{subtitle}</p>}
           </div>
           {action && <div className="shrink-0">{action}</div>}
         </div>
