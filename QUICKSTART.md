@@ -45,7 +45,7 @@ It's already signed in through the workshop and reads `CLAUDE.md` automatically,
 **Start every session with:**
 > Pull the latest main, then create (or switch to) my branch `<yourname>/<feature>`.
 
-**Then describe your task**, for example:
+**Then paste your task prompt** from **[docs/TEAM-PROMPTS.md](docs/TEAM-PROMPTS.md)** (one per teammate: it verifies your setup, then walks Claude through your feature step by step). Short versions:
 - **TD:** *Build a family dashboard page with charts from `/api/trends/<id>` and `/api/vitals/<id>`. Test it, commit, push and open a PR.*
 - **Ish:** *Add a Gemini wellness check-in API route that uses `/api/family/<id>/profile` and `/api/trends/<id>` as context. Test it and open a PR.*
 - **Jam:** *Build a medicine search page using `/api/medicines/search`. Test it and open a PR.*
