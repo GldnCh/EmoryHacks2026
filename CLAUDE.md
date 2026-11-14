@@ -4,6 +4,8 @@ IDoc is a telehealth platform. Patients get AI-led wellness checkups over Chert'
 
 Built at **Emory Hacks 2026** (Healthcare track), Fri Nov 13 to Sun Nov 15, 2026.
 
+**Live app:** https://idoc-wall-e9.vercel.app. Vercel project `idoc` (team Wall-E, owner: Cam). Every merge to `main` redeploys it, and each PR gets its own preview link. The site is public, so never put secrets in `NEXT_PUBLIC_` variables.
+
 ## Event rules (do not break these)
 - All project code must be written **after 8PM Fri Nov 13**. Do not reuse code from older projects.
 - Frameworks, libraries and APIs are allowed, but **every one must be credited in the README** under "What we built vs. what we used". Add an entry whenever you add a dependency.
@@ -361,6 +363,7 @@ Whenever someone adds a new key, they must also add the variable **name** (no va
 - Open a **pull request into `main`**. Cam reviews and approves. If Cam is unavailable, any other teammate can approve.
 - Pull `main` into your branch often to avoid big merge conflicts.
 - Repo: https://github.com/GldnCh/EmoryHacks2026 (**public**)
+- Live app: https://idoc-wall-e9.vercel.app (updates after each merge to `main`; check your PR's Vercel preview link before asking for review)
 
 ## Safety and privacy rules
 - **Never commit secrets.** API keys go in `.env.local`, which must be listed in `.gitignore`. Keep a `.env.example` with variable names only. The repo is public.
