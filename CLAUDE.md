@@ -242,6 +242,97 @@ It's **already installed and set up in your Coder workspace**, so you don't need
 
 Start it inside the `EmoryHacks2026` folder so it reads this file automatically. If it asks you to sign in, follow the prompt.
 
+### Keeping your workspace running (do this once)
+By default a workspace stops automatically **1 day** after it starts. Extend yours so it stays up through submission (Sun 7:30AM) and finalist demos (Sun 10:15AM).
+
+In **PowerShell on your own computer** (not inside the workspace), using your own workspace name:
+```
+coder schedule extend idoc-<yourname> 30h
+coder schedule stop idoc-<yourname> 48h
+coder schedule show idoc-<yourname>
+```
+- `extend` pushes back the **current** stop time (30 hours from now).
+- `stop` sets the default for **future** starts to 2 days.
+- ✅ Check: `schedule show` prints a **STOPS NEXT** time on Sunday Nov 15, e.g.
+  ```
+  WORKSPACE         STARTS AT  STARTS NEXT  STOPS AFTER  STOPS NEXT
+  you/idoc-ish                              2d           2026-11-15T13:08:19-05:00
+  ```
+- Website alternative: open your workspace page and click **+** next to the stop time at the top, or open **Settings → Schedule**.
+- Forgot your workspace name? Run `coder list`.
+
+**Stopping does not delete anything.** Your files, the cloned repo, `node_modules` and `.env.local` are all kept. Only the running app stops. Still, **push your branch to GitHub often**; that's the real backup.
+
+### If your workspace stopped: reopen it and restart the app
+**1. Start the workspace** (pick one)
+- **Website:** go to https://coder.c1.workshop.cdr.dev/ → **Workspaces** → click your workspace → click **Start**. Wait for the status to turn green **Running** (usually under a minute; can take a few minutes).
+- **PowerShell on your computer:**
+  ```
+  coder start idoc-<yourname>
+  ```
+  ✅ It ends with a message that the workspace is running. Confirm with `coder list` (STATUS = **Started**).
+
+**2. Open code-server**
+- On the workspace page, click **code-server**. If it says unhealthy or keeps loading, wait a minute and refresh.
+- If the sidebar shows the `coder` folder instead of our project: **☰ → File → Open Folder →** `/home/coder/EmoryHacks2026` → **OK**.
+
+**3. Open a terminal and go to the project**
+**☰ → Terminal → New Terminal**, then:
+```
+cd ~/EmoryHacks2026
+git status
+```
+✅ The first line says `On branch <your branch>` (or `main`). If you see `No such file or directory`, the project folder is missing; go back to Step 8.
+
+**4. Get your teammates' latest work**
+```
+git checkout main
+git pull
+git checkout <yourname>/<feature>
+git merge main
+```
+✅ `git pull` says "Already up to date" or lists files. `git merge main` says "Already up to date" or "Merge made by...". If it says **CONFLICT**, stop and ask Claude or a teammate for help before continuing.
+
+**5. Reinstall packages only if they changed**
+If `git pull` listed `package.json` or `package-lock.json`, or `npm run dev` complains about a missing module, run:
+```
+npm install
+```
+✅ Ends with "added/changed N packages". Otherwise skip this step.
+
+**6. Restart the app**
+```
+npm run dev
+```
+✅ Within about 10 seconds you see:
+```
+ ⚠ Port 3000 is in use, using available port 3001 instead.
+   - Local:        http://localhost:3001
+   - Environments: .env.local
+ ✓ Ready in 2.3s
+```
+Leave this terminal running. Open a second terminal with **+** for other commands.
+
+**7. Open the app again**
+Click the **Ports** tab next to Terminal → port **3001** → **globe icon**. If 3001 isn't listed, click **Add Port** and type `3001`.
+✅ The IDoc page loads. `/api/health` shows the same `true` values as before (your `.env.local` was kept).
+
+**When to restart `npm run dev` without the workspace stopping**
+- You changed `.env.local` (keys are only read at startup).
+- You ran `npm install` or pulled new packages.
+- The terminal shows a crash or the page stops updating.
+
+To restart: click in the terminal running the app, press **Ctrl + C** (it returns to the `$` prompt), then run `npm run dev` again.
+
+**Troubleshooting**
+| Problem | Fix |
+|---|---|
+| `Start` fails or the workspace shows **Failed** | Click **Start** again. If it still fails, ask the Coder sponsor table. Your files are safe. |
+| `coder: not logged in` | Run `coder login https://coder.c1.workshop.cdr.dev/` (Step 5). |
+| `Port 3001 is in use` / app opens on 3002 | An old `npm run dev` is still running in another terminal. Close it with Ctrl + C, or just use the port it printed. |
+| `Module not found` | Run `npm install`, then `npm run dev`. |
+| Page loads but keys show `false` | Check `.env.local` is still filled in and saved, then restart the app. |
+
 ### Accounts and API keys (owner creates, then shares privately)
 Step-by-step instructions for each key: **[docs/API-KEYS.md](docs/API-KEYS.md)**. After filling in `.env.local`, open `/api/health` in the running app to check which keys work.
 
