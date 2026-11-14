@@ -80,6 +80,7 @@ The dashboard and `/family/<id>` use this: Full and Health-summary connections g
 | `GET /api/connections` | Connected people (what each side sees), incoming and outgoing requests |
 | `POST /api/connections { toId, level, relationship? }` | Send a request (`level` = what they'll see of you) |
 | `POST /api/connections/<id> { action: "accept", level? }` | Accept (`level` = what the sender sees of you; null = nothing) |
+| `GET /api/report/<memberId>` | Doctor report data + Gemini overview and questions to ask the doctor (cached 1 h, `?refresh=1`). Needs `checkins` (Full). Page: `/family/<id>/report` |
 | `GET /api/alerts` | Family alerts for you and your connections: a status per person and the alerts their sharing level allows |
 | `GET /api/reminders/<memberId>?days=7` | Medicine schedules, every dose in the window (taken / missed / due / upcoming), adherence, `canAct`. Needs `reminders` (Full) |
 | `POST /api/reminders/<memberId>` | `{ action: "log", scheduleId, scheduledFor, status }`, `{ action: "add", medicine, times, label? }`, `{ action: "remove", scheduleId }`. Needs `act` (the person or a guardian); logged as `dose.log` / `reminder.add` / `reminder.remove` |

@@ -27,6 +27,17 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 **Backup:** open `/api/trends/rosa` (in the same browser, so it knows whose iPhone this is) and point at July (`avgSystolic: 150`) vs October (`128`).
 
+### +0:20 · Reminders, alerts and the doctor report (Cam)
+**Click:** Dashboard → point to **Family alerts**: "Rosa missed 2 doses in the last 2 days", and Rosa's "May need a check-in" pill.
+> "iCare noticed before anyone else could: Grandma Rosa missed her evening pills twice this week. Jordan sees it because Rosa shares everything with her son. Sam only shares a summary, so Sam never sees the details."
+
+**Click:** Rosa's card → **Medication reminders**: the 7-day grid with the two red evening misses → tap **Taken** on tonight's dose (Jordan is her guardian).
+**Click:** **Doctor report** (top of Rosa's page) → scroll: questions to ask the doctor, doses taken, a year of averages → **Print or save as PDF**.
+> "Before her next visit, Jordan prints one page for her doctor, with questions to ask, written by Gemini from her real numbers."
+
+**Big safety moment (if the FaceTime agent is running):** FaceTime iCare and say *"I have chest pain"*. The agent tells you to call 911. After hanging up, refresh Jordan's dashboard: an **urgent** alert appears ("Rosa's check-in mentioned emergency symptoms").
+**Backup:** open `/api/alerts` and `/api/reminders/rosa` in the same browser.
+
 ### 0:40–1:05 · AI check-in and summary ⏳ Ish
 **Click:** Check-in → pick Rosa → "Get yearly summary".
 > "Gemini reads her whole year and explains it in plain language, with what to bring up with her doctor. It never diagnoses or changes doses, and it always says it's not medical advice."
@@ -67,7 +78,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ---
 
 ## 30-second version (if time is cut)
-1. Dashboard → Rosa (opens on the **BP** tab): the spike and recovery (10 s)
+1. Dashboard → Rosa (opens on the **BP** tab): the spike and recovery, then the missed-doses alert (10 s)
 2. Medicine search "wal-zyr" → cetirizine (8 s)
 3. Tiger Data page: 2.1M readings, 97% compression, ~3 ms (8 s)
 4. Close line (4 s)
@@ -77,7 +88,8 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ## Before you present (do this 15 minutes before)
 - [ ] On the demo laptop's browser, open `/setup` and choose **Jordan** (once; it's remembered). To show another person's view, use "Pretend to be another iPhone" on `/account`, or a private window
 - [ ] Open every page once on the live site to warm it up (first loads are slower): `/`, `/dashboard`, `/family/rosa`, `/checkin`, `/medicines?member=rosa`, `/medicines/lisinopril`, `/specialists?memberId=rosa`, `/data`
-- [ ] Run each AI action once (Rosa's yearly summary) so the cached answer is instant during the demo
+- [ ] Run each AI action once (Rosa's yearly summary, and Rosa's doctor report at `/family/rosa/report`) so the cached answer is instant during the demo
+- [ ] Don't tap "Log as taken" on Rosa's missed doses before the demo (that clears the alert). Tonight's "Taken" taps are fine
 - [ ] Check `/api/health` shows `gemini`, `typesense` and `tigerData` all `true`
 - [ ] **Ish: start the Chert FaceTime agent** in your Coder workspace (see `chert-agent/README.md`) and place one test FaceTime call; keep the workspace awake through the demo
 - [ ] Laptop: browser zoom 125–150%, notifications off, charger plugged in, other tabs closed

@@ -61,6 +61,10 @@ We wanted one place where a family can see its health over time, understand it i
 iCare is a family telehealth companion. Our demo follows the **Rivera family**, a fictional family with a year of realistic health data:
 
 - **Family health dashboard:** a year of Apple Health–style data (steps, resting heart rate, sleep, exercise, blood pressure, blood glucose) for every family member, including relatives who live far away. The dashboard shows one card per person with their latest monthly averages, each marked green or amber with an arrow for better or worse than the month before.
+- **Family sharing, like Apple Family Sharing but per person:** iCare is built as an iPhone app, so the phone is the identity: no sign-in, nothing expires. Family members connect by request and accept and choose what each other sees: **Full**, **Health summary** or **Basic** ("doing okay" plus important alerts), with **guardians** for kids and aging parents. Either side can disconnect, with clear warnings. The dashboard only shows the people you're connected to, at the level they share, and the server checks every request.
+- **Medication reminders and dose tracking:** each person's schedule from their prescription label, a one-tap **Taken** button, and a 7-day history. Guardians can log doses for a parent or child. Rosa's card shows she missed her evening pills twice this week. iCare never suggests doses; it only records what the label says and what was taken.
+- **Family alerts:** iCare tells the right people when something needs attention: missed doses, blood pressure running high, and, most important, a check-in (including a FaceTime call) where someone mentioned emergency symptoms. Each person sees only the detail their sharing level allows. A Basic connection just gets "Rosa may need help. Consider calling her."
+- **Doctor report:** a one-page report to print or save as PDF before a visit: conditions, medicines, how many doses were taken over 30 days, a year of monthly averages, recent check-ins and alerts. Gemini adds a short overview and **questions to ask the doctor**, written only from the numbers in the report.
 - **Minute-by-minute vitals:** zoom from a whole year down to a single day, hour by hour: heart rate while sleeping, during Sam's evening run, or through Jordan's flu week. Each person's page has a date picker that charts any day's hourly heart rate (average plus lowest-to-highest range) and steps, read from Tiger Data's hourly continuous aggregate.
 - **Monthly and yearly health trends:** the data rolls up into monthly trends, so changes stand out: Jordan's blood pressure falling from 138/88 to 126/81 after he started walking, or Grandma Rosa's spiking to 151/90 over the summer and recovering after a medication review. Gemini turns each month and year into a short, friendly report: a headline, 3–5 highlights, things worth asking a doctor about, and encouragement, all written from the real numbers.
 - **Medicine search:** search by brand, generic name, misspelling or symptom ("zyrtec", "heartburn"). Every medicine shows official FDA label information, including boxed warnings, plus a plain-language explanation from MedlinePlus.
@@ -111,6 +115,7 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - Safety that doesn't depend on the AI behaving: emergency phrases are caught in code before Gemini is called, and boxed FDA warnings are always shown word for word even if the AI leaves them out.
 - One set of prompts and safety rules shared by the chat and the FaceTime agent.
 - Fitting a year of minute-by-minute vitals for a whole family (2.1M readings) into 6.2 MB, with every dashboard query answering in a few milliseconds.
+- Privacy by design: every health route checks who is asking and what that person shares with them, and alerts give Basic connections a nudge to call without revealing any health details.
 - **[ADD as features land]**
 
 ## What we learned
@@ -122,8 +127,8 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - A **native iOS app with live Apple HealthKit** data, instead of sample data
 - **Search by photo:** snap a pill bottle and have AI read just the drug name off the label, then run the normal search
 - **Clinician review** of AI summaries before they reach patients
-- **Booking and sharing:** send a monthly summary to a chosen doctor, or book with a suggested specialist
-- **Medication reminders and adherence tracking**, which would have caught Rosa's missed doses sooner
+- **Booking and sharing:** book with a suggested specialist, and send the doctor report straight to the clinic
+- **Real reminders:** iPhone and Apple Watch notifications for medicine times, and Apple Watch safety alerts (falls, irregular rhythm) feeding family alerts
 - **Caller identity from the iPhone:** today the FaceTime assistant starts by asking who it's speaking with, and works out from the conversation whose history the summary belongs in. In the native app, iCare would know whose iPhone it is (the web demo already asks once, at setup: "Whose iPhone is this?"), so a FaceTime call from that phone would arrive linked to that person: no "who's calling?", their own health context from the first sentence, and the summary filed under the right person automatically. It's also more private: identity comes from the device instead of a name said out loud, and the Family Sharing levels we already built (Full, Health summary, Basic) decide who in the family sees each summary. A parent checking in for a child would still say who the call is for, just as a guardian can open a child's iCare from their own phone today
 - Support for **more languages and reading levels**
 - **[MOVE any unfinished features from "What it does" here]**
