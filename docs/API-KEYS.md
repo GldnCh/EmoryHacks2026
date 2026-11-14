@@ -1,6 +1,6 @@
 # API keys
 
-The team's keys already exist. **TD has the API keys** (Gemini, Typesense and any others TD created). **Cam has `TIGER_DATABASE_URL`.** Ask them **privately** (DM). **Never** paste a key into the repo, a PR, an issue or a group channel; the repo is public.
+The team's keys already exist. **Cam holds and distributes all of them** by private DM, and each teammate gets only what they need. **Never** paste a key into the repo, a PR, an issue, a group channel or a prompt to Claude; the repo is public.
 
 ## Using the keys in your workspace
 1. `.env.local` was created by the setup script (or run `cp .env.example .env.local` once in `~/EmoryHacks2026`).
@@ -10,12 +10,12 @@ The team's keys already exist. **TD has the API keys** (Gemini, Typesense and an
 
 | Variable | What it's for | Get it from | Server-only? |
 |---|---|---|---|
-| `GEMINI_API_KEY` | AI check-ins and summaries | TD | ✅ yes |
+| `GEMINI_API_KEY` | AI check-ins and summaries | Cam → Ish | ✅ yes |
 | `GEMINI_MODEL` | Optional model override (default `gemini-3.5-flash-lite`, set in `src/lib/gemini.ts`) | — | ✅ yes |
-| `TYPESENSE_HOST`, `TYPESENSE_API_KEY` | Medicine search (admin key) | TD | ✅ yes |
-| `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY` | Search-only key, safe in the browser | TD | ❌ public by design |
-| `TIGER_DATABASE_URL` | Tiger Data database (health history). Teammates get a read-only login | Cam | ✅ yes |
-| Chert variables | Video check-ins: add names to `.env.example` once we have Chert's docs | Ish / TD | ✅ yes |
+| `TYPESENSE_HOST`, `TYPESENSE_API_KEY` | Medicine search (admin key) | Cam → Jam | ✅ yes |
+| `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY` | Search-only key, safe in the browser | Cam → Jam | ❌ public by design |
+| `TIGER_DATABASE_URL` | Tiger Data database (health history). **Teammates get the read-only `idoc_team` login**; only Cam has the admin login | Cam → everyone | ✅ yes |
+| Chert / LiveKit variables | Video check-ins: Ish adds the names to `.env.example` in their PR and sends values to Cam for Vercel | Ish | ✅ yes |
 | `OPENFDA_API_KEY` | Optional, only if we hit openFDA's free daily limit | — | ✅ yes |
 
 The public medical databases (openFDA, RxNorm, MedlinePlus, Clinical Tables, NPI Registry) need **no keys**.
@@ -23,7 +23,7 @@ The public medical databases (openFDA, RxNorm, MedlinePlus, Clinical Tables, NPI
 ## Live site (Vercel)
 The live app reads keys from Vercel, not from anyone's `.env.local`. **Cam** adds them: Vercel → project `idoc` → **Settings → Environment Variables** → add each key as **Sensitive**, for **Production** and **Preview** → then **Redeploy** the latest production deployment (keys are only picked up by a new deploy).
 
-Already in Vercel (Production): `TIGER_DATABASE_URL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `TYPESENSE_HOST`, `TYPESENSE_API_KEY`, `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY`. Typesense is seeded (38 medicines).
+Already in Vercel (**Production and Preview**): `TIGER_DATABASE_URL` (admin), `GEMINI_API_KEY`, `GEMINI_MODEL`, `TYPESENSE_HOST`, `TYPESENSE_API_KEY`, `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY`. Typesense is seeded (38 medicines).
 
 ## Data setup that uses the keys
 - **Typesense:** after `TYPESENSE_*` is in your `.env.local`, run `npm run seed:typesense` once (any teammate). It loads the 38 medicines, enriched with RxNorm brand names and FDA "uses" text, and ends with `Imported 38/38 medicines into Typesense.`

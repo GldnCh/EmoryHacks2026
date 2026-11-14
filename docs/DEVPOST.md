@@ -7,6 +7,23 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 - Owners: Cam keeps this file up to date. Each teammate updates their own feature's lines when it lands.
 - Before submitting, check the prize rules at the sponsor tables and fill in the **[CHECK]** items.
 
+## Submission status on Devpost (updated by Cam's Claude)
+The real submission is on Devpost: Emory Hacks 2026 → **My projects** → **IDoc** → Edit (Cam's account). Steps done: Manage team ✅ · Project overview ✅ · Project details ✅ except video · Additional info ✅ · Submit ⏸️
+
+| Field | State |
+|---|---|
+| Name / elevator pitch | ✅ IDoc / "Your family's health, explained..." |
+| About the project | ✅ Full story, matches what is live (Gemini described as in progress) |
+| Built with | ✅ 17 tags |
+| Try it out | ✅ Live site + GitHub |
+| **Video demo link** | ❌ **Required.** Cam records (<2 min, public/unlisted YouTube or Vimeo) following docs/DEMO.md |
+| Track | ✅ Healthcare |
+| Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense. ⚠️ Gemini (needs Gemini live + Gemini Project Number). ⚠️ Chert (only keep if the Chert check-in works) |
+| Gen-AI question | ✅ Answered (Claude Code for development; Gemini in progress) |
+| Terms checkbox + Submit | ⏸️ Cam, after the video, by Sun 7:30 AM |
+
+**When Ish's check-in merges:** update the About story (What it does, How we built it), the gen-AI answer and the Gemini/Chert prize decisions, then resolve the markers below.
+
 ---
 
 ## Project name
@@ -39,7 +56,7 @@ IDoc is a family telehealth companion. Our demo follows the **Rivera family**, a
 - **AI wellness check-in:** a warm, one-question-at-a-time check-in about sleep, energy, pain, mood, medications and new symptoms, personalized with the person's own trends, ending with a short summary and a suggested next step ("mention the missed doses to your doctor"). Works as a chat on the `/checkin` page.
 - **…over FaceTime (Chert):** FaceTime IDoc's number from an iPhone and the same check-in answers with an animated face and a natural Gemini voice. It asks who's calling (Jordan, Sam, Mia's parent or Grandma Rosa) and uses that person's data. **[CHECK: confirm a full FaceTime call works before demo day]**
 - **Emergency safety net:** if anyone mentions chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts, IDoc immediately tells them to call 911 (and 988), before the AI is even asked. In chat and on FaceTime.
-- **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text. **[WHEN BUILT: "Explain this label" button on the medicine page]**
+- **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text, from the "Explain this label simply" button on every medicine page.
 - **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).
 
 IDoc never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
@@ -109,9 +126,10 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - Connectors for openFDA, RxNorm, MedlinePlus, Clinical Tables and the NPI Registry, including condition-to-specialist matching
 - Tiger Data schema, seed script and trend queries; Typesense indexing with RxNorm/FDA enrichment
 - Medicine search (Typesense, filters, voice search) and the medicine detail and specialist finder pages
-- Gemini AI layer: safety rules, red-flag check, summaries, check-in chat, label explanations, and the `/checkin` page
-- The Chert FaceTime check-in agent (Gemini Live)
-- App shell, family dashboard, per-person trend and day-view charts, and the Tiger Data page
+- App shell, family dashboard, per-person trend and day-view charts, and the Tiger Data page (TD)
+- Medicine search on Typesense, medicine detail pages with FDA boxed warnings, and the specialist finder (Jam)
+- Gemini AI layer: safety rules, red-flag check, summaries, check-in chat, label explanations, and the `/checkin` page (Ish)
+- The Chert FaceTime check-in agent (Gemini Live) (Ish)
 
 **Frameworks, libraries and services used (not built by us):**
 Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB/PostgreSQL, `pg`), Typesense, Google Gemini API (incl. Gemini Live), Chert (`@trychert/facetime` and its video-agent starter), LiveKit Agents and LiveKit Cloud, openFDA, RxNorm/RxNav, MedlinePlus Connect, NLM Clinical Tables, NPI Registry.
@@ -119,7 +137,7 @@ Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB
 ## Prize tracks to select
 - **Healthcare** track
 - **Best Use of Tiger Data:** 2.1M minute-level vitals in a hypertable; relational profiles and metric streams side by side in one database (one SQL JOIN for "everyone with hypertension and their monthly BP"); 3 continuous aggregates powering lag-free dashboard charts (2–4 ms); **97% compression (212.3 MB → 6.2 MB)**; and a live raw-vs-aggregate benchmark (~22 ms vs ~3 ms) shown in the demo. **[CHECK: sponsor's requirements]**
-- **Best Use of Gemini API:** Gemini powers every AI feature, all behind one shared set of safety rules: (1) the **wellness check-in chat**, one question at a time, personalized with the person's Tiger Data trends, ending in a summary and next step; (2) **monthly and yearly health summaries** as validated JSON (headline, highlights, things to ask a doctor, encouragement) built from real numbers; (3) **plain-language FDA label explanations** that use only the label text and always keep boxed warnings; (4) **Gemini Live native audio** answering real iPhone **FaceTime** calls through Chert. **Safety guardrails:** an emergency red-flag check runs before Gemini (911/988 in ~10 ms), and the AI never diagnoses, never suggests medicines or doses, and always says it's not medical advice. **[CHECK: sponsor's submission requirements; confirm Gemini keys are set in Vercel]**
+- **Best Use of Gemini API:** Gemini powers every AI feature, all behind one shared set of safety rules: (1) the **wellness check-in chat**, one question at a time, personalized with the person's Tiger Data trends, ending in a summary and next step; (2) **monthly and yearly health summaries** as validated JSON (headline, highlights, things to ask a doctor, encouragement) built from real numbers; (3) **plain-language FDA label explanations** that use only the label text and always keep boxed warnings; (4) **Gemini Live native audio** answering real iPhone **FaceTime** calls through Chert. **Safety guardrails:** an emergency red-flag check runs before Gemini (911/988 in ~10 ms), and the AI never diagnoses, never suggests medicines or doses, and always says it's not medical advice. Gemini keys are set in Vercel (Production + Preview) and all routes are live. **[CHECK: sponsor's submission requirements; add the Gemini Project Number on Devpost]**
 - **[CHECK: any other MLH prizes we qualify for, e.g. domain or DEV writing]**
 
 ## Team

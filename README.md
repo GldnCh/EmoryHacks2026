@@ -11,7 +11,8 @@
 | File | What's in it |
 |---|---|
 | [QUICKSTART.md](QUICKSTART.md) | Get connected: Coder workspace, setup script, keys, Claude Code |
-| [CLAUDE.md](CLAUDE.md) | Team, rules, features, stack, Git workflow (Claude Code reads this automatically) |
+| [CLAUDE.md](CLAUDE.md) | Team, rules, features and their live status, stack (Claude Code reads this automatically) |
+| [docs/WORKFLOW.md](docs/WORKFLOW.md) | How we work: branches, PRs, reviews, merges, deploys, keys, file ownership, timeline |
 | [docs/API-KEYS.md](docs/API-KEYS.md) | Which keys exist, who has them, adding them locally and in Vercel |
 | [docs/SAMPLE-DATA.md](docs/SAMPLE-DATA.md) | The fictional Rivera family and the medicine list |
 | [docs/MEDICAL-DATA.md](docs/MEDICAL-DATA.md) | Public medical databases, Tiger Data, and every API route |
