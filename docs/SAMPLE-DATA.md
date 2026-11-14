@@ -16,6 +16,8 @@ Works **without any API keys**, so the dashboard and search can be built right a
 
 Each family member also lists `conditions` and `medications` (ids from the medicine list).
 
+**Minute-level vitals (Apple Watch-style):** `getMinuteVitals(memberId, date)` returns 1,440 readings (heart rate + steps) for any day, about 2.1 million for the family's year. They add up to that day's step total and follow each person's routine: sleeping heart rate overnight, Jordan's morning walk, Sam's 6 PM run, Mia's after-school sports, Rosa's gentle morning walk. `getHourlyVitals()` rolls a day up by hour. This is what gets loaded into Tiger Data's `vitals_minute` hypertable.
+
 ### Daily record shape
 ```json
 {

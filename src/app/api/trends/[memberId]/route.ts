@@ -1,6 +1,7 @@
 // GET /api/trends/<memberId>              -> monthly trends (input for monthly/yearly summaries)
 // GET /api/trends/<memberId>?period=week  -> weekly trends
-// Uses Tiger Data when TIGER_DATABASE_URL is set, otherwise the built-in sample data (same shape).
+// Uses Tiger Data when TIGER_DATABASE_URL is set (monthly = pre-computed continuous aggregate),
+// otherwise the built-in sample data (same shape). `queryMs` shows how fast the database answered.
 import { NextResponse } from "next/server";
 import { getMember, getMonthlySummaries } from "@/lib/sample-data/health";
 import { getTrendsFromTiger, tigerConfigured } from "@/lib/tiger";
@@ -12,8 +13,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ memberId
 
   if (tigerConfigured()) {
     try {
-      const trends = await getTrendsFromTiger(memberId, period);
-      if (trends.length) return NextResponse.json({ memberId, period, source: "Tiger Data", trends });
+      const { trends, queryMs, from } = await getTrendsFromTiger(memberId, period);
+      if (trends.length) return NextResponse.json({ memberId, period, source: "Tiger Data", from, queryMs, trends });
     } catch (err) {
       console.error("Tiger Data query failed, falling back to sample data:", err);
     }

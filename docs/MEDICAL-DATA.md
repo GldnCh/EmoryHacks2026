@@ -10,7 +10,7 @@ IDoc combines **our fabricated Rivera family** (the patients) with **free public
 | **MedlinePlus Connect** | National Library of Medicine | no | Plain-language explanations of conditions and drugs | `src/lib/medical/medlineplus.ts` |
 | **NLM Clinical Tables** | National Library of Medicine | no | Condition/symptom autocomplete with ICD-10 codes | `src/lib/medical/clinicaltables.ts` |
 | **NPI Registry** | CMS (Medicare) | no | Real licensed specialists by specialty and location | `src/lib/medical/npi.ts` |
-| **Tiger Data** | Tiger Data (TimescaleDB) | yes: `TIGER_DATABASE_URL` | Storing the family's health history; fast monthly/weekly trend queries | `src/lib/tiger.ts`, `db/tiger/schema.sql` |
+| **Tiger Data** | Tiger Data (TimescaleDB) | yes: `TIGER_DATABASE_URL` | Our only database: profiles + daily metrics + ~2.1M minute-level heart-rate/step readings, 3 continuous aggregates (hourly, daily, monthly), compression | `src/lib/tiger.ts`, `db/tiger/schema.sql`, `scripts/seed-tigerdata.mjs` |
 | **Typesense** | Typesense Cloud | yes | Fast medicine search over our list + RxNorm brands + FDA "uses" text | `scripts/seed-typesense.mjs` |
 
 `src/lib/medical/conditions.ts` links each family condition to its ICD-10 code and the specialist type that treats it. Add a row there when you add a condition.
@@ -27,6 +27,9 @@ IDoc combines **our fabricated Rivera family** (the patients) with **free public
 | `/api/family/<id>/profile` | Family member + explained conditions + medications with MedlinePlus links + latest month | `/api/family/jordan/profile` |
 | `/api/trends/<id>` | Monthly trends from **Tiger Data** if connected, otherwise sample data (same shape) | `/api/trends/rosa` |
 | `/api/trends/<id>?period=week` | Weekly trends (Tiger Data only) | |
+| `/api/vitals/<id>?date=YYYY-MM-DD` | One day hour by hour (heart rate avg/min/max, steps) from minute readings; Tiger Data `vitals_hourly` aggregate, or computed from sample data | `/api/vitals/sam?date=2026-10-03` (6 PM run: 127 bpm, 8,410 steps) |
+| `/api/tiger/cohort?condition=` | Everyone with a condition + their monthly trends: profiles JOINed with the time-series aggregate in one query | `?condition=hypertension` → Jordan + Rosa |
+| `/api/tiger/stats` | Demo numbers: rows stored, chunks, compression savings, continuous aggregates, raw-vs-aggregate query speed (Tiger Data only) | |
 
 Results from the public APIs are cached for a day. If a public API is down, routes still return our own sample data.
 

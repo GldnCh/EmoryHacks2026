@@ -66,11 +66,18 @@ Tiger Data (TimescaleDB, built on PostgreSQL) is IDoc's **only database**. It st
    ```
    npm run seed:tiger
    ```
-   ✅ Expected output ends with:
+   This loads profiles, 1,460 daily records and **~2.1 million minute-by-minute heart-rate/step readings**, builds 3 continuous aggregates, turns on compression and runs a speed benchmark. It takes about 3–5 minutes. ✅ Expected output (numbers will vary):
    ```
-   Loaded into Tiger Data: jordan=365 days, mia=365 days, rosa=365 days, sam=365 days
+   ✓ Schema ready: family_members, health_metrics + vitals_minute hypertables, 3 continuous aggregates.
+   ✓ 4 profiles and 1460 daily records loaded.
+     jordan: 525,600 minute readings in 40s
+     ...
+   ✓ Continuous aggregates refreshed (hourly, daily, monthly) with auto-refresh policies.
+   ✓ Compression on: vitals_minute 180.0 MB → 15.0 MB (92% smaller).
+   ✓ Benchmark (Jordan's daily heart rate + steps for a year): raw minutes 300 ms vs continuous aggregate 5 ms.
+   Loaded into Tiger Data: jordan=365 days/525,600 minutes, ...
    ```
-   (Try `npm run seed:tiger -- --dry-run` first; it needs no database.)
+   - `--dry-run` first checks everything without a database. `--skip-minute` loads only profiles + daily data (fast). `--reset` reloads the minute data from scratch.
 6. Give teammates access if they need the console: in the Tiger Data console, open your project's settings and invite them as members (if offered). Otherwise just share the connection string privately; that's all the app needs.
 7. Add the same `TIGER_DATABASE_URL` in Vercel (section 5).
 
@@ -79,7 +86,7 @@ Notes:
 - Without it, the app still runs: `/api/trends` falls back to the built-in sample data.
 - The tables are in `db/tiger/schema.sql`: `health_metrics` (a hypertable, one row per person per day) and `family_members`.
 
-✅ Check: `/api/health` shows `"tigerData": true`, and `/api/trends/jordan` says `"source": "Tiger Data"`.
+✅ Check: `/api/health` shows `"tigerData": true`, `/api/trends/jordan` says `"source": "Tiger Data"`, and `/api/tiger/stats` shows the row counts, compression savings and benchmark.
 
 ---
 
