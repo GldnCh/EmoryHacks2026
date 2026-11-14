@@ -140,3 +140,48 @@ export async function getTigerStats() {
     },
   };
 }
+
+export interface CheckinSummaryRecord {
+  memberId: string | null; // null when the caller wasn't identified
+  channel: "facetime";
+  callId: string | null;
+  startedAt: string; // ISO timestamp
+  endedAt: string;
+  points: string[];
+  nextStep: string;
+  emergency: boolean;
+}
+
+/** Saves one finished check-in to `checkin_summaries`. Saving the same callId twice keeps the first row. */
+export async function saveCheckinSummary(s: CheckinSummaryRecord) {
+  const { rows, queryMs } = await timed<{ id: string }>(
+    `INSERT INTO checkin_summaries (member_id, channel, call_id, started_at, ended_at, points, next_step, emergency)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     ON CONFLICT (call_id) DO NOTHING
+     RETURNING id`,
+    [s.memberId, s.channel, s.callId, s.startedAt, s.endedAt, s.points, s.nextStep, s.emergency],
+  );
+  return { id: rows[0] ? Number(rows[0].id) : null, queryMs };
+}
+
+/** A member's check-in history, newest first. */
+export async function getCheckinSummaries(memberId: string, limit = 20) {
+  const { rows, queryMs } = await timed<Record<string, unknown>>(
+    `SELECT id, channel, call_id, started_at, ended_at, points, next_step, emergency
+       FROM checkin_summaries WHERE member_id = $1 ORDER BY started_at DESC LIMIT $2`,
+    [memberId, limit],
+  );
+  return {
+    checkins: rows.map((r) => ({
+      id: Number(r.id),
+      channel: String(r.channel),
+      callId: r.call_id == null ? null : String(r.call_id),
+      startedAt: (r.started_at as Date).toISOString(),
+      endedAt: (r.ended_at as Date).toISOString(),
+      points: r.points as string[],
+      nextStep: String(r.next_step),
+      emergency: Boolean(r.emergency),
+    })),
+    queryMs,
+  };
+}

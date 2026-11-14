@@ -87,3 +87,20 @@ SELECT member_id,
 FROM health_metrics
 GROUP BY member_id, time_bucket(INTERVAL '1 month', day)
 WITH NO DATA;
+
+-- Check-in summaries: one row per finished FaceTime check-in (written by POST /api/ai/call-summary).
+-- Only the AI summary is kept, not the call transcript. member_id is NULL when the caller wasn't identified.
+CREATE TABLE IF NOT EXISTS checkin_summaries (
+  id         BIGSERIAL   PRIMARY KEY,
+  member_id  TEXT        REFERENCES family_members(id),
+  channel    TEXT        NOT NULL,
+  call_id    TEXT        UNIQUE,
+  started_at TIMESTAMPTZ NOT NULL,
+  ended_at   TIMESTAMPTZ NOT NULL,
+  points     TEXT[]      NOT NULL,
+  next_step  TEXT        NOT NULL,
+  emergency  BOOLEAN     NOT NULL DEFAULT FALSE,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS checkin_summaries_member_idx ON checkin_summaries (member_id, started_at DESC);

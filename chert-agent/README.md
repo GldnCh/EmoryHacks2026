@@ -13,6 +13,7 @@ iPhone FaceTime ──> Chert line (Mac bridge) ──> LiveKit room ──> thi
                                      iCare app  <────────────────────┘
                                      GET  /api/ai/voice-prompt  safety rules + check-in steps + family trends (Tiger Data)
                                      POST /api/ai/red-flag      emergency check on each caller sentence
+                                     POST /api/ai/call-summary  when the call ends: summary saved to the caller's history
 ```
 The prompts and safety rules live in the iCare app (`src/lib/ai/`), not here, so the chat and the FaceTime agent always follow the same rules.
 
@@ -40,6 +41,6 @@ The prompts and safety rules live in the iCare app (`src/lib/ai/`), not here, so
 | `AGENT_NAME` | `idoc-checkin` (must match `chert dev --agent`) |
 | `IDOC_API_URL` | `http://localhost:3001`, or `https://icare-wall-e9.vercel.app` once merged |
 | `GEMINI_LIVE_MODEL` | Optional. Default `gemini-2.5-flash-native-audio-preview-12-2025` |
-| `GEMINI_LIVE_VOICE` | Optional. Default `Aoede` |
+| `GEMINI_LIVE_VOICE` | Optional. Default `Sulafat` (warm) |
 
 More: `docs/CHERT.md`, and Chert's rules for coding agents in `AGENTS.md`.
