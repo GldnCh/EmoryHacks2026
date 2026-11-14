@@ -110,7 +110,7 @@ export async function searchTypesense(q: string, filters: SearchFilters = {}): P
     q,
     query_by: QUERY_BY,
     query_by_weights: "5,4,3,2,1",
-    num_typos: 2, // "lisinoprl" -> lisinopril
+    num_typos: 2, // "lisinoprl" -> lisinopril (2 is Typesense's maximum; longer typos go through src/lib/spelling.ts)
     typo_tokens_threshold: 1,
     facet_by: FACET_BY,
     max_facet_values: 20,
@@ -155,4 +155,19 @@ export function searchLocal(q: string, filters: SearchFilters = {}, alsoMatch: s
     facets: countFacets(matched),
     searchMs: Math.round(performance.now() - started),
   };
+}
+
+/** Words of a query or highlight, lowercase. */
+const tokens = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+
+/**
+ * True if the hit matched one of the query's words as typed (or as the start of a word, for search-as-you-type),
+ * not only through a typo. Typo-only matches on a correctly spelled word are often wrong:
+ * "acne" typo-matches "ACE inhibitor" and "aches". Hits without highlights (local list) count as exact.
+ */
+export function isExactHit(hit: MedHit, query: string): boolean {
+  if (!hit.highlights.length) return true;
+  const words = tokens(query);
+  const marked = hit.highlights.flatMap((h) => [...h.snippet.matchAll(/<mark>(.*?)<\/mark>/g)].flatMap((m) => tokens(m[1])));
+  return marked.some((m) => words.some((w) => m.startsWith(w) || (w.length >= 4 && w.startsWith(m))));
 }

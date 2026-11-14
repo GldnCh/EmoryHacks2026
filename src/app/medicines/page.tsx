@@ -178,7 +178,11 @@ function MedicineSearch() {
   const term = q.trim();
   const rxCount = data?.facets.prescriptionRequired.find((f) => f.value === "true")?.count ?? 0;
   const otcCount = data?.facets.prescriptionRequired.find((f) => f.value === "false")?.count ?? 0;
-  const rxMatch = data?.rxnorm && data.rxnorm.ingredient.toLowerCase() !== data.query.toLowerCase() ? data.rxnorm.ingredient : null;
+  // "Showing results for …": the drug RxNorm matched ("zyrtec" -> cetirizine) or the corrected spelling ("insomnea" -> insomnia)
+  const rxMatch =
+    (data?.rxnorm && data.rxnorm.ingredient.toLowerCase() !== data.query.toLowerCase() ? data.rxnorm.ingredient : null) ??
+    data?.spelling?.corrected ??
+    null;
 
   return (
     <div className="flex flex-col gap-5">

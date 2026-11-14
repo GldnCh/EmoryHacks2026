@@ -19,6 +19,7 @@ export interface SearchResult {
 export interface SearchResponse {
   query: string;
   rxnorm: { rxcui: string; ingredient: string; brandNames: string[]; matchedFrom: string } | null;
+  spelling?: { corrected: string; source: "MedlinePlus" | "iCare medicine list" } | null;
   count: number;
   results: SearchResult[];
   source: "Typesense" | "Local list";
