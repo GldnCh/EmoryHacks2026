@@ -376,6 +376,8 @@ Whenever someone adds a new key, they must also add the variable **name** (no va
 |---|---|
 | Fri 8PM–12AM | Repo and stack scaffolded, API keys working, each core feature has a "hello world" |
 | Sat morning | Core features working end to end |
-| **Sat 6PM** | **Feature freeze.** Polish, fix bugs, write the README and Devpost |
-| Sat evening | Deploy to Vercel, record a backup demo video, rehearse the pitch |
-| **Sun 7:30AM** | **Submit** |
+| Sat afternoon–night | **No feature freeze** (Lead decision): keep building and merging features. Update `docs/DEVPOST.md` as features land |
+| Sat evening | Record a backup demo video of what works, rehearse the pitch |
+| **Sun 6:30AM** | **Last merge to `main`.** After this, only fixes for anything broken on the live site |
+| Sun 6:30–7:30AM | Check every feature on https://idoc-wall-e9.vercel.app, finalize Devpost |
+| **Sun 7:30AM** | **Submit** (hard deadline 8AM) |
