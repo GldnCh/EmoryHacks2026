@@ -1,6 +1,7 @@
 // openFDA (U.S. FDA): official drug labels. Docs: https://open.fda.gov/apis/drug/label/
 // No key needed (limit ~1,000 requests/day per IP). Add OPENFDA_API_KEY for a higher limit.
 // FDA disclaimer: do not rely on openFDA to make decisions regarding medical care.
+import { dedupeSentences } from "@/lib/dedupe-text";
 import { fetchJson, safeTerm, trimText } from "./http";
 
 const BASE = "https://api.fda.gov/drug/label.json";
@@ -42,29 +43,22 @@ function raw(r: Raw, ...keys: string[]) {
 const first = (r: Raw, ...keys: string[]) => trimText(raw(r, ...keys));
 
 /**
- * Prescription labels put the short "Highlights" boxed warning and the full one in the same field,
- * so the heading ("WARNING: FETAL TOXICITY") appears twice. Keep the first copy and drop the
- * "see full prescribing information" pointers and section numbers like "( 5.1 )".
+ * Boxed warnings, cleaned for display. Prescription labels put the short "Highlights" warning and the full one
+ * in the same field, so the text repeats ("WARNING: FETAL TOXICITY" twice on lisinopril). We drop pointers like
+ * "See full prescribing information…" and section numbers "( 5.1 )", then remove exact repeats with
+ * dedupeSentences (src/lib/dedupe-text.ts). Distinct sentences are always kept, and the text isn't shortened.
  */
 export function cleanBoxedWarning(text: string | undefined): string | undefined {
   if (!text) return undefined;
-  // the app's callout is already titled "FDA boxed warning", so drop a leading "BOXED WARNING" label
-  let t = text.replace(/\s+/g, " ").trim().replace(/^BOXED WARNING:?\s+(?=WARNING)/i, "");
-  const heading = t.match(/^WARNINGS?:?[A-Z0-9 ,;:'()&/-]*?(?=\s+[A-Z][a-z])/)?.[0]?.trim();
-  if (heading && heading.length >= 8) {
-    const again = t.indexOf(heading, heading.length);
-    if (again > 0) t = t.slice(0, again);
-  }
-  // Lettered warnings list their titles first ("(A) X (B) Y (A) X details…"); drop that list.
-  const a1 = t.indexOf("(A) ");
-  const a2 = a1 >= 0 ? t.indexOf("(A) ", a1 + 4) : -1;
-  if (a2 > 0) t = t.slice(0, a1) + t.slice(a2);
-  t = t
+  const t = text
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^BOXED WARNING:?\s+(?=WARNING)/i, "") // the app's callout is already titled "FDA boxed warning"
     .replace(/See full prescribing information for complete boxed warning\.?/gi, "")
     .replace(/\[\s*see [^\]]*\]/gi, "")
     .replace(/\(\s*\d+(\.\d+)*(\s*,\s*\d+(\.\d+)*)*\s*\)/g, "")
     .replace(/\s+([.,;])/g, "$1");
-  return trimText(t, 1000); // the most important text on the page, so allow more than other fields
+  return trimText(dedupeSentences(t), 10_000);
 }
 
 function toLabel(r: Raw): DrugLabel {
