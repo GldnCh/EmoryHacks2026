@@ -54,7 +54,7 @@ getMonthlySummaries("rosa");         // 12 rows of monthly averages -> input for
 ## Medicine list (for search)
 `src/data/medicines.json`: **38 common medicines**, each with generic name, brand names, drug class, common uses, forms, an example appearance, whether a prescription is needed, and common side effects.
 
-- **Without Typesense:** `/api/sample/medicines?q=allergy` does a simple text match. Good enough to build the UI.
+- **Without Typesense:** `/api/medicines/search?q=allergy` searches this list plus RxNorm and openFDA. Good enough to build the UI.
 - **Load into Typesense** (Jam, once keys are in `.env.local`):
   ```
   npm run seed:typesense

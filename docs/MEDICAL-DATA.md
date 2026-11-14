@@ -36,7 +36,7 @@ Results from the public APIs are cached for a day. If a public API is down, rout
 ## Who uses what
 - **TD (dashboard):** `/api/trends/<id>` for charts, `/api/family/<id>/profile` for the profile card, `/api/specialists?memberId=` for the specialist finder.
 - **Ish (AI checkup + summaries):** feed `/api/trends/<id>` and `/api/family/<id>/profile` into Gemini. Use `/api/conditions/search` for symptom autocomplete. Link out to the MedlinePlus `url`s instead of letting the AI invent medical explanations.
-- **Jam (search + data):** `npm run seed:typesense` (now enriched with RxNorm brands + FDA uses), `npm run seed:tiger` once Tiger Data is set up.
+- **Jam (search + data):** `npm run seed:typesense` once the Typesense keys are in `.env.local` (enriched with RxNorm brands + FDA uses). Tiger Data is already loaded.
 
 ## Safety rules for this data
 - Always show the `disclaimer` the routes return. openFDA itself says not to rely on it for medical decisions.
