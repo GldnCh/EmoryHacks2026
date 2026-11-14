@@ -11,6 +11,7 @@
 //   interrupts and reads iCare's exact 911/988 message.
 // - When the call ends, the transcript goes to iCare's /api/ai/call-summary, which saves a short summary
 //   (not the transcript) to the caller's check-in history in Tiger Data.
+import { mkdir, writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { AutoSubscribe, defineAgent, voice } from '@livekit/agents';
 import { realtime } from '@livekit/agents-plugin-google';
@@ -47,6 +48,22 @@ async function loadPrompt() {
   }
 }
 
+// Summaries iCare wrote but couldn't save (database down or no permission) are kept here so none are lost.
+// Only the summary is written, never the transcript. The folder is git-ignored.
+const BACKUP_DIR = fileURLToPath(new URL('./call-summaries/', import.meta.url));
+
+async function backUpSummary(data) {
+  const { memberId, points, nextStep, emergency, callId, startedAt, endedAt, reason } = data;
+  try {
+    const file = `${BACKUP_DIR}${String(startedAt).replace(/[:.]/g, '-')}-${String(callId ?? 'call').replace(/[^\w-]/g, '')}.json`;
+    await mkdir(BACKUP_DIR, { recursive: true });
+    await writeFile(file, `${JSON.stringify({ memberId, startedAt, endedAt, callId, points, nextStep, emergency, notSavedBecause: reason }, null, 2)}\n`);
+    console.log(`[icare] Backed up the call summary to ${file}`);
+  } catch (error) {
+    console.error(`[icare] Could not back up the call summary (${error.message}).`);
+  }
+}
+
 /** Sends the finished call to iCare, which summarizes it and saves the summary to the caller's history. */
 async function saveCallSummary(call) {
   if (!call.transcript.some(line => line.role === 'user')) return;
@@ -60,7 +77,10 @@ async function saveCallSummary(call) {
     });
     const data = await res.json();
     if (data.saved) console.log(`[icare] Saved the call summary to ${data.memberId ?? 'an unidentified caller'}'s check-in history (id ${data.id}).`);
-    else console.error(`[icare] Call summary not saved: ${data.reason ?? data.error ?? `HTTP ${res.status}`}`);
+    else {
+      console.error(`[icare] Call summary not saved: ${data.reason ?? data.error ?? `HTTP ${res.status}`}`);
+      if (Array.isArray(data.points) && data.points.length) await backUpSummary(data);
+    }
   } catch (error) {
     console.error(`[icare] Could not send the call summary (${error.message}).`);
   }

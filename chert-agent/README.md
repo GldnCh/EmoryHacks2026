@@ -30,6 +30,9 @@ The prompts and safety rules live in the iCare app (`src/lib/ai/`), not here, so
    Wait for `agent_warm`, then FaceTime the line (**+1 628-224-4223** on our trial) with **FaceTime Video**.
 5. Stop `chert dev` with **Ctrl+C** (never kill -9; the line stays held). After changing `agent.mjs`, restart terminals 2 and 3.
 
+## Call summaries
+When a call ends, iCare summarizes it and saves the summary to the caller's check-in history. If that save fails (for example the database is down or the login can't write), the agent keeps the summary in `chert-agent/call-summaries/<time>-<call id>.json` instead, so none are lost. That folder is git-ignored. Transcripts are never written anywhere.
+
 ## Limits (Chert free trial)
 50 FaceTime minutes total, 5 minutes per call, one call at a time, valid 48 hours from activation (trials started before Nov 18, 2026). If no agent is connected for a while, the trial line can go back to the pool; run `chert onboard` again and the number may change.
 
