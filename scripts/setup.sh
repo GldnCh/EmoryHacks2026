@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-command setup for an IDoc Coder workspace. Safe to re-run.
+# One-command setup for an iCare Coder workspace. Safe to re-run.
 #   curl -fsSL https://raw.githubusercontent.com/GldnCh/EmoryHacks2026/main/scripts/setup.sh | bash
 # or, if the repo is already cloned:
 #   bash ~/EmoryHacks2026/scripts/setup.sh

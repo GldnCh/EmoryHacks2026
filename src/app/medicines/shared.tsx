@@ -12,7 +12,7 @@ export interface SearchResult {
   drugClass?: string;
   uses?: string[] | string;
   prescriptionRequired: boolean;
-  source: "IDoc sample list" | "openFDA";
+  source: "iCare sample list" | "openFDA";
   highlights: { field: string; snippet: string }[];
 }
 

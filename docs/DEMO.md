@@ -1,9 +1,9 @@
-# IDoc demo script
+# iCare demo script
 
 **Presenter:** Cam · **Driver (clicks):** TD · **Length:** 2 minutes (plus a 30-second version below)
-**Live site:** https://idoc-wall-e9.vercel.app
+**Live site:** https://icare-wall-e9.vercel.app
 
-The demo tells **one story**: the Rivera family's year, seen through IDoc. Every feature appears because the story needs it.
+The demo tells **one story**: the Rivera family's year, seen through iCare. Every feature appears because the story needs it.
 
 Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Ish = check-in, Jam = medicines/specialists). If a page isn't merged by demo time, use the **backup** listed in that segment.
 
@@ -12,7 +12,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ## The 2-minute demo
 
 ### 0:00–0:15 · The problem (Cam, no clicking)
-> "Health data is everywhere: your watch, your parents' pill bottles, a hospital portal. But nobody connects it. When Grandma's blood pressure creeps up three hundred miles away, nobody notices until it's an ER visit. IDoc gives a family one place to see their health over time, understand it in plain language, and know who to call."
+> "Health data is everywhere: your watch, your parents' pill bottles, a hospital portal. But nobody connects it. When Grandma's blood pressure creeps up three hundred miles away, nobody notices until it's an ER visit. iCare gives a family one place to see their health over time, understand it in plain language, and know who to call."
 
 **Screen:** home page `/`
 
@@ -21,7 +21,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 > "This is the Rivera family: a year of Apple Watch–style data for all four of them. Grandma Rosa lives in Savannah. Look: her blood pressure jumped to 151 over 90 this summer."
 
 **Click:** Rosa's card → in **12-month trends**, click the **BP** tab (the page opens on Steps) → her blood pressure chart: the "BP rise" band in Jun–Jul, then the "Med review" line in August.
-> "IDoc spotted it. It turned out she'd been missing doses. After a medication review in August, it came back down."
+> "iCare spotted it. It turned out she'd been missing doses. After a medication review in August, it came back down."
 
 **Backup:** open `/api/trends/rosa` and point at July (`avgSystolic: 150`) vs October (`128`).
 
@@ -37,7 +37,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 ### 1:05–1:25 · Medicine search ⏳ Jam
 **Click:** Medicines → type **"wal-zyr"** (a store brand).
-> "Rosa's neighbor gave her 'Wal-Zyr'. What is it? IDoc knows every brand name from the National Library of Medicine: it's cetirizine, an allergy medicine."
+> "Rosa's neighbor gave her 'Wal-Zyr'. What is it? iCare knows every brand name from the National Library of Medicine: it's cetirizine, an allergy medicine."
 
 **Click:** Lisinopril (Rosa's blood pressure med) → point to the red **FDA boxed warning** → click **✨ Explain this label simply**.
 > "Every medicine shows the official FDA label, boxed warnings first, and Gemini explains it in plain language using only the label's own text."
@@ -58,7 +58,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 **Backup:** open `/api/tiger/stats` and read `minuteRows`, `compression` and `benchmark`.
 
 ### 1:55–2:00 · Close (Cam)
-> "IDoc: your family's health, explained. Built in 36 hours with Gemini, Tiger Data, Typesense and five public health databases, and no real patient data."
+> "iCare: your family's health, explained. Built in 36 hours with Gemini, Tiger Data, Typesense and five public health databases, and no real patient data."
 
 ---
 
@@ -91,6 +91,6 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 | Does the AI give medical advice? | No. It explains trends and labels in plain language, never diagnoses or changes doses, sends emergencies straight to 911 without calling the AI, and every screen says "not medical advice". |
 | Why Tiger Data instead of a normal database? | Health data is time-series. Hypertables + continuous aggregates make "how has this changed?" questions instant, and compression fits a year of minute-level data for a family in 6 MB. |
 | How does it connect to Apple Health? | The data model mirrors Apple HealthKit (each field maps to a HealthKit identifier). A native iOS app syncing real HealthKit data is our next step. |
-| Are the doctors real? | Yes: licensed providers from the public NPI Registry. IDoc suggests them; it doesn't endorse or book. |
+| Are the doctors real? | Yes: licensed providers from the public NPI Registry. iCare suggests them; it doesn't endorse or book. |
 | What did you build vs. use? | See the README: we built the app, data generator, all five public-data connectors, the Tiger schema/queries and the AI features; we used Next.js, Gemini, Tiger Data, Typesense, Coder and Vercel. |
 | What's next? | Native iOS + HealthKit, clinician review of AI summaries, sharing a monthly report with your doctor, medication reminders (which would have caught Rosa's missed doses). |

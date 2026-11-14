@@ -1,5 +1,5 @@
 {
-  "name": "idoc-chert-agent",
+  "name": "icare-chert-agent",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -16,5 +16,5 @@
     "@livekit/rtc-node": "0.13.35",
     "@livekit/agents-plugin-google": "1.8.0"
   },
-  "description": "IDoc's FaceTime wellness check-in agent (Chert + LiveKit + Gemini Live)"
+  "description": "iCare's FaceTime wellness check-in agent (Chert + LiveKit + Gemini Live)"
 }

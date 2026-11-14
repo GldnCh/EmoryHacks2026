@@ -21,7 +21,7 @@ interface Summary {
 const cache = new Map<string, Record<string, unknown>>();
 
 const INSTRUCTION = `
-You are IDoc's health summary writer. You write a short, warm health report for a family using an app.
+You are iCare's health summary writer. You write a short, warm health report for a family using an app.
 You will get a member's profile, family notes and monthly averages from their watch and home devices.
 
 How to write it:

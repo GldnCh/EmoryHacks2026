@@ -19,7 +19,7 @@ type SummaryResponse = {
 };
 
 const DISCLAIMER =
-  "IDoc is not medical advice. It does not diagnose conditions or change medications. Talk to a doctor, nurse or pharmacist about your health. In an emergency, call 911.";
+  "iCare is not medical advice. It does not diagnose conditions or change medications. Talk to a doctor, nurse or pharmacist about your health. In an emergency, call 911.";
 
 export default function CheckinPage() {
   const [family, setFamily] = useState<Member[]>([]);
@@ -75,7 +75,7 @@ export default function CheckinPage() {
         setSummary(data.summary ?? null);
       }
     } catch {
-      setError("Couldn't reach IDoc. Check your connection and try again.");
+      setError("Couldn't reach iCare. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -158,7 +158,7 @@ export default function CheckinPage() {
                   {m.text}
                 </li>
               ))}
-              {loading && <li className="self-start rounded-2xl bg-gray-100 px-4 py-2 text-gray-500">IDoc is typing…</li>}
+              {loading && <li className="self-start rounded-2xl bg-gray-100 px-4 py-2 text-gray-500">iCare is typing…</li>}
               <div ref={endRef} />
             </ul>
 
@@ -225,7 +225,7 @@ function SummaryPanel({ memberId, firstName }: { memberId: string; firstName: st
       const res = await fetch(`/api/ai/summary/${memberId}?period=${p}`);
       setData(await res.json());
     } catch {
-      setData({ error: "Couldn't reach IDoc. Please try again." });
+      setData({ error: "Couldn't reach iCare. Please try again." });
     } finally {
       setLoading(false);
     }

@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "IDoc",
+  title: "iCare",
   description: "AI telehealth platform built at Emory Hacks 2026. Not medical advice.",
-  appleWebApp: { capable: true, title: "IDoc", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "iCare", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {
