@@ -137,10 +137,20 @@ gh pr create --fill
 - Ask Cam (or any teammate) to review and approve, then merge on GitHub.
 - ✅ Check: your PR shows on https://github.com/GldnCh/EmoryHacks2026/pulls.
 
-**Step 11. (Optional) Claude Code in your workspace**
-- In the workspace terminal: `npm install -g @anthropic-ai/claude-code`, then run `claude` inside the project folder. It reads this file automatically.
+**Step 11. (Optional) Claude Code**
+Claude Code is **not required**. Everything above (editing, running the app, Git, PRs) works in your Coder workspace's VS Code and terminal without it.
+
+If installing it on your own computer fails, install it **inside your Coder workspace** instead. The workspace is Linux, which avoids most Windows/Mac install problems:
+```
+curl -fsSL https://claude.ai/install.sh | bash
+# or, if that fails:
+npm install -g @anthropic-ai/claude-code
+```
+Then run `claude` inside the `EmoryHacks2026` folder and sign in when asked. It reads this file automatically.
 
 ### Accounts and API keys (owner creates, then shares privately)
+Step-by-step instructions for each key: **[docs/API-KEYS.md](docs/API-KEYS.md)**. After filling in `.env.local`, open `/api/health` in the running app to check which keys work.
+
 | Service | Owner | Where | Variable in `.env.local` |
 |---|---|---|---|
 | Gemini API | Ish | https://aistudio.google.com/apikey | `GEMINI_API_KEY` |
