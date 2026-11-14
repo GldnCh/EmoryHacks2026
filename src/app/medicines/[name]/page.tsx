@@ -66,8 +66,9 @@ function ExplainButton({ name, label }: { name: string; label: DetailResponse["l
   const [available, setAvailable] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   const [text, setText] = useState<string | null>(null);
+  const [disclaimer, setDisclaimer] = useState<string | null>(null);
 
-  // The route is POST-only once Ish adds it; a GET then answers 405, while a missing route answers 404.
+  // Ish's route is POST-only, so a GET answers 405 when it exists and 404 when it doesn't.
   useEffect(() => {
     fetch(EXPLAIN_ROUTE)
       .then((r) => setAvailable(r.status !== 404))
@@ -83,7 +84,10 @@ function ExplainButton({ name, label }: { name: string; label: DetailResponse["l
         body: JSON.stringify({ name, label }),
       });
       const body = await res.json().catch(() => null);
-      setText(body?.explanation ?? body?.text ?? body?.summary ?? body?.error ?? "No explanation came back. Try again later.");
+      const reply: string = body?.explanation ?? body?.error ?? "No explanation came back. Try again later.";
+      // `explanation` is plain text with line breaks (sections and "•" bullets); keep them, minus blank edges
+      setText(reply.replace(/\r\n?/g, "\n").trim());
+      setDisclaimer(typeof body?.disclaimer === "string" ? body.disclaimer : null);
     } catch {
       setText("Couldn't reach the explainer. Try again later.");
     } finally {
@@ -97,7 +101,13 @@ function ExplainButton({ name, label }: { name: string; label: DetailResponse["l
         {busy ? "Explaining…" : "✨ Explain this label simply"}
       </button>
       {available === false && <p className="text-caption text-muted">AI explanations are coming soon.</p>}
-      {text && <p className="rounded-2xl bg-fill px-4 py-3 text-subhead whitespace-pre-line">{text}</p>}
+      <div aria-live="polite">
+        {text && (
+          // pre-wrap shows every line break; break-words keeps long words inside the box on phones. No height limit.
+          <p className="whitespace-pre-wrap break-words rounded-2xl bg-fill px-4 py-3 text-subhead">{text}</p>
+        )}
+        {text && disclaimer && <p className="mt-2 text-footnote text-secondary">{disclaimer}</p>}
+      </div>
     </div>
   );
 }
