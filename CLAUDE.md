@@ -16,7 +16,7 @@ Built at **Emory Hacks 2026** (Healthcare track), Fri Nov 13 to Sun Nov 15, 2026
 |---|---|---|
 | **Cam** | Lead / Product & Pitch | Scope and priorities, PR reviews, README, Devpost, demo script, pitch, backup demo video |
 | **Ish** | AI & Video Engineer | Chert FaceTime checkups, Gemini prompts, checkup and summary logic, safety wording |
-| **Jam** | Search & Backend Engineer | Typesense search, Supabase database, API routes, sample data, Coder setup |
+| **Jam** | Search & Backend Engineer | Typesense search, Tiger Data database, API routes, sample data, Coder setup |
 | **TD** | Frontend & Apple Health Engineer | App screens, dashboard and charts, Apple Health data, design, mobile layout, testing |
 
 When asked to do work, keep inside the requester's area. If a change touches someone else's area, say so, so they can be looped in.
@@ -44,10 +44,9 @@ Teammates can add tools they need. Add each one here and to the README credits.
 - **Backend:** Next.js API routes
 - **AI:** Google Gemini API (`@google/genai`)
 - **Search:** Typesense Cloud (`typesense`)
-- **Health history:** Tiger Data / TimescaleDB (`pg`), falls back to sample data when not configured
+- **Database:** Tiger Data / TimescaleDB (PostgreSQL, via `pg`): family profiles + daily health history as a time series. Falls back to sample data when `TIGER_DATABASE_URL` isn't set. No separate auth service; the demo uses the sample family
 - **Public medical data (no keys):** openFDA, RxNorm, MedlinePlus Connect, NLM Clinical Tables, NPI Registry. See `docs/MEDICAL-DATA.md`
 - **Patients:** only the fabricated Rivera family in `src/lib/sample-data/` (see `docs/SAMPLE-DATA.md`). Never real patient data.
-- **Database + auth:** Supabase (Postgres)
 - **Video checkups:** Chert. Follow Chert's official docs and SDK; do not guess its API.
 - **Health data:** realistic sample data shaped like Apple Health output
 - **Dev environment:** Coder
@@ -168,7 +167,7 @@ node --version
 ```
 npm install
 ```
-This downloads Next.js, React, Gemini, Typesense, Supabase and so on into `node_modules`. It takes 1–2 minutes. Yellow `warn` lines and a "vulnerabilities" note are normal. If it ends with red `ERR!` lines, copy the error and ask Claude.
+This downloads Next.js, React, Gemini, Typesense, the Tiger Data (Postgres) client and so on into `node_modules`. It takes 1–2 minutes. Yellow `warn` lines and a "vulnerabilities" note are normal. If it ends with red `ERR!` lines, copy the error and ask Claude.
 - ✅ Check: it finishes with something like "added 400 packages".
 
 *9d. Create your private keys file*
@@ -182,7 +181,7 @@ This copies the template (variable names only) into `.env.local`, where your rea
 2. Paste each key right after its `=` sign, **with no spaces and no quotes**, e.g. `GEMINI_API_KEY=AIzaSyB...`
 3. Save with **Ctrl + S**.
 
-No keys yet? Leave the lines blank. The app still runs; it just can't use Gemini, Typesense or Supabase until the keys are added. Ish (Gemini, Chert) and Jam (Typesense, Supabase) create the keys using [docs/API-KEYS.md](docs/API-KEYS.md) and share them **privately** in team chat. **Never** post them on GitHub.
+No keys yet? Leave the lines blank. The app still runs; it just can't use Gemini, Typesense or Tiger Data until the keys are added (the public medical databases and sample data work without keys). Ish (Gemini, Chert) and Jam (Typesense, Tiger Data) create the keys using [docs/API-KEYS.md](docs/API-KEYS.md) and share them **privately** in team chat. **Never** post them on GitHub.
 
 *9f. Start the app*
 ```
@@ -207,7 +206,7 @@ Port 3000 is taken by Coder's sample project, so the app uses **3001**. That's e
 *9h. Check your keys*
 Click **Check API key setup** on that page (or add `/api/health` to the address). You'll see something like:
 ```json
-{ "ok": true, "configured": { "gemini": true, "typesense": false, "supabase": false } }
+{ "ok": true, "configured": { "gemini": true, "typesense": false, "tigerData": false } }
 ```
 - `true` means the key is filled in; `false` means it's blank or misspelled in `.env.local`.
 - This only checks that a key is **filled in**, not that it's **valid**. A wrong key shows up as an error when the feature runs.
@@ -344,7 +343,7 @@ Step-by-step instructions for each key: **[docs/API-KEYS.md](docs/API-KEYS.md)**
 | Gemini API | Ish | https://aistudio.google.com/apikey | `GEMINI_API_KEY` |
 | Chert | Ish | Chert sponsor docs / dashboard | *(per Chert's docs)* |
 | Typesense Cloud | Jam | https://cloud.typesense.org | `TYPESENSE_HOST`, `TYPESENSE_API_KEY` (admin key server-side only; give the frontend a search-only key) |
-| Supabase | Jam | https://supabase.com/dashboard | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` |
+| Tiger Data | Jam | https://console.cloud.timescale.com | `TIGER_DATABASE_URL` (secret, server-only), then run `npm run seed:tiger` |
 | Vercel | Cam | https://vercel.com (import the GitHub repo) | Add all the above in **Project → Settings → Environment Variables** |
 | Devpost | Cam | Emory Hacks Devpost page | Add teammates to the submission |
 

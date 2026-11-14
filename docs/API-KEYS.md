@@ -52,31 +52,8 @@ Notes: the free tier has rate limits. If you hit them during testing, wait a min
 
 ---
 
-## 3. Supabase — owner: Jam
-Free plan, no credit card needed.
-
-1. Go to https://supabase.com/dashboard and sign in with GitHub.
-2. Click **New project**. Choose your organization, name it `idoc`, create a strong database password (save it in a password manager and share it privately), choose a US East region, and click **Create new project**.
-3. Wait for it to finish setting up (1–2 minutes).
-4. Click **Connect** at the top of the project page (or go to **Project Settings → API Keys / Data API**).
-5. Copy:
-   - the **Project URL** (`https://xxxx.supabase.co`)
-   - the **publishable** key (starts with `sb_publishable_`) or, on older projects, the **anon public** key
-6. Put them in `.env.local`:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=<publishable or anon key>
-   ```
-7. Add Ish, Cam and TD to the project: **Organization settings → Team → Invite**.
-
-✅ Check: `/api/health` shows `"supabase": true`.
-
-Notes: these two values are safe in the browser **only** if Row Level Security (RLS) is on for every table. Never use or share the **secret / service_role** key in frontend code.
-
----
-
-## 3b. Tiger Data (health history database) — owner: Jam
-Stores the family's daily health data as a time series, and enters us for the MLH **Best Use of Tiger Data** prize.
+## 3. Tiger Data (our database) — owner: Jam
+Tiger Data (TimescaleDB, built on PostgreSQL) is IDoc's **only database**. It stores the family profiles and their daily health history as a time series, powers the monthly/yearly trend queries, and enters us for the MLH **Best Use of Tiger Data** prize.
 
 1. Go to https://console.cloud.timescale.com (Tiger Data's console) and sign up, e.g. with GitHub. Ask the Tiger Data / MLH table about hackathon credits if it asks for payment.
 2. Click **Create service**. Choose a **Time-series** (TimescaleDB / PostgreSQL) service, the smallest size, and a US East region.
@@ -94,7 +71,13 @@ Stores the family's daily health data as a time series, and enters us for the ML
    Loaded into Tiger Data: jordan=365 days, mia=365 days, rosa=365 days, sam=365 days
    ```
    (Try `npm run seed:tiger -- --dry-run` first; it needs no database.)
-6. Share the connection string privately, and add it in Vercel.
+6. Give teammates access if they need the console: in the Tiger Data console, open your project's settings and invite them as members (if offered). Otherwise just share the connection string privately; that's all the app needs.
+7. Add the same `TIGER_DATABASE_URL` in Vercel (section 5).
+
+Notes:
+- The connection string contains the database password. Never put it in browser code, a `NEXT_PUBLIC_` variable, or the repo.
+- Without it, the app still runs: `/api/trends` falls back to the built-in sample data.
+- The tables are in `db/tiger/schema.sql`: `health_metrics` (a hypertable, one row per person per day) and `family_members`.
 
 ✅ Check: `/api/health` shows `"tigerData": true`, and `/api/trends/jordan` says `"source": "Tiger Data"`.
 

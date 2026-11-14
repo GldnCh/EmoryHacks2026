@@ -8,7 +8,6 @@ export function GET() {
     configured: {
       gemini: Boolean(process.env.GEMINI_API_KEY),
       typesense: Boolean(process.env.TYPESENSE_HOST && process.env.TYPESENSE_API_KEY),
-      supabase: Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY),
       tigerData: Boolean(process.env.TIGER_DATABASE_URL),
       // openFDA, RxNorm, MedlinePlus, NPI Registry and Clinical Tables need no keys
     },
