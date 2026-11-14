@@ -73,6 +73,7 @@ Emory Hacks requires separating original work from frameworks.
 - Gemini AI layer (`src/lib/ai/`): shared safety rules, an emergency red-flag check that runs before any AI call, compact member context from Tiger Data trends, and JSON-validated Gemini calls with retry
 - Gemini routes: monthly/yearly health summaries (`/api/ai/summary/<id>`), wellness check-in chat (`/api/ai/checkin`), plain-language FDA label explanations (`/api/ai/explain-label`), and the voice agent's prompt and red-flag routes
 - The `/checkin` page: check-in chat, family member picker and monthly/yearly summary panel
+- Accounts and connections (`src/lib/auth/`, `/setup`, `/account`): the iPhone as identity (one-time setup, no sign-in), connection requests with accept/decline/cancel, disconnect from either side with warnings, Full / Health summary / Basic levels with guardians, and an activity log, stored in Tiger Data
 - The Chert FaceTime check-in agent (`chert-agent/agent.mjs`): Gemini Live voice, iCare's shared prompts and safety rules, emergency check on every caller sentence
 
 **Frameworks, libraries and services used:**
@@ -103,6 +104,7 @@ Emory Hacks requires separating original work from frameworks.
 | [docs/API-KEYS.md](docs/API-KEYS.md) | Which keys exist, who has them, adding them locally and in Vercel |
 | [docs/SAMPLE-DATA.md](docs/SAMPLE-DATA.md) | The fictional Rivera family and the medicine list |
 | [docs/MEDICAL-DATA.md](docs/MEDICAL-DATA.md) | Public medical databases, Tiger Data, and every API route |
+| [docs/ACCOUNTS.md](docs/ACCOUNTS.md) | Accounts, family sharing, permission levels, and how features use them |
 | [docs/CHERT.md](docs/CHERT.md) | The FaceTime check-in agent |
 | [docs/DEMO.md](docs/DEMO.md) | 2-minute demo script, backups and likely judge questions |
 | [docs/DEVPOST.md](docs/DEVPOST.md) | Submission draft and status |

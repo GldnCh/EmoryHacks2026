@@ -15,6 +15,12 @@ function getPool() {
   return pool;
 }
 
+/** Plain parameterized query for app features (accounts, sharing, appointments...). Server-only. */
+export async function tigerQuery<T = Record<string, unknown>>(sql: string, params: unknown[] = []): Promise<T[]> {
+  const { rows } = await getPool().query(sql, params);
+  return rows as T[];
+}
+
 async function timed<T = Record<string, unknown>>(sql: string, params: unknown[] = []) {
   const t = performance.now();
   const { rows } = await getPool().query(sql, params);
