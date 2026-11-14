@@ -41,6 +41,9 @@ Priority order. **Core** features make the demo; the rest are **stretch**. Cam h
 
 How we build, review and ship: **[docs/WORKFLOW.md](docs/WORKFLOW.md)**.
 
+## Accounts and family sharing (foundation for all new features)
+iCare has accounts (demo sign-in standing in for Sign in with Apple), one-device multi-account switching, and Family Sharing with levels **Full / Health summary / Basic** plus **guardians**. **Every new feature that reads or changes someone's data must call `authorize(capability, accountId)` from `@/lib/auth`** (wrap the route in `withAuthErrors`), and log changes with `logActivity`. Guide: **[docs/ACCOUNTS.md](docs/ACCOUNTS.md)**.
+
 ## Tech stack
 Teammates can add tools; add each one here and to the README credits.
 

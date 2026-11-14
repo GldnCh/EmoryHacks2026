@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronLeft, DatabaseIcon, PeopleIcon, PillIcon, StethoscopeIcon, VideoIcon } from "@/components/Icons";
 import { useNav } from "@/components/navStore";
+import AccountButton from "@/components/AccountButton";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", Icon: PeopleIcon },
@@ -100,7 +101,9 @@ export default function SiteHeader() {
               })}
             </ul>
           </nav>
-          <div />
+          <div className="flex justify-end">
+            <AccountButton />
+          </div>
         </div>
       </header>
 
