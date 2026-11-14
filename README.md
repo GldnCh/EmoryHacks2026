@@ -24,6 +24,8 @@ Emory Hacks requires separating original work from frameworks. Update this as yo
 - Google Gemini API (`@google/genai`)
 - Typesense Cloud (`typesense`)
 - Supabase (`@supabase/supabase-js`)
+- Tiger Data / TimescaleDB (`pg`)
+- Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
 - Chert
 - Coder (dev environments), Vercel (hosting)
 

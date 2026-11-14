@@ -17,6 +17,7 @@ export interface FamilyMember {
   conditions: string[];
   medications: string[]; // ids from src/data/medicines.json
   notes: string; // the "story" the data tells, useful for demo summaries
+  location: { city: string; state: string; zip: string }; // used by the specialist finder
 }
 
 export interface DailyMetrics {
@@ -60,6 +61,7 @@ export const SAMPLE_END = "2026-10-31";
 export const FAMILY: FamilyMember[] = [
   {
     id: "jordan",
+    location: { city: "Atlanta", state: "GA", zip: "30322" },
     name: "Jordan Rivera",
     relationship: "self",
     age: 45,
@@ -71,6 +73,7 @@ export const FAMILY: FamilyMember[] = [
   },
   {
     id: "sam",
+    location: { city: "Atlanta", state: "GA", zip: "30322" },
     name: "Sam Rivera",
     relationship: "spouse",
     age: 43,
@@ -82,6 +85,7 @@ export const FAMILY: FamilyMember[] = [
   },
   {
     id: "mia",
+    location: { city: "Atlanta", state: "GA", zip: "30322" },
     name: "Mia Rivera",
     relationship: "child",
     age: 12,
@@ -93,6 +97,7 @@ export const FAMILY: FamilyMember[] = [
   },
   {
     id: "rosa",
+    location: { city: "Savannah", state: "GA", zip: "31401" },
     name: "Rosa Rivera",
     relationship: "parent",
     age: 71,

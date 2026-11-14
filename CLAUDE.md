@@ -44,6 +44,9 @@ Teammates can add tools they need. Add each one here and to the README credits.
 - **Backend:** Next.js API routes
 - **AI:** Google Gemini API (`@google/genai`)
 - **Search:** Typesense Cloud (`typesense`)
+- **Health history:** Tiger Data / TimescaleDB (`pg`), falls back to sample data when not configured
+- **Public medical data (no keys):** openFDA, RxNorm, MedlinePlus Connect, NLM Clinical Tables, NPI Registry. See `docs/MEDICAL-DATA.md`
+- **Patients:** only the fabricated Rivera family in `src/lib/sample-data/` (see `docs/SAMPLE-DATA.md`). Never real patient data.
 - **Database + auth:** Supabase (Postgres)
 - **Video checkups:** Chert. Follow Chert's official docs and SDK; do not guess its API.
 - **Health data:** realistic sample data shaped like Apple Health output

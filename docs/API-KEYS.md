@@ -75,6 +75,31 @@ Notes: these two values are safe in the browser **only** if Row Level Security (
 
 ---
 
+## 3b. Tiger Data (health history database) — owner: Jam
+Stores the family's daily health data as a time series, and enters us for the MLH **Best Use of Tiger Data** prize.
+
+1. Go to https://console.cloud.timescale.com (Tiger Data's console) and sign up, e.g. with GitHub. Ask the Tiger Data / MLH table about hackathon credits if it asks for payment.
+2. Click **Create service**. Choose a **Time-series** (TimescaleDB / PostgreSQL) service, the smallest size, and a US East region.
+3. When it's ready, copy the **connection string** (a `postgres://...` URL that includes the password). Download the config file it offers; the password is shown only once.
+4. Put it in `.env.local` (it's a secret, server-only):
+   ```
+   TIGER_DATABASE_URL=postgres://tsdbadmin:<password>@<host>:<port>/tsdb?sslmode=require
+   ```
+5. Load the sample family into it:
+   ```
+   npm run seed:tiger
+   ```
+   ✅ Expected output ends with:
+   ```
+   Loaded into Tiger Data: jordan=365 days, mia=365 days, rosa=365 days, sam=365 days
+   ```
+   (Try `npm run seed:tiger -- --dry-run` first; it needs no database.)
+6. Share the connection string privately, and add it in Vercel.
+
+✅ Check: `/api/health` shows `"tigerData": true`, and `/api/trends/jordan` says `"source": "Tiger Data"`.
+
+---
+
 ## 4. Chert — owner: Ish
 We don't have Chert's developer docs yet.
 
