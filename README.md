@@ -84,7 +84,7 @@ Emory Hacks requires separating original work from frameworks.
 - Recharts (`recharts`): charts on the dashboard, family and Tiger Data pages
 - Tiger Data / TimescaleDB (`pg`): our database for health history
 - Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect, MedlinePlus Web Service (spelling suggestions) and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
-- Chert FaceTime (`@trychert/facetime` CLI); `chert-agent/` started from Chert's video-agent starter (`chert-rooms.mjs`, `greet.mjs`, `face.mjs` are Chert's files)
+- Chert FaceTime (`@trychert/facetime` CLI); `chert-agent/` started from Chert's video-agent starter (`chert-rooms.mjs` and `greet.mjs` are Chert's files; `face.mjs` keeps the starter's interface but the face drawing is ours)
 - LiveKit Agents for Node (`@livekit/agents`, `@livekit/rtc-node`, `@livekit/agents-plugin-google`) and LiveKit Cloud
 - Coder (dev environments), Vercel (hosting)
 
