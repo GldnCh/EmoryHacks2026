@@ -216,3 +216,20 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Printing (the doctor report): just the content, no app chrome. */
+@media print {
+  header:not(article header),
+  nav,
+  body > footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    padding-bottom: 0 !important;
+  }
+  .card {
+    box-shadow: none !important;
+  }
+}

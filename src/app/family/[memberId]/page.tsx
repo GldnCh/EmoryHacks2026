@@ -350,6 +350,11 @@ export default function FamilyMemberPage() {
             <StethoscopeIcon size={18} />
             Find specialists near {m.location.city}
           </Link>
+          {p.can("checkins") && (
+            <Link href={`/family/${m.id}/report`} className="btn btn-secondary">
+              Doctor report
+            </Link>
+          )}
           {m.relationship === "parent" && !p.person.self && (
             <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1.5 text-footnote font-semibold text-[var(--brand-pressed)]">
               <PinIcon size={14} strokeWidth={2.2} /> Tracked remotely from {m.location.city}
