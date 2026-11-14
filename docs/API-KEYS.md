@@ -11,10 +11,10 @@ The team's keys already exist. **TD has the API keys** (Gemini, Typesense and an
 | Variable | What it's for | Get it from | Server-only? |
 |---|---|---|---|
 | `GEMINI_API_KEY` | AI check-ins and summaries | TD | ✅ yes |
-| `GEMINI_MODEL` | Optional model override (default in `src/lib/gemini.ts`) | — | ✅ yes |
+| `GEMINI_MODEL` | Optional model override (default `gemini-3.5-flash-lite`, set in `src/lib/gemini.ts`) | — | ✅ yes |
 | `TYPESENSE_HOST`, `TYPESENSE_API_KEY` | Medicine search (admin key) | TD | ✅ yes |
 | `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY` | Search-only key, safe in the browser | TD | ❌ public by design |
-| `TIGER_DATABASE_URL` | Tiger Data database (health history) | Cam | ✅ yes |
+| `TIGER_DATABASE_URL` | Tiger Data database (health history). Teammates get a read-only login | Cam | ✅ yes |
 | Chert variables | Video check-ins: add names to `.env.example` once we have Chert's docs | Ish / TD | ✅ yes |
 | `OPENFDA_API_KEY` | Optional, only if we hit openFDA's free daily limit | — | ✅ yes |
 
@@ -23,11 +23,11 @@ The public medical databases (openFDA, RxNorm, MedlinePlus, Clinical Tables, NPI
 ## Live site (Vercel)
 The live app reads keys from Vercel, not from anyone's `.env.local`. **Cam** adds them: Vercel → project `idoc` → **Settings → Environment Variables** → add each key as **Sensitive**, for **Production** and **Preview** → then **Redeploy** the latest production deployment (keys are only picked up by a new deploy).
 
-Already in Vercel: `TIGER_DATABASE_URL`. Still to add once TD shares them: `GEMINI_API_KEY`, `TYPESENSE_HOST`, `TYPESENSE_API_KEY`, `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY`.
+Already in Vercel (Production): `TIGER_DATABASE_URL`, `GEMINI_API_KEY`, `GEMINI_MODEL`, `TYPESENSE_HOST`, `TYPESENSE_API_KEY`, `NEXT_PUBLIC_TYPESENSE_SEARCH_KEY`. Typesense is seeded (38 medicines).
 
 ## Data setup that uses the keys
 - **Typesense:** after `TYPESENSE_*` is in your `.env.local`, run `npm run seed:typesense` once (any teammate). It loads the 38 medicines, enriched with RxNorm brand names and FDA "uses" text, and ends with `Imported 38/38 medicines into Typesense.`
-- **Tiger Data:** already loaded (2.1M readings, service `idoc` in us-east-1). Cam handles anything else. `npm run seed:tiger -- --dry-run` checks the script without touching the database.
+- **Tiger Data:** already loaded (2.1M readings, service `idoc` in us-east-1). Teammates use the **read-only teammate login** (`idoc_team`) from Cam; only Cam has the admin URL. `npm run seed:tiger -- --dry-run` checks the script without touching the database.
 
 ## Adding a new key
 1. Add the variable **name** (no value) to `.env.example`, with a comment saying who holds it.
