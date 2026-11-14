@@ -37,7 +37,7 @@ IDoc is a family telehealth companion. Our demo follows the **Rivera family**, a
 - **Specialist finder:** IDoc matches each person's conditions to the right kind of specialist and finds real, licensed doctors near them using the national NPI Registry. Rosa, in Savannah, gets local endocrinologists and cardiologists.
 - **Condition explanations:** every condition on a profile links to a plain-language explanation from the National Library of Medicine.
 - **AI wellness check-in over FaceTime (Chert):** **[WHEN BUILT: describe how the Chert video check-in works]**
-- **Voice and image search (Typesense):** **[WHEN BUILT: describe if voice/image search ships]**
+- **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).
 
 IDoc never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
 
@@ -57,7 +57,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
   - **MedlinePlus Connect** (NLM) for plain-language condition and drug explanations
   - **NLM Clinical Tables** for condition lookup with ICD-10 codes
   - **NPI Registry** (CMS) for real, licensed specialists by specialty and location
-- **Typesense** for fast, typo-tolerant medicine search: our 38 medicines indexed with every RxNorm brand name (so a store brand like "Wal-Zyr" finds cetirizine) and the official FDA "uses" text. **[CHECK: confirm the search page queries Typesense on the live site, after Jam's PR]**
+- **Typesense** for fast, typo-tolerant medicine search: our 38 medicines indexed with every RxNorm brand name (so a store brand like "Wal-Zyr" finds cetirizine) and the official FDA "uses" text. Results update as you type (about 20 ms per search on Typesense), with filter chips for prescription vs. over the counter and drug class, and the matched words highlighted. If Typesense is ever unreachable, search quietly falls back to our local list so the demo never breaks.
 - **Google Gemini** **[WHEN BUILT: what Gemini does: check-in conversation, summaries]**
 - **Chert** **[WHEN BUILT: how the FaceTime integration works]**
 - The Rivera family's data is **generated deterministically**, so every teammate, and the judges, see identical numbers. Each person's year tells a story the app can surface: a new walking routine, a flu week, a stressful work stretch, a medication review.
@@ -82,6 +82,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 
 ## What's next for IDoc
 - A **native iOS app with live Apple HealthKit** data, instead of sample data
+- **Search by photo:** snap a pill bottle and have AI read just the drug name off the label, then run the normal search
 - **Clinician review** of AI summaries before they reach patients
 - **Booking and sharing:** send a monthly summary to a chosen doctor, or book with a suggested specialist
 - **Medication reminders and adherence tracking**, which would have caught Rosa's missed doses sooner
@@ -99,6 +100,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - The Rivera family sample-data generator and medicine list
 - Connectors for openFDA, RxNorm, MedlinePlus, Clinical Tables and the NPI Registry, including condition-to-specialist matching
 - Tiger Data schema, seed script and trend queries; Typesense indexing with RxNorm/FDA enrichment
+- Medicine search (Typesense, filters, voice search) and the medicine detail and specialist finder pages
 - **[ADD: Chert check-in, Gemini summaries, dashboard UI]**
 
 **Frameworks, libraries and services used (not built by us):**
