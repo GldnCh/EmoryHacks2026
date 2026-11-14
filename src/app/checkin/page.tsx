@@ -40,7 +40,11 @@ export default function CheckinPage() {
       .catch(() => setFamily([]));
   }, []);
 
-  useEffect(() => endRef.current?.scrollIntoView({ behavior: "smooth" }), [messages]);
+  // Braces matter: in current Chrome, smooth scrollIntoView() returns a Promise. Returning it from the
+  // effect makes React treat it as a cleanup function and crash ("u is not a function") on the next message.
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const member = family.find((m) => m.id === memberId);
   const firstName = member?.name.split(" ")[0] ?? memberId;

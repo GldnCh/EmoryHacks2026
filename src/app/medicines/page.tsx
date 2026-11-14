@@ -39,7 +39,9 @@ function VoiceButton({ onText }: { onText: (t: string) => void }) {
   const [error, setError] = useState<string | null>(null);
   const rec = useRef<Recognition | null>(null);
 
-  useEffect(() => setSupported(Boolean(getRecognition())), []);
+  useEffect(() => {
+    setSupported(Boolean(getRecognition()));
+  }, []);
   useEffect(() => () => rec.current?.stop(), []);
   if (!supported) return null;
 
