@@ -1,4 +1,4 @@
-# How the IDoc team works
+# How the iCare team works
 
 Our process, from writing code to the live site. If something here conflicts with CLAUDE.md, CLAUDE.md wins.
 
@@ -6,7 +6,7 @@ Our process, from writing code to the live site. If something here conflicts wit
 1. Everyone codes with **Claude Code inside their own Coder workspace** ([QUICKSTART.md](../QUICKSTART.md)).
 2. Every change goes on a **branch**, then a **pull request (PR)**. `main` is protected; nobody pushes to it directly.
 3. **Cam reviews every PR** (with Claude's review prompt) and **merges** it.
-4. Every merge to `main` **deploys automatically** to https://idoc-wall-e9.vercel.app. Every PR gets its own **preview link**.
+4. Every merge to `main` **deploys automatically** to https://icare-wall-e9.vercel.app. Every PR gets its own **preview link**.
 5. **Last merge: Sun 6:30 AM.** Submission: 7:30 AM.
 
 ## Roles in the process
@@ -55,7 +55,7 @@ Need a change in someone else's files? Ask them, or make it tiny and call it out
 **Merge:** only Cam merges, by saying **"merge PR <number>"** (Claude Code won't merge without that exact instruction). Squash-merge, delete the branch.
 
 ## Deploys and previews
-- **Production:** every merge to `main` → https://idoc-wall-e9.vercel.app (about 1 minute).
+- **Production:** every merge to `main` → https://icare-wall-e9.vercel.app (about 1 minute).
 - **Previews:** every push to a PR branch → its own `*.vercel.app` link, posted on the PR by Vercel. Previews have the same keys as production.
 - **Region:** Vercel functions and the Tiger Data database are both in AWS us-east-1, so database queries take a few milliseconds.
 - **Broken production?** Vercel → project `idoc` → Deployments → the last good one → **Promote to Production** (instant rollback). Then fix forward with a PR.

@@ -1,4 +1,4 @@
-# IDoc Quickstart
+# iCare Quickstart
 
 **All you need is a web browser.** Everything else (Git, GitHub CLI, Node, and **Claude Code, already signed in**) is pre-installed in your Coder workspace. Don't install anything on your laptop.
 
@@ -11,7 +11,7 @@ Check your email, or open https://github.com/GldnCh/EmoryHacks2026/invitations a
 Open **https://coder.c1.workshop.cdr.dev/** and sign in.
 
 ## 3. Create your workspace
-**Workspaces → New workspace →** template **`coder-dev-environment`** → name it `idoc-<yourname>` → **Create**.
+**Workspaces → New workspace →** template **`coder-dev-environment`** → name it `icare-<yourname>` → **Create**.
 Wait until it says **Running** (first start can take a few minutes).
 
 ## 4. Keep it running through Sunday
@@ -50,7 +50,7 @@ It's already signed in through the workshop and reads `CLAUDE.md` automatically,
 - **Ish:** *Add a Gemini wellness check-in API route that uses `/api/family/<id>/profile` and `/api/trends/<id>` as context. Test it and open a PR.*
 - **Jam:** *Build a medicine search page using `/api/medicines/search`. Test it and open a PR.*
 
-Claude writes the code, runs it, commits, pushes and opens the pull request. **Cam reviews and merges.** `main` is protected, so nothing goes live without review. Every merge updates https://idoc-wall-e9.vercel.app.
+Claude writes the code, runs it, commits, pushes and opens the pull request. **Cam reviews and merges.** `main` is protected, so nothing goes live without review. Every merge updates https://icare-wall-e9.vercel.app.
 
 ## Run the app yourself (optional)
 ```

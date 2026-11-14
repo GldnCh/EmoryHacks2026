@@ -30,7 +30,7 @@ const LEVELS: Record<Level, string> = {
 
 const instruction = (level: Level) =>
   `
-You explain official FDA drug labels in plain language for IDoc users.
+You explain official FDA drug labels in plain language for iCare users.
 ${LEVELS[level]}
 
 Rules for this task:
@@ -65,7 +65,7 @@ function labelText(l: DrugLabel): string {
 }
 
 const notFound = (name: string) =>
-  `We couldn't find an official FDA label for "${name}", so IDoc won't guess. Check the spelling, or ask your pharmacist about this medicine.`;
+  `We couldn't find an official FDA label for "${name}", so iCare won't guess. Check the spelling, or ask your pharmacist about this medicine.`;
 
 /** The explanation as plain text, for simple UIs (the medicine page's button shows `explanation` as text). */
 function asText(e: Sections, labelNote: string | null): string {

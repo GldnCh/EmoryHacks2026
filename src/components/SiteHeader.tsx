@@ -29,7 +29,7 @@ function Logo() {
           <path d="M6.5 2h3v4.5H14v3H9.5V14h-3V9.5H2v-3h4.5Z" />
         </svg>
       </span>
-      IDoc
+      iCare
     </Link>
   );
 }

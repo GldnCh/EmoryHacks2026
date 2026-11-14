@@ -89,7 +89,7 @@ export async function GET(req: Request) {
     drugClass: m.drugClass,
     uses: m.commonUses,
     prescriptionRequired: m.prescriptionRequired,
-    source: "IDoc sample list",
+    source: "iCare sample list",
     highlights,
   }));
 

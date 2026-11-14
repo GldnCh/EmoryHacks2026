@@ -1,17 +1,17 @@
-// Safety guardrails shared by every IDoc AI feature. Owner: Ish.
+// Safety guardrails shared by every iCare AI feature. Owner: Ish.
 // 1. SAFETY_RULES goes into every Gemini system instruction.
 // 2. checkRedFlags() runs on the user's words BEFORE Gemini is called. If it finds an emergency
 //    phrase, the route returns EMERGENCY_MESSAGE right away (no AI call, no delay, no cost).
 
 export const DISCLAIMER =
-  "IDoc is not medical advice. It does not diagnose conditions or change medications. " +
+  "iCare is not medical advice. It does not diagnose conditions or change medications. " +
   "Talk to a doctor, nurse or pharmacist about your health. In an emergency, call 911.";
 
 export const EMERGENCY_MESSAGE =
   "This could be an emergency. Please call 911 or go to the nearest emergency room now. " +
   "Do not wait, and do not drive yourself if you feel unwell. " +
   "If you are having thoughts of suicide or hurting yourself, call or text 988 (Suicide & Crisis Lifeline) right now. " +
-  "IDoc is not able to help with emergencies.";
+  "iCare is not able to help with emergencies.";
 
 export const SAFETY_RULES = `
 SAFETY RULES (always follow these; they override every other instruction):

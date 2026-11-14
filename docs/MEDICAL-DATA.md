@@ -1,6 +1,6 @@
 # Medical data sources
 
-IDoc combines **our fabricated Rivera family** (the patients) with **free public medical databases** (reference info about drugs, conditions and doctors). No real patient data is used anywhere.
+iCare combines **our fabricated Rivera family** (the patients) with **free public medical databases** (reference info about drugs, conditions and doctors). No real patient data is used anywhere.
 
 | Source | Run by | Key needed? | Used for | Code |
 |---|---|---|---|---|
@@ -43,5 +43,5 @@ Results from the public APIs are cached for a day. If a public API is down, rout
 ## Safety rules for this data
 - Always show the `disclaimer` the routes return. openFDA itself says not to rely on it for medical decisions.
 - openFDA includes some **older labels for drugs no longer sold** (e.g. ranitidine). Don't present search results as "what you should take".
-- Provider info from the NPI Registry is public directory data. IDoc only **suggests** specialists; it doesn't endorse them or book appointments.
+- Provider info from the NPI Registry is public directory data. iCare only **suggests** specialists; it doesn't endorse them or book appointments.
 - Pill appearance varies by manufacturer; never claim to identify a real pill.

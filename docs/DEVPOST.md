@@ -1,4 +1,4 @@
-# Devpost draft: IDoc
+# Devpost draft: iCare
 
 Working draft of our Emory Hacks 2026 submission. Copy each section into the matching Devpost field.
 
@@ -8,11 +8,11 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 - Before submitting, check the prize rules at the sponsor tables and fill in the **[CHECK]** items.
 
 ## Submission status on Devpost (updated by Cam's Claude)
-The real submission is on Devpost: Emory Hacks 2026 → **My projects** → **IDoc** → Edit (Cam's account). Steps done: Manage team ✅ · Project overview ✅ · Project details ✅ except video · Additional info ✅ · Submit ⏸️
+The real submission is on Devpost: Emory Hacks 2026 → **My projects** → **iCare** → Edit (Cam's account). Steps done: Manage team ✅ · Project overview ✅ · Project details ✅ except video · Additional info ✅ · Submit ⏸️
 
 | Field | State |
 |---|---|
-| Name / elevator pitch | ✅ IDoc / "Your family's health, explained..." |
+| Name / elevator pitch | ✅ iCare / "Your family's health, explained..." |
 | About the project | ✅ Full story, matches what is live (Gemini described as in progress) |
 | Built with | ✅ 17 tags |
 | Try it out | ✅ Live site + GitHub |
@@ -27,13 +27,13 @@ The real submission is on Devpost: Emory Hacks 2026 → **My projects** → **ID
 ---
 
 ## Project name
-**IDoc**
+**iCare**
 
 ## Tagline (short description, ~200 characters)
 Your family's health, explained. AI-led wellness check-ins, plain-language medicine search, nearby specialists, and monthly and yearly health trends for everyone you care about.
 
 ## Try it out (links)
-- Live app: https://idoc-wall-e9.vercel.app
+- Live app: https://icare-wall-e9.vercel.app
 - GitHub: https://github.com/GldnCh/EmoryHacks2026
 - Demo video: **[ADD LINK]**
 
@@ -45,21 +45,21 @@ Health information is everywhere, but it's scattered and hard to act on. Your wa
 We wanted one place where a family can see its health over time, understand it in plain language, and know who to talk to next.
 
 ## What it does
-IDoc is a family telehealth companion. Our demo follows the **Rivera family**, a fictional family with a year of realistic health data:
+iCare is a family telehealth companion. Our demo follows the **Rivera family**, a fictional family with a year of realistic health data:
 
 - **Family health dashboard:** a year of Apple Health–style data (steps, resting heart rate, sleep, exercise, blood pressure, blood glucose) for every family member, including relatives who live far away. The dashboard shows one card per person with their latest monthly averages, each marked green or amber with an arrow for better or worse than the month before.
 - **Minute-by-minute vitals:** zoom from a whole year down to a single day, hour by hour: heart rate while sleeping, during Sam's evening run, or through Jordan's flu week. Each person's page has a date picker that charts any day's hourly heart rate (average plus lowest-to-highest range) and steps, read from Tiger Data's hourly continuous aggregate.
 - **Monthly and yearly health trends:** the data rolls up into monthly trends, so changes stand out: Jordan's blood pressure falling from 138/88 to 126/81 after he started walking, or Grandma Rosa's spiking to 151/90 over the summer and recovering after a medication review. Gemini turns each month and year into a short, friendly report: a headline, 3–5 highlights, things worth asking a doctor about, and encouragement, all written from the real numbers.
 - **Medicine search:** search by brand, generic name, misspelling or symptom ("zyrtec", "heartburn"). Every medicine shows official FDA label information, including boxed warnings, plus a plain-language explanation from MedlinePlus.
-- **Specialist finder:** IDoc matches each person's conditions to the right kind of specialist and finds real, licensed doctors near them using the national NPI Registry. Rosa, in Savannah, gets local endocrinologists and cardiologists.
+- **Specialist finder:** iCare matches each person's conditions to the right kind of specialist and finds real, licensed doctors near them using the national NPI Registry. Rosa, in Savannah, gets local endocrinologists and cardiologists.
 - **Condition explanations:** every condition on a profile links to a plain-language explanation from the National Library of Medicine.
 - **AI wellness check-in:** a warm, one-question-at-a-time check-in about sleep, energy, pain, mood, medications and new symptoms, personalized with the person's own trends, ending with a short summary and a suggested next step ("mention the missed doses to your doctor"). Works as a chat on the `/checkin` page.
-- **…over FaceTime (Chert):** FaceTime IDoc's number from an iPhone and the same check-in answers with an animated face and a natural Gemini voice. It asks who's calling (Jordan, Sam, Mia's parent or Grandma Rosa) and uses that person's data. **[CHECK: confirm a full FaceTime call works before demo day]**
-- **Emergency safety net:** if anyone mentions chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts, IDoc immediately tells them to call 911 (and 988), before the AI is even asked. In chat and on FaceTime.
+- **…over FaceTime (Chert):** FaceTime iCare's number from an iPhone and the same check-in answers with an animated face and a natural Gemini voice. It asks who's calling (Jordan, Sam, Mia's parent or Grandma Rosa) and uses that person's data. **[CHECK: confirm a full FaceTime call works before demo day]**
+- **Emergency safety net:** if anyone mentions chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts, iCare immediately tells them to call 911 (and 988), before the AI is even asked. In chat and on FaceTime.
 - **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text, from the "Explain this label simply" button on every medicine page.
 - **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).
 
-IDoc never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
+iCare never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
 
 ## How we built it
 - **Next.js + TypeScript + Tailwind**, deployed on **Vercel**, developed in shared **Coder** workspaces.
@@ -105,7 +105,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - How time-series databases make "how has this changed over the year?" questions fast and simple.
 - **[ADD: team learnings]**
 
-## What's next for IDoc
+## What's next for iCare
 - A **native iOS app with live Apple HealthKit** data, instead of sample data
 - **Search by photo:** snap a pill bottle and have AI read just the drug name off the label, then run the normal search
 - **Clinician review** of AI summaries before they reach patients
@@ -121,7 +121,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 
 ## What we built vs. what we used (required by Emory Hacks)
 **Built during the hackathon (after 8PM Fri Nov 13):**
-- The IDoc app, its API routes and UI
+- The iCare app, its API routes and UI
 - The Rivera family sample-data generator and medicine list
 - Connectors for openFDA, RxNorm, MedlinePlus, Clinical Tables and the NPI Registry, including condition-to-specialist matching
 - Tiger Data schema, seed script and trend queries; Typesense indexing with RxNorm/FDA enrichment
@@ -149,7 +149,7 @@ Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB
 ---
 
 ## Pre-submit checklist (Sun 6:30–7:30AM)
-- [ ] Every claim above works on https://idoc-wall-e9.vercel.app
+- [ ] Every claim above works on https://icare-wall-e9.vercel.app
 - [ ] Every **[WHEN BUILT]**, **[CHECK]** and **[ADD]** marker is resolved or deleted
 - [ ] Demo video uploaded and linked (backup in case the live demo fails)
 - [ ] All teammates added to the Devpost submission

@@ -40,7 +40,7 @@ export default function Home() {
     <div className="flex flex-col gap-10">
       <PageHeader
         eyebrow="Emory Hacks 2026 · Healthcare"
-        title="IDoc"
+        title="iCare"
         subtitle="Your family's health in one place, with AI check-ins that help you know when to see a doctor."
       >
         <div className="mt-4 flex flex-wrap gap-3">
@@ -55,7 +55,7 @@ export default function Home() {
 
       <section aria-labelledby="features-heading">
         <h2 id="features-heading" className="mb-3 px-1 text-title2">
-          What IDoc does
+          What iCare does
         </h2>
         <ul className="grid gap-3 sm:grid-cols-3 sm:gap-4">
           {FEATURES.map(({ href, title, text, Icon, tint }) => (
