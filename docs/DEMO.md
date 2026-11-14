@@ -20,7 +20,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 **Click:** Dashboard → point to Rosa's card ("tracked remotely from Savannah").
 > "This is the Rivera family: a year of Apple Watch–style data for all four of them. Grandma Rosa lives in Savannah. Look: her blood pressure jumped to 151 over 90 this summer."
 
-**Click:** Rosa's card → her 12-month blood pressure chart (spike in Jun–Jul, recovery in Aug).
+**Click:** Rosa's card → in **12-month trends**, click the **BP** tab (the page opens on Steps) → her blood pressure chart: the "BP rise" band in Jun–Jul, then the "Med review" line in August.
 > "IDoc spotted it. It turned out she'd been missing doses. After a medication review in August, it came back down."
 
 **Backup:** open `/api/trends/rosa` and point at July (`avgSystolic: 150`) vs October (`128`).
@@ -63,7 +63,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 ---
 
 ## 30-second version (if time is cut)
-1. Dashboard → Rosa's blood pressure spike and recovery (10 s)
+1. Dashboard → Rosa → **BP** tab: the spike and recovery (10 s)
 2. Medicine search "wal-zyr" → cetirizine (8 s)
 3. Tiger Data page: 2.1M readings, 97% compression, ~3 ms (8 s)
 4. Close line (4 s)
@@ -75,6 +75,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 - [ ] Run each AI action once (Rosa's yearly summary) so the cached answer is instant during the demo
 - [ ] Check `/api/health` shows `gemini`, `typesense` and `tigerData` all `true`
 - [ ] Laptop: browser zoom 125–150%, notifications off, charger plugged in, other tabs closed
+- [ ] Open the site on a phone once too (bottom tab bar), in case a judge asks to see mobile
 - [ ] Have the **backup video** open in another tab (see below)
 - [ ] Phone hotspot ready in case the venue Wi-Fi drops
 
