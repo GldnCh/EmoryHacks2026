@@ -1,5 +1,6 @@
 "use client";
-// Family overview (TD). One card per Rivera: latest month vs the month before, from /api/trends/<id>.
+// Family overview (TD; connections by Cam). One card per person this iPhone is connected to (and yourself):
+// latest month vs the month before from /api/trends/<id> if they share trends, otherwise a basic status card.
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import Disclaimer from "@/components/Disclaimer";
@@ -8,12 +9,16 @@ import { METRICS } from "@/components/metrics";
 import PageHeader from "@/components/PageHeader";
 import StatTile from "@/components/StatTile";
 import { CardSkeleton, ErrorNote, Skeleton, SourceBadge } from "@/components/Status";
-import { RELATIONSHIP, monthLong, type Member, type TrendsResponse } from "@/components/types";
+import { monthLong, type TrendsResponse } from "@/components/types";
 import { useJson } from "@/components/useJson";
+import { usePeople, type PersonWithHealth } from "@/components/usePeople";
+import { SetupPrompt } from "@/components/SetupPrompt";
+import { BasicCard, LevelChip } from "@/components/PersonCards";
 
-function MemberCard({ member }: { member: Member }) {
+function MemberCard({ p }: { p: PersonWithHealth }) {
+  const member = p.member;
   const { data, error, loading, retry } = useJson<TrendsResponse>(`/api/trends/${member.id}`);
-  const remote = member.relationship === "parent";
+  const remote = member.relationship === "parent" && !p.person.self;
   const latest = data?.trends.at(-1);
   const prev = data?.trends.at(-2);
   const first = member.name.split(" ")[0];
@@ -28,13 +33,14 @@ function MemberCard({ member }: { member: Member }) {
             {member.name}
           </span>
           <span className="block truncate text-footnote text-secondary">
-            {RELATIONSHIP[member.relationship]} · {member.age} · {member.location.city}, {member.location.state}
+            {p.label} · {member.age} · {member.location.city}, {member.location.state}
           </span>
         </span>
         <ChevronRight size={18} className="shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
+        <LevelChip p={p} />
         {remote && (
           <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-caption font-semibold text-[var(--brand-pressed)]">
             <PinIcon size={13} strokeWidth={2.2} /> Tracked remotely from {member.location.city}
@@ -43,10 +49,12 @@ function MemberCard({ member }: { member: Member }) {
         <SourceBadge source={data?.source} queryMs={data?.queryMs} />
       </div>
 
-      <p className="mt-3 text-subhead text-secondary">
-        <span className="text-muted">Conditions: </span>
-        {member.conditions.join(", ") || "None on file"}
-      </p>
+      {p.can("conditions") && (
+        <p className="mt-3 text-subhead text-secondary">
+          <span className="text-muted">Conditions: </span>
+          {member.conditions.join(", ") || "None on file"}
+        </p>
+      )}
 
       <div className="mt-4 flex-1">
         {error ? (
@@ -104,7 +112,7 @@ function MemberCard({ member }: { member: Member }) {
       </div>
 
       <Link href={`/family/${member.id}`} className="btn btn-tertiary -mb-2 mt-3 self-start">
-        View {first}&apos;s full year
+        {p.person.self ? "View your full year" : <>View {first}&apos;s full year</>}
         <ChevronRight size={15} />
       </Link>
     </section>
@@ -112,18 +120,28 @@ function MemberCard({ member }: { member: Member }) {
 }
 
 export default function DashboardPage() {
-  const { data, error, loading, retry } = useJson<{ family: Member[] }>("/api/sample/family");
+  const { me, people, error, retry } = usePeople();
 
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
         title="Family dashboard"
-        subtitle="Each person's latest month compared with the month before. Blood pressure changes are shown for the top number (systolic)."
-      />
+        subtitle="You and the people you're connected to, each at the level they share. Monthly cards compare the latest month with the month before (blood pressure uses the top number)."
+      >
+        {me?.setUp && (
+          <div className="mt-3">
+            <Link href="/account" className="btn btn-secondary">
+              Manage connections
+            </Link>
+          </div>
+        )}
+      </PageHeader>
 
       {error ? (
         <ErrorNote message={error} onRetry={retry} />
-      ) : loading && !data ? (
+      ) : me && !me.setUp ? (
+        <SetupPrompt />
+      ) : !people ? (
         <div className="grid gap-4 lg:grid-cols-2">
           {Array.from({ length: 4 }, (_, i) => (
             <CardSkeleton key={i} lines={2} />
@@ -131,9 +149,16 @@ export default function DashboardPage() {
         </div>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
-          {data?.family.map((m) => (
-            <MemberCard key={m.id} member={m} />
-          ))}
+          {people.map((p) => (p.can("trends") ? <MemberCard key={p.member.id} p={p} /> : <BasicCard key={p.member.id} p={p} />))}
+          {people.length === 0 && (
+            <p className="card p-6 text-subhead text-secondary">
+              No health profile is linked to this iPhone yet, and nobody has shared with you. Connect with family from{" "}
+              <Link href="/account" className="font-semibold text-brand">
+                My iCare
+              </Link>
+              .
+            </p>
+          )}
         </div>
       )}
 

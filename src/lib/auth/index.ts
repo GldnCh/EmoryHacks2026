@@ -76,6 +76,16 @@ export async function authorize(capability: Capability, subjectId: string): Prom
   return { actor, subject };
 }
 
+/** The account that owns a health profile (the Riveras' account ids equal their member ids). */
+export async function accountIdForMember(memberId: string): Promise<string> {
+  return (await listAccounts()).find((a) => a.memberId === memberId)?.id ?? memberId;
+}
+
+/** authorize() for routes keyed by health-profile id (/api/trends/<memberId>, /api/vitals/<memberId>, ...). */
+export async function authorizeMember(capability: Capability, memberId: string) {
+  return authorize(capability, await accountIdForMember(memberId));
+}
+
 /** Wrap a route handler so AuthError becomes a JSON 401/403 instead of a crash. */
 export function withAuthErrors<A extends unknown[]>(handler: (...args: A) => Promise<Response>) {
   return async (...args: A): Promise<Response> => {

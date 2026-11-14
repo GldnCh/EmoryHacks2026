@@ -1,7 +1,9 @@
 "use client";
-// One family member's profile (TD): conditions + medications (MedlinePlus), 12-month trends, and a single-day zoom.
+// One family member's profile (TD; sharing levels by Cam): conditions + medications (MedlinePlus), 12-month trends,
+// and a single-day zoom. Each section shows only if this iPhone's owner may see it (yourself, or what they share).
+// ?tab=bp|steps|heart|sleep|glucose opens the trends on that measure (default: BP for people with BP data).
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
@@ -15,7 +17,6 @@ import { fmt } from "@/components/StatTile";
 import { CardSkeleton, ErrorNote, Skeleton, SourceBadge } from "@/components/Status";
 import TrendChart, { type Marker, type Series } from "@/components/TrendChart";
 import {
-  RELATIONSHIP,
   monthLabel,
   monthLong,
   type ProfileResponse,
@@ -24,6 +25,9 @@ import {
   type VitalsResponse,
 } from "@/components/types";
 import { useJson } from "@/components/useJson";
+import { usePeople, type PersonWithHealth } from "@/components/usePeople";
+import { NotConnected, SetupPrompt } from "@/components/SetupPrompt";
+import { BasicCard } from "@/components/PersonCards";
 
 const FIRST_DAY = "2025-11-01";
 const LAST_DAY = "2026-10-31";
@@ -118,10 +122,12 @@ function ExternalLink({ href, children }: { href: string; children: React.ReactN
   );
 }
 
-function HealthRecords({ data }: { data: ProfileResponse }) {
+function HealthRecords({ data, p }: { data: ProfileResponse; p: PersonWithHealth }) {
   const row = "py-3 first:pt-0 last:pb-0 [&+&]:border-t [&+&]:border-line";
+  const first = data.member.name.split(" ")[0];
   return (
     <div className="grid gap-4 md:grid-cols-2">
+      {p.can("conditions") && (
       <Card title="Conditions">
         <ul>
           {data.conditions.map((c) => (
@@ -137,12 +143,23 @@ function HealthRecords({ data }: { data: ProfileResponse }) {
           {data.conditions.length === 0 && <li className="text-subhead text-muted">None on file.</li>}
         </ul>
       </Card>
-      <Card title="Medications">
+      )}
+      {p.can("medications") && (
+      <Card
+        title="Medications"
+        action={
+          <Link href={`/medicines?member=${data.member.id}`} className="text-footnote font-semibold text-brand hover:underline">
+            {p.person.self ? "See all your medicines" : `See all of ${first}'s medicines`}
+          </Link>
+        }
+      >
         <ul>
           {data.medications.map((med) => (
             <li key={med.id} className={row}>
               <p className="text-subhead font-semibold">
-                {med.sample?.genericName ?? med.id}
+                <Link href={`/medicines/${encodeURIComponent(med.id)}`} className="text-brand hover:underline">
+                  {med.sample?.genericName ?? med.id}
+                </Link>
                 {med.sample?.brandNames.length ? <span className="font-normal text-secondary"> ({med.sample.brandNames.join(", ")})</span> : null}
               </p>
               {med.sample && <p className="mt-0.5 text-footnote text-secondary">{med.sample.drugClass}</p>}
@@ -152,13 +169,22 @@ function HealthRecords({ data }: { data: ProfileResponse }) {
           {data.medications.length === 0 && <li className="text-subhead text-muted">None on file.</li>}
         </ul>
       </Card>
+      )}
     </div>
   );
 }
 
 function YearTrends({ memberId }: { memberId: string }) {
   const { data, error, loading, status, retry } = useJson<TrendsResponse>(`/api/trends/${memberId}`);
-  const [metric, setMetric] = useState<MetricKey>("steps");
+  const requested = useSearchParams().get("tab");
+  const [metric, setMetricState] = useState<MetricKey | null>(null);
+  const setMetric = (k: MetricKey) => {
+    setMetricState(k);
+    // keep the URL shareable (?tab=bp) without a navigation
+    const url = new URL(window.location.href);
+    url.searchParams.set("tab", k);
+    window.history.replaceState(null, "", url);
+  };
   if (status === 404) return null; // unknown member: the page shows one "not found" message
   if (error) return <ErrorNote message={error} onRetry={retry} />;
   if (loading || !data) return <CardSkeleton lines={3} />;
@@ -167,7 +193,8 @@ function YearTrends({ memberId }: { memberId: string }) {
   const hasBP = data.trends.some((t) => t.avgSystolic != null);
   const hasGlucose = data.trends.some((t) => t.avgBloodGlucose != null);
   const keys: MetricKey[] = ["steps", "heart", "sleep", ...(hasBP ? (["bp"] as const) : []), ...(hasGlucose ? (["glucose"] as const) : [])];
-  const active = keys.includes(metric) ? metric : "steps";
+  const fromUrl = keys.find((k) => k === requested);
+  const active: MetricKey = metric && keys.includes(metric) ? metric : fromUrl ?? (hasBP ? "bp" : "steps");
   const chart = TREND_CHARTS[active];
   const first = data.trends[0];
   const last = data.trends.at(-1)!;
@@ -299,37 +326,76 @@ function MemberNotFound() {
 
 export default function FamilyMemberPage() {
   const { memberId } = useParams<{ memberId: string }>();
+  const { me, people } = usePeople();
+  const p = people?.find((x) => x.member.id === memberId);
+  // The profile route is public (names, conditions and medicines of the fictional family); trends and vitals are not.
   const { data, error, loading, status, retry } = useJson<ProfileResponse>(`/api/family/${memberId}/profile`);
   const m = data?.member;
 
   if (status === 404) return <MemberNotFound />;
 
+  const header = (
+    <PageHeader
+      back={{ href: "/dashboard", label: "Dashboard" }}
+      title={m?.name ?? (error ? "Family member" : undefined)}
+      leading={m ? <Avatar id={m.id} name={m.name} size={52} /> : undefined}
+      subtitle={m && p ? `${p.label} · ${m.age} · ${m.location.city}, ${m.location.state}` : m ? `${m.location.city}, ${m.location.state}` : undefined}
+    >
+      {m && p && p.can("conditions") && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <Link href={`/specialists?memberId=${m.id}`} className="btn btn-primary">
+            <StethoscopeIcon size={18} />
+            Find specialists near {m.location.city}
+          </Link>
+          {m.relationship === "parent" && !p.person.self && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1.5 text-footnote font-semibold text-[var(--brand-pressed)]">
+              <PinIcon size={14} strokeWidth={2.2} /> Tracked remotely from {m.location.city}
+            </span>
+          )}
+        </div>
+      )}
+    </PageHeader>
+  );
+
+  if (me && !me.setUp) {
+    return (
+      <div className="flex flex-col gap-6">
+        {header}
+        <SetupPrompt what="health details" />
+      </div>
+    );
+  }
+  if (!people || !data) {
+    return (
+      <div className="flex flex-col gap-6">
+        {header}
+        {error ? <ErrorNote message={error} onRetry={retry} /> : <CardSkeleton lines={2} />}
+      </div>
+    );
+  }
+  if (!p) {
+    return (
+      <div className="flex flex-col gap-6">
+        {header}
+        <NotConnected name={data.member.name} />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader
-        back={{ href: "/dashboard", label: "Dashboard" }}
-        title={m?.name ?? (error ? "Family member" : undefined)}
-        leading={m ? <Avatar id={m.id} name={m.name} size={52} /> : undefined}
-        subtitle={m ? `${RELATIONSHIP[m.relationship]} · ${m.age} · ${m.location.city}, ${m.location.state}` : undefined}
-      >
-        {m && (
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            <Link href={`/specialists?memberId=${m.id}`} className="btn btn-primary">
-              <StethoscopeIcon size={18} />
-              Find specialists near {m.location.city}
-            </Link>
-            {m.relationship === "parent" && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1.5 text-footnote font-semibold text-[var(--brand-pressed)]">
-                <PinIcon size={14} strokeWidth={2.2} /> Tracked remotely from {m.location.city}
-              </span>
-            )}
-          </div>
-        )}
-      </PageHeader>
-
-      {error ? <ErrorNote message={error} onRetry={retry} /> : loading || !data ? <CardSkeleton lines={2} /> : <HealthRecords data={data} />}
-      <YearTrends memberId={memberId} />
-      <DayZoom memberId={memberId} />
+      {header}
+      {!p.can("conditions") && !p.can("medications") && !p.can("trends") && <BasicCard p={p} />}
+      {(p.can("conditions") || p.can("medications")) && (loading ? <CardSkeleton lines={2} /> : <HealthRecords data={data} p={p} />)}
+      {p.can("trends") && <YearTrends memberId={memberId} />}
+      {p.can("vitals") ? (
+        <DayZoom memberId={memberId} />
+      ) : p.can("trends") ? (
+        <p className="card p-5 text-subhead text-secondary">
+          {data.member.name.split(" ")[0]} shares a health summary with you: monthly trends, conditions and medicines. Day-by-day
+          readings and check-ins stay private.
+        </p>
+      ) : null}
       <Disclaimer />
     </div>
   );

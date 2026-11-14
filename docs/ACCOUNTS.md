@@ -54,7 +54,8 @@ await logActivity(actor.id, subject.id, "appointment.create", { providerNpi });
 ```
 - `withAuthErrors` turns a failed check into a JSON **401/403** instead of a crash.
 - Capabilities: `profile`, `conditions`, `trends`, `vitals`, `medications`, `checkins`, `appointments`, `reminders`, `act`, `manageSharing` (see `src/lib/auth/permissions.ts`).
-- `account.memberId` links an account to its health data (`/api/trends/<memberId>` etc.). Alex has none.
+- `account.memberId` links an account to its health data (`/api/trends/<memberId>` etc.). Alex has none. For routes keyed by member id, use `authorizeMember(capability, memberId)`.
+- **Protected health routes:** `/api/trends/<id>` (`trends`), `/api/vitals/<id>` (`vitals`), `/api/checkins/<id>` (`checkins`). `/api/sample/family` and `/api/family/<id>/profile` stay public (names, conditions and medicine names of the fictional family, used by the medicine chips and specialists pages).
 - Store new per-person data with an `account_id` column; add the table to `db/tiger/app-schema.sql` and its `GRANT ... TO idoc_team` line in `scripts/seed-app.mjs`, then ask Cam to run `npm run seed:app`.
 
 **Client side (pages):**
@@ -62,7 +63,12 @@ await logActivity(actor.id, subject.id, "appointment.create", { providerNpi });
 import { useMe } from "@/components/useMe";
 const { me } = useMe();          // me.account = whose iPhone this is; me.people = who they can see + capabilities
 const canBook = me?.people.find((p) => p.account.id === "mia")?.capabilities.includes("act");
+
+// People you may see, joined with their health profile, labelled from your point of view ("Mother", "Spouse"):
+import { usePeople } from "@/components/usePeople";
+const { me, people } = usePeople(); // people[i] = { person, member, label, can("trends") }
 ```
+The dashboard and `/family/<id>` use this: Full and Health-summary connections get trend cards, Basic connections get a status card, and people you aren't connected to aren't shown (their page says "You're not connected with ...").
 
 ## API
 | Route | What |
