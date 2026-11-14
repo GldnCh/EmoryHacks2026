@@ -6,7 +6,7 @@ Built at **Emory Hacks 2026** (Healthcare track), Fri Nov 13 to Sun Nov 15, 2026
 
 - **Live app:** https://idoc-wall-e9.vercel.app (Vercel project `idoc`, team Wall-E, owner: Cam). Every merge to `main` redeploys it; each PR gets a preview link. The site is public.
 - **Repo:** https://github.com/GldnCh/EmoryHacks2026 (public)
-- **New teammate?** Follow **[QUICKSTART.md](QUICKSTART.md)**: browser only, about 10 minutes. Everyone works in a **Coder workspace** (https://coder.c1.workshop.cdr.dev/) where Git, GitHub CLI, Node 22 and Claude Code are pre-installed.
+- **New teammate?** Follow **[QUICKSTART.md](QUICKSTART.md)** (browser only, about 10 minutes), then paste your task prompt from **[docs/TEAM-PROMPTS.md](docs/TEAM-PROMPTS.md)**, which also lists who owns which files. Everyone works in a **Coder workspace** (https://coder.c1.workshop.cdr.dev/) where Git, GitHub CLI, Node 22 and Claude Code are pre-installed.
 
 ## Event rules (do not break these)
 - All project code must be written **after 8PM Fri Nov 13**. Do not reuse code from older projects.
