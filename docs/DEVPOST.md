@@ -124,7 +124,7 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - **Clinician review** of AI summaries before they reach patients
 - **Booking and sharing:** send a monthly summary to a chosen doctor, or book with a suggested specialist
 - **Medication reminders and adherence tracking**, which would have caught Rosa's missed doses sooner
-- **Caller identity from the iPhone:** today the FaceTime assistant asks who it's talking to when a family shares the line. In the native app, each person's iPhone would identify them to the call, so check-ins file under the right person automatically
+- **Caller identity from the iPhone:** today the FaceTime assistant starts by asking who it's speaking with, and works out from the conversation whose history the summary belongs in. In the native app, iCare would know whose iPhone it is (the web demo already asks once, at setup: "Whose iPhone is this?"), so a FaceTime call from that phone would arrive linked to that person: no "who's calling?", their own health context from the first sentence, and the summary filed under the right person automatically. It's also more private: identity comes from the device instead of a name said out loud, and the Family Sharing levels we already built (Full, Health summary, Basic) decide who in the family sees each summary. A parent checking in for a child would still say who the call is for, just as a guardian can open a child's iCare from their own phone today
 - Support for **more languages and reading levels**
 - **[MOVE any unfinished features from "What it does" here]**
 
