@@ -1,0 +1,143 @@
+"use client";
+// Family overview (TD). One card per Rivera: latest month vs the month before, from /api/trends/<id>.
+import Link from "next/link";
+import Avatar from "@/components/Avatar";
+import Disclaimer from "@/components/Disclaimer";
+import { ChevronRight, PinIcon } from "@/components/Icons";
+import { METRICS } from "@/components/metrics";
+import PageHeader from "@/components/PageHeader";
+import StatTile from "@/components/StatTile";
+import { CardSkeleton, ErrorNote, Skeleton, SourceBadge } from "@/components/Status";
+import { RELATIONSHIP, monthLong, type Member, type TrendsResponse } from "@/components/types";
+import { useJson } from "@/components/useJson";
+
+function MemberCard({ member }: { member: Member }) {
+  const { data, error, loading, retry } = useJson<TrendsResponse>(`/api/trends/${member.id}`);
+  const remote = member.relationship === "parent";
+  const latest = data?.trends.at(-1);
+  const prev = data?.trends.at(-2);
+  const first = member.name.split(" ")[0];
+
+  return (
+    <section className={`card flex flex-col p-5 sm:p-6 ${remote ? "ring-2 ring-brand/35" : ""}`} aria-labelledby={`m-${member.id}`}>
+      {/* Header row is one big tap target into the person's page */}
+      <Link href={`/family/${member.id}`} className="pressable group -m-2 flex items-center gap-3 rounded-2xl p-2 hover:bg-fill/60">
+        <Avatar id={member.id} name={member.name} size={48} />
+        <span className="min-w-0 flex-1">
+          <span id={`m-${member.id}`} className="block text-headline">
+            {member.name}
+          </span>
+          <span className="block truncate text-footnote text-secondary">
+            {RELATIONSHIP[member.relationship]} · {member.age} · {member.location.city}, {member.location.state}
+          </span>
+        </span>
+        <ChevronRight size={18} className="shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
+      </Link>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        {remote && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-caption font-semibold text-[var(--brand-pressed)]">
+            <PinIcon size={13} strokeWidth={2.2} /> Tracked remotely from {member.location.city}
+          </span>
+        )}
+        <SourceBadge source={data?.source} queryMs={data?.queryMs} />
+      </div>
+
+      <p className="mt-3 text-subhead text-secondary">
+        <span className="text-muted">Conditions: </span>
+        {member.conditions.join(", ") || "None on file"}
+      </p>
+
+      <div className="mt-4 flex-1">
+        {error ? (
+          <ErrorNote message={error} onRetry={retry} />
+        ) : loading && !data ? (
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+            {Array.from({ length: 3 }, (_, i) => (
+              <Skeleton key={i} className="h-[104px] rounded-2xl" />
+            ))}
+          </div>
+        ) : latest ? (
+          <>
+            <p className="mb-2 text-footnote font-medium text-muted">Monthly average · {monthLong(latest.month)}</p>
+            <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+              <StatTile label="Steps per day" icon={METRICS.steps.icon} accent={METRICS.steps.accent} value={latest.avgSteps} previous={prev?.avgSteps} betterWhen="up" />
+              <StatTile
+                label="Resting heart rate"
+                icon={METRICS.heart.icon}
+                accent={METRICS.heart.accent}
+                value={latest.avgRestingHeartRate}
+                previous={prev?.avgRestingHeartRate}
+                unit="bpm"
+                decimals={1}
+                betterWhen="down"
+              />
+              <StatTile label="Sleep" icon={METRICS.sleep.icon} accent={METRICS.sleep.accent} value={latest.avgSleepHours} previous={prev?.avgSleepHours} unit="hr" decimals={1} betterWhen="up" />
+              {latest.avgSystolic != null && (
+                <StatTile
+                  label="Blood pressure"
+                  icon={METRICS.bp.icon}
+                  accent={METRICS.bp.accent}
+                  value={latest.avgSystolic}
+                  previous={prev?.avgSystolic}
+                  display={`${latest.avgSystolic}/${latest.avgDiastolic}`}
+                  unit="mmHg"
+                  betterWhen="down"
+                />
+              )}
+              {latest.avgBloodGlucose != null && (
+                <StatTile
+                  label="Fasting glucose"
+                  icon={METRICS.glucose.icon}
+                  accent={METRICS.glucose.accent}
+                  value={latest.avgBloodGlucose}
+                  previous={prev?.avgBloodGlucose}
+                  unit="mg/dL"
+                  betterWhen="down"
+                />
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="text-subhead text-muted">No trend data yet.</p>
+        )}
+      </div>
+
+      <Link href={`/family/${member.id}`} className="btn btn-tertiary -mb-2 mt-3 self-start">
+        View {first}&apos;s full year
+        <ChevronRight size={15} />
+      </Link>
+    </section>
+  );
+}
+
+export default function DashboardPage() {
+  const { data, error, loading, retry } = useJson<{ family: Member[] }>("/api/sample/family");
+
+  return (
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        title="Family dashboard"
+        subtitle="Each person's latest month compared with the month before. Blood pressure changes are shown for the top number (systolic)."
+      />
+
+      {error ? (
+        <ErrorNote message={error} onRetry={retry} />
+      ) : loading && !data ? (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {Array.from({ length: 4 }, (_, i) => (
+            <CardSkeleton key={i} lines={2} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {data?.family.map((m) => (
+            <MemberCard key={m.id} member={m} />
+          ))}
+        </div>
+      )}
+
+      <Disclaimer />
+    </div>
+  );
+}

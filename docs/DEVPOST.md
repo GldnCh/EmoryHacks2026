@@ -30,8 +30,8 @@ We wanted one place where a family can see its health over time, understand it i
 ## What it does
 IDoc is a family telehealth companion. Our demo follows the **Rivera family**, a fictional family with a year of realistic health data:
 
-- **Family health dashboard:** a year of Apple Health–style data (steps, resting heart rate, sleep, exercise, blood pressure, blood glucose) for every family member, including relatives who live far away. **[WHEN BUILT: dashboard UI]**
-- **Minute-by-minute vitals:** zoom from a whole year down to a single day, hour by hour: heart rate while sleeping, during Sam's evening run, or through Jordan's flu week. **[WHEN BUILT: intraday chart UI]**
+- **Family health dashboard:** a year of Apple Health–style data (steps, resting heart rate, sleep, exercise, blood pressure, blood glucose) for every family member, including relatives who live far away. The dashboard shows one card per person with their latest monthly averages, each marked green or amber with an arrow for better or worse than the month before.
+- **Minute-by-minute vitals:** zoom from a whole year down to a single day, hour by hour: heart rate while sleeping, during Sam's evening run, or through Jordan's flu week. Each person's page has a date picker that charts any day's hourly heart rate (average plus lowest-to-highest range) and steps, read from Tiger Data's hourly continuous aggregate.
 - **Monthly and yearly health trends:** the data rolls up into monthly trends, so changes stand out: Jordan's blood pressure falling from 138/88 to 126/81 after he started walking, or Grandma Rosa's spiking to 151/90 over the summer and recovering after a medication review. Gemini turns each month and year into a short, friendly report: a headline, 3–5 highlights, things worth asking a doctor about, and encouragement, all written from the real numbers.
 - **Medicine search:** search by brand, generic name, misspelling or symptom ("zyrtec", "heartburn"). Every medicine shows official FDA label information, including boxed warnings, plus a plain-language explanation from MedlinePlus.
 - **Specialist finder:** IDoc matches each person's conditions to the right kind of specialist and finds real, licensed doctors near them using the national NPI Registry. Rosa, in Savannah, gets local endocrinologists and cardiologists.
@@ -40,7 +40,7 @@ IDoc is a family telehealth companion. Our demo follows the **Rivera family**, a
 - **…over FaceTime (Chert):** FaceTime IDoc's number from an iPhone and the same check-in answers with an animated face and a natural Gemini voice. It asks who's calling (Jordan, Sam, Mia's parent or Grandma Rosa) and uses that person's data. **[CHECK: confirm a full FaceTime call works before demo day]**
 - **Emergency safety net:** if anyone mentions chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts, IDoc immediately tells them to call 911 (and 988), before the AI is even asked. In chat and on FaceTime.
 - **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text. **[WHEN BUILT: "Explain this label" button on the medicine page]**
-- **Voice and image search (Typesense):** **[WHEN BUILT: describe if voice/image search ships]**
+- **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).
 
 IDoc never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
 
@@ -50,17 +50,17 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
   - `family_members` (relational profiles: conditions, medications, location)
   - `health_metrics` hypertable (one row per person per day: sleep, blood pressure, glucose)
   - `vitals_minute` hypertable with **~2.1 million minute-by-minute heart-rate and step readings**, like an Apple Watch, in 7-day chunks
-  - **3 continuous aggregates** (`vitals_hourly`, `vitals_daily`, `health_monthly`) with auto-refresh policies, so dashboards read pre-computed results instead of scanning millions of rows. Every API response reports its database time (`queryMs`): monthly trends, hourly vitals and cohort queries return in about 20 ms. **[CHECK: re-measure on the live Vercel site, which is in the same AWS region as the database]**
+  - **3 continuous aggregates** (`vitals_hourly`, `vitals_daily`, `health_monthly`) with auto-refresh policies, so dashboards read pre-computed results instead of scanning millions of rows. Every API response reports its database time (`queryMs`). On the live site (Vercel and Tiger Cloud both in AWS us-east-1), monthly trends, weekly trends, hourly vitals and cohort queries return in **2–4 ms**, and a full year of daily heart rate comes back in **~3 ms from the continuous aggregate vs ~22 ms from the 525,600 raw minute rows (~7.5× faster)**.
   - **Compression** segmented by family member. **212.3 MB → 6.2 MB (97% smaller)** across 53 compressed chunks.
   - One SQL query JOINs profiles with time-series trends: "show everyone in the family with hypertension and their monthly blood pressure."
-  **[CHECK: confirm it's connected on the live site]**
+  Live and verified: `/api/tiger/stats` on the deployed site reports all 2,102,400 rows, 53/53 compressed chunks and the benchmark in real time.
 - **Public medical data, no patient data:**
   - **openFDA** for official drug labels: uses, boxed warnings, side effects, interactions
   - **RxNorm** (National Library of Medicine) to turn brand names and typos into standard drug names
   - **MedlinePlus Connect** (NLM) for plain-language condition and drug explanations
   - **NLM Clinical Tables** for condition lookup with ICD-10 codes
   - **NPI Registry** (CMS) for real, licensed specialists by specialty and location
-- **Typesense** for fast medicine search, indexed with RxNorm brand names and FDA "uses" text. **[CHECK: confirm it's seeded and used on the live site]**
+- **Typesense** for fast, typo-tolerant medicine search: our 38 medicines indexed with every RxNorm brand name (so a store brand like "Wal-Zyr" finds cetirizine) and the official FDA "uses" text. Results update as you type (about 20 ms per search on Typesense), with filter chips for prescription vs. over the counter and drug class, and the matched words highlighted. If Typesense is ever unreachable, search quietly falls back to our local list so the demo never breaks.
 - **Google Gemini** (`gemini-3.5-flash-lite`, ~0.5–1.5 s per reply) writes the monthly/yearly summaries, runs the check-in chat and explains FDA labels. Every call shares one set of safety rules (plain 6th–8th grade language, not medical advice, no diagnoses, no medication or dose changes, say when unsure) and returns validated JSON. Month-over-month changes are computed in code, so the AI never does the math. Summaries are cached so repeated demo clicks are instant.
 - **Safety before AI:** a red-flag check scans what the person says for emergency phrases and answers with the 911/988 message in ~10 ms without calling Gemini. It handles negations, so "no chest pain" doesn't trigger it.
 - **Chert + LiveKit + Gemini Live:** Chert bridges an iPhone FaceTime call into a LiveKit room, where our agent (built from Chert's video starter, swapped from OpenAI to **Gemini Live native audio**) talks with the caller. It loads the same safety rules, check-in steps and Tiger Data trends from our API, so chat and voice can't drift apart, and runs every sentence the caller says through our emergency check.
@@ -80,6 +80,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - Safety built in from the start: no real patient data, FDA warnings shown prominently, and "not medical advice" everywhere.
 - Safety that doesn't depend on the AI behaving: emergency phrases are caught in code before Gemini is called, and boxed FDA warnings are always shown word for word even if the AI leaves them out.
 - One set of prompts and safety rules shared by the chat and the FaceTime agent.
+- Fitting a year of minute-by-minute vitals for a whole family (2.1M readings) into 6.2 MB, with every dashboard query answering in a few milliseconds.
 - **[ADD as features land]**
 
 ## What we learned
@@ -89,6 +90,7 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 
 ## What's next for IDoc
 - A **native iOS app with live Apple HealthKit** data, instead of sample data
+- **Search by photo:** snap a pill bottle and have AI read just the drug name off the label, then run the normal search
 - **Clinician review** of AI summaries before they reach patients
 - **Booking and sharing:** send a monthly summary to a chosen doctor, or book with a suggested specialist
 - **Medication reminders and adherence tracking**, which would have caught Rosa's missed doses sooner
@@ -106,16 +108,17 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 - The Rivera family sample-data generator and medicine list
 - Connectors for openFDA, RxNorm, MedlinePlus, Clinical Tables and the NPI Registry, including condition-to-specialist matching
 - Tiger Data schema, seed script and trend queries; Typesense indexing with RxNorm/FDA enrichment
+- Medicine search (Typesense, filters, voice search) and the medicine detail and specialist finder pages
 - Gemini AI layer: safety rules, red-flag check, summaries, check-in chat, label explanations, and the `/checkin` page
 - The Chert FaceTime check-in agent (Gemini Live)
-- **[ADD: dashboard UI]**
+- App shell, family dashboard, per-person trend and day-view charts, and the Tiger Data page
 
 **Frameworks, libraries and services used (not built by us):**
 Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB/PostgreSQL, `pg`), Typesense, Google Gemini API (incl. Gemini Live), Chert (`@trychert/facetime` and its video-agent starter), LiveKit Agents and LiveKit Cloud, openFDA, RxNorm/RxNav, MedlinePlus Connect, NLM Clinical Tables, NPI Registry.
 
 ## Prize tracks to select
 - **Healthcare** track
-- **Best Use of Tiger Data:** ~2.1M minute-level vitals in a hypertable; relational profiles and metric streams in one database; continuous aggregates powering lag-free dashboard charts; compression; measured raw-vs-aggregate speedups shown live in the demo (`/api/tiger/stats`). **[CHECK: sponsor's requirements]**
+- **Best Use of Tiger Data:** 2.1M minute-level vitals in a hypertable; relational profiles and metric streams side by side in one database (one SQL JOIN for "everyone with hypertension and their monthly BP"); 3 continuous aggregates powering lag-free dashboard charts (2–4 ms); **97% compression (212.3 MB → 6.2 MB)**; and a live raw-vs-aggregate benchmark (~22 ms vs ~3 ms) shown in the demo. **[CHECK: sponsor's requirements]**
 - **Best Use of Gemini API:** Gemini powers every AI feature, all behind one shared set of safety rules: (1) the **wellness check-in chat**, one question at a time, personalized with the person's Tiger Data trends, ending in a summary and next step; (2) **monthly and yearly health summaries** as validated JSON (headline, highlights, things to ask a doctor, encouragement) built from real numbers; (3) **plain-language FDA label explanations** that use only the label text and always keep boxed warnings; (4) **Gemini Live native audio** answering real iPhone **FaceTime** calls through Chert. **Safety guardrails:** an emergency red-flag check runs before Gemini (911/988 in ~10 ms), and the AI never diagnoses, never suggests medicines or doses, and always says it's not medical advice. **[CHECK: sponsor's submission requirements; confirm Gemini keys are set in Vercel]**
 - **[CHECK: any other MLH prizes we qualify for, e.g. domain or DEV writing]**
 
