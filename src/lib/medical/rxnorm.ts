@@ -27,12 +27,35 @@ export async function normalizeDrug(term: string): Promise<RxNormDrug | null> {
   const rel = await fetchJson<Related>(`${BASE}/rxcui/${rxcui}/related.json?tty=IN+BN`);
   const groups = rel?.relatedGroup?.conceptGroup ?? [];
   const ingredients = groups.find((g) => g.tty === "IN")?.conceptProperties ?? [];
-  const brands = groups.find((g) => g.tty === "BN")?.conceptProperties ?? [];
   if (!ingredients.length) return null;
+
+  // Brand names: for a single-ingredient drug, list only brands that contain JUST that ingredient.
+  // RxNorm's plain BN list also includes combination products (e.g. lisinopril -> "Zestoretic", which is
+  // lisinopril + hydrochlorothiazide). Branded drug names (SBD) end in "[Brand]" and contain " / " when
+  // they combine ingredients, so we keep the brands from SBD names without " / ".
+  let brandNames: string[];
+  if (ingredients.length === 1) {
+    brandNames = await singleIngredientBrands(ingredients[0].rxcui);
+  } else {
+    // the user typed a combination product: its own brand names are the right answer
+    brandNames = (groups.find((g) => g.tty === "BN")?.conceptProperties ?? []).map((b) => b.name);
+  }
   return {
     rxcui: ingredients[0].rxcui,
     ingredient: ingredients.map((i) => i.name).join(" / "),
-    brandNames: brands.map((b) => b.name).slice(0, 12),
+    brandNames: brandNames.slice(0, 12),
     matchedFrom: term,
   };
+}
+
+async function singleIngredientBrands(ingredientRxcui: string): Promise<string[]> {
+  const rel = await fetchJson<Related>(`${BASE}/rxcui/${ingredientRxcui}/related.json?tty=SBD`);
+  const names = (rel?.relatedGroup?.conceptGroup ?? []).flatMap((g) => g.conceptProperties ?? []).map((p) => p.name);
+  const brands = new Set<string>();
+  for (const name of names) {
+    if (name.includes(" / ")) continue; // combination product
+    const m = name.match(/\[(.+?)\]\s*$/);
+    if (m) brands.add(m[1]);
+  }
+  return [...brands].sort((a, b) => a.length - b.length || a.localeCompare(b));
 }
