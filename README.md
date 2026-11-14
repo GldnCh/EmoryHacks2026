@@ -3,6 +3,8 @@
 > AI telehealth platform: AI-led wellness checkups over Chert FaceTime, voice and image medicine search, specialist finder, family health tracking, and monthly/yearly health summaries.
 > Built at Emory Hacks 2026 (Healthcare track). **Not medical advice.** Demo uses fabricated data only.
 
+**🌐 Live app: https://idoc-wall-e9.vercel.app** (auto-deploys from `main`)
+
 ## Run locally
 ```
 npm install
