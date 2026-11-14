@@ -28,7 +28,7 @@ Emory Hacks requires separating original work from frameworks. Update this as fe
 - Connectors for openFDA, RxNorm, MedlinePlus, NLM Clinical Tables and the NPI Registry, with condition-to-specialist matching
 - Tiger Data schema (hypertables, continuous aggregates, compression), seed script and trend/cohort queries
 - Typesense indexing enriched with RxNorm and FDA data
-- Medicine search on Typesense (typo tolerance, facets, highlights, Rx/OTC and drug-class filters, local fallback if Typesense is down), a live search page with filter chips and voice search, a medicine detail page with FDA boxed warnings, and a specialist finder page (per family member or any specialty near a city or ZIP)
+- Medicine search on Typesense (typo tolerance, facets, highlights, Rx/OTC and drug-class filters, local fallback if Typesense is down), a live search page with filter chips, voice search and "Family medicines" chips for each family member, a medicine detail page with FDA boxed warnings (repeated text removed), and a specialist finder page (per family member or any specialty near a city or ZIP)
 - App shell and screens: landing page, family dashboard (latest month vs. the month before), per-person pages with 12-month trend charts and an hour-by-hour "zoom into a day" view, and a "Powered by Tiger Data" page with live storage, compression, benchmark and cohort charts
 - (add Gemini and Chert features as they land)
 
