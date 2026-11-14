@@ -8,6 +8,7 @@ iCare combines **our fabricated Rivera family** (the patients) with **free publi
 | **openFDA** | U.S. FDA | no (optional `OPENFDA_API_KEY` for higher limits) | Official drug labels: uses, boxed warnings, side effects, interactions; finding more drugs by use | `src/lib/medical/openfda.ts` |
 | **RxNorm / RxNav** | National Library of Medicine | no | Brand ↔ generic names, typo-tolerant drug lookup, standard drug ids | `src/lib/medical/rxnorm.ts` |
 | **MedlinePlus Connect** | National Library of Medicine | no | Plain-language explanations of conditions and drugs | `src/lib/medical/medlineplus.ts` |
+| **MedlinePlus Web Service** | National Library of Medicine | no (85 requests/min per IP) | Spelling suggestions for misspelled symptoms ("insomnea" → insomnia) in medicine search | `src/lib/medical/medlineplus.ts`, `src/lib/spelling.ts` |
 | **NLM Clinical Tables** | National Library of Medicine | no | Condition/symptom autocomplete with ICD-10 codes | `src/lib/medical/clinicaltables.ts` |
 | **NPI Registry** | CMS (Medicare) | no | Real licensed specialists by specialty and location | `src/lib/medical/npi.ts` |
 | **Tiger Data** | Tiger Data (TimescaleDB) | yes: `TIGER_DATABASE_URL` | Our only database: profiles + daily metrics + ~2.1M minute-level heart-rate/step readings, 3 continuous aggregates (hourly, daily, monthly), compression | `src/lib/tiger.ts`, `db/tiger/schema.sql`, `scripts/seed-tigerdata.mjs` |
@@ -18,7 +19,7 @@ iCare combines **our fabricated Rivera family** (the patients) with **free publi
 ## API routes (all return JSON)
 | Route | What it does | Example |
 |---|---|---|
-| `/api/medicines/search?q=` | **Typesense** over our list (typo-tolerant, ranked, highlights) + RxNorm (brands/typos) + openFDA (more drugs by use when < 3 hits). Falls back to a plain local search if Typesense is missing or down. Also returns `source` (`"Typesense"` or `"Local list"`), `facets` (drug class, Rx/OTC) and `searchMs` | `?q=zyrtec` → cetirizine · `?q=lisinoprl` → lisinopril · `?q=heartburn` → 2 of ours + 5 from FDA |
+| `/api/medicines/search?q=` | **Typesense** over our list (typo-tolerant, ranked, highlights) + RxNorm (brands/typos) + openFDA (more drugs by use when < 3 hits). Falls back to a plain local search if Typesense is missing or down. Misspelled uses/symptoms are corrected first (`spelling`: MedlinePlus, then our vocabulary; drug names are left to RxNorm). Also returns `source` (`"Typesense"` or `"Local list"`), `facets` (drug class, Rx/OTC), `searchMs` and `spelling` | `?q=zyrtec` → cetirizine · `?q=lisinoprl` → lisinopril · `?q=heartburn` → 2 of ours + 5 from FDA · `?q=insomnea` → corrected to insomnia, 5 from FDA |
 | `/api/medicines/search?q=&rx=true\|false&class=` | Same, filtered: `rx=true` prescription only, `rx=false` over the counter only, `class=` exact drug class. Facets are counted before filters, so filter chips stay visible | `?q=allergies&rx=false` · `?q=allergies&class=Antihistamine` |
 | `/api/medicines/<name>` | Everything about one drug: our entry, RxNorm names, FDA label, MedlinePlus page | `/api/medicines/lisinopril` (includes the FDA boxed warning) |
 | `/api/conditions/search?q=` | Condition autocomplete with ICD-10 codes | `?q=asthma` |

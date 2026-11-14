@@ -32,6 +32,7 @@ Emory Hacks requires separating original work from frameworks. Update this as fe
 - Tiger Data schema (hypertables, continuous aggregates, compression), seed script and trend/cohort queries
 - Typesense indexing enriched with RxNorm and FDA data
 - Medicine search on Typesense (typo tolerance, facets, highlights, Rx/OTC and drug-class filters, local fallback if Typesense is down), a live search page with filter chips, voice search and "Family medicines" chips for each family member, a medicine detail page with FDA boxed warnings (repeated text removed), and a specialist finder page (per family member or any specialty near a city or ZIP)
+- Typo-tolerant symptom search: misspelled uses like "insomnea" or "high blod presure" are corrected (MedlinePlus spelling suggestions, then our own medicine vocabulary, up to 3 wrong letters on long words) before searching our list and openFDA
 - App shell and screens: landing page, family dashboard (latest month vs. the month before), per-person pages with 12-month trend charts and an hour-by-hour "zoom into a day" view, and a "Powered by Tiger Data" page with live storage, compression, benchmark and cohort charts
 - Gemini AI layer (`src/lib/ai/`): shared safety rules, an emergency red-flag check that runs before any AI call, compact member context from Tiger Data trends, and JSON-validated Gemini calls with retry
 - Gemini routes: monthly/yearly health summaries (`/api/ai/summary/<id>`), wellness check-in chat (`/api/ai/checkin`), plain-language FDA label explanations (`/api/ai/explain-label`), and the voice agent's prompt and red-flag routes
@@ -45,7 +46,7 @@ Emory Hacks requires separating original work from frameworks. Update this as fe
 - Web Speech API (built into the browser, no package): voice search on the Medicines page
 - Recharts (`recharts`): charts on the dashboard, family and Tiger Data pages
 - Tiger Data / TimescaleDB (`pg`): our database for health history
-- Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
+- Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect, MedlinePlus Web Service (spelling suggestions) and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
 - Chert FaceTime (`@trychert/facetime` CLI); `chert-agent/` started from Chert's video-agent starter (`chert-rooms.mjs`, `greet.mjs`, `face.mjs` are Chert's files)
 - LiveKit Agents for Node (`@livekit/agents`, `@livekit/rtc-node`, `@livekit/agents-plugin-google`) and LiveKit Cloud
 - Coder (dev environments), Vercel (hosting)
