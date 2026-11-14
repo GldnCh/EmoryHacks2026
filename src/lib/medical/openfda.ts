@@ -111,17 +111,14 @@ export async function searchLabelsByUse(term: string, limit = 5): Promise<DrugLa
   const q = safeTerm(term);
   if (!q) return [];
   const data = await fetchJson<{ results?: Raw[] }>(
-    url(`indications_and_usage:"${q}" OR purpose:"${q}"`, Math.min(limit * 4, 50)),
+    url(`indications_and_usage:"${q}" OR purpose:"${q}"`, Math.min(limit * 8, 50)), // extra, since combos and duplicates are skipped
   );
   const seen = new Set<string>();
   const labels: DrugLabel[] = [];
   for (const r of data?.results ?? []) {
     if (isHomeopathic(r)) continue;
     const label = toLabel(r);
-    if (!label.genericName) continue;
-    // some records have no substance list, so also count the ingredients in the name
-    const ingredients = Math.max(r.openfda?.substance_name?.length ?? 0, splitIngredients(label.genericName).length);
-    if (ingredients > MAX_INGREDIENTS) continue;
+    if (!label.genericName || isMessyName(label.genericName)) continue;
     // the same drug often has many labels from different makers and salts; keep one per ingredient set
     const key = ingredientKey(label.genericName);
     if (seen.has(key)) continue;
@@ -131,8 +128,16 @@ export async function searchLabelsByUse(term: string, limit = 5): Promise<DrugLa
   return labels.slice(0, limit);
 }
 
-/** Search results skip products with more ingredients than this (long multi-symptom or homeopathic mixes). */
-const MAX_INGREDIENTS = 3;
+/** Longest generic name a search result may have; longer ones are ingredient lists, not a drug name. */
+export const MAX_NAME_LENGTH = 60;
+
+/**
+ * Multi-ingredient lists ("A, B, AND C") and very long names make unreadable cards.
+ * Two-ingredient names without a comma ("LISINOPRIL AND HYDROCHLOROTHIAZIDE") are fine.
+ */
+function isMessyName(name: string) {
+  return name.length > MAX_NAME_LENGTH || name.includes(", ");
+}
 
 /** Homeopathic products aren't FDA-evaluated for effectiveness; they say so on the label. */
 function isHomeopathic(r: Raw) {
@@ -160,24 +165,9 @@ export function ingredientKey(name: string): string {
   return [...new Set(words)].sort().join("+");
 }
 
-/** "A, B and C" -> ["A", "B", "C"] */
-const splitIngredients = (name: string) => name.split(/\s*,\s*(?:and\s+)?|\s+and\s+/i).filter(Boolean);
-
-// Salt words people don't need on a result card.
-const SALTS = /\s+\b(hydrochloride|hydrobromide|hcl|hbr|maleate|sulfate|succinate|tartrate|citrate|besylate|mesylate|fumarate)\b/gi;
-
-/**
- * A name short enough for a result card. Title case; if too long, drop salt words
- * ("Brompheniramine, Pseudoephedrine, Dextromethorphan"), then fall back to "A, B and 2 more".
- */
-export function shortDrugName(name: string, max = 60): string {
+/** Title case, capped at `max` characters on a word boundary: "Esomeprazole Magnesium Delayed…". */
+export function shortDrugName(name: string, max = MAX_NAME_LENGTH): string {
   const titled = name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   if (titled.length <= max) return titled;
-  const parts = splitIngredients(titled.replace(SALTS, ""));
-  const joined = parts.join(", ");
-  if (joined.length <= max) return joined;
-  let out = parts[0];
-  let used = 1;
-  while (used < parts.length && `${out}, ${parts[used]}`.length <= max - 12) out = `${out}, ${parts[used++]}`;
-  return used < parts.length ? `${out} and ${parts.length - used} more` : out.slice(0, max - 1) + "…";
+  return titled.slice(0, max - 1).replace(/\s+\S*$/, "") + "…";
 }
