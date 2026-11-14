@@ -3,6 +3,7 @@
 // Styling is intentionally plain Tailwind; TD owns the design system and will polish it.
 // This page only talks to our own API routes; the Gemini key never reaches the browser.
 import { useEffect, useRef, useState } from "react";
+import CheckinHistory from "@/components/CheckinHistory";
 
 type Member = { id: string; name: string; relationship: string; age: number };
 type Msg = { role: "user" | "model"; text: string; emergency?: boolean };
@@ -210,6 +211,9 @@ export default function CheckinPage() {
           </>
         )}
       </section>
+
+      {/* FaceTime check-in summaries saved by the Chert agent; a new one appears here after a call ends. */}
+      <CheckinHistory />
 
       <SummaryPanel key={memberId} memberId={memberId} firstName={firstName} />
     </main>
