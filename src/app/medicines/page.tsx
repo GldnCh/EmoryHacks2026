@@ -8,6 +8,7 @@ import Disclaimer from "@/components/Disclaimer";
 import { BoltIcon, ChevronRight } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { ErrorNote, Skeleton } from "@/components/Status";
+import FamilyMedicines from "./FamilyMedicines";
 import { Highlighted, RxBadge, type SearchResponse, type SearchResult } from "./shared";
 
 const EXAMPLES = ["zyrtec", "wal-zyr", "heartburn", "insomnia", "lisinoprl"];
@@ -314,8 +315,14 @@ function MedicineSearch() {
         )
       ) : null}
 
-      {data && <p className="text-footnote text-secondary">{data.disclaimer}</p>}
-      <Disclaimer />
+      {/* Family medicines: under the search box until you search, then below the results (CSS order, so it
+          doesn't remount and keeps the selected member) */}
+      <div className={term ? "order-1" : ""}>
+        <FamilyMedicines initialMember={params.get("member")} />
+      </div>
+
+      {data && <p className="order-2 text-footnote text-secondary">{data.disclaimer}</p>}
+      <Disclaimer className="order-2" />
     </div>
   );
 }

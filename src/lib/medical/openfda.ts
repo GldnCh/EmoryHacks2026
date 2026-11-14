@@ -1,6 +1,7 @@
 // openFDA (U.S. FDA): official drug labels. Docs: https://open.fda.gov/apis/drug/label/
 // No key needed (limit ~1,000 requests/day per IP). Add OPENFDA_API_KEY for a higher limit.
 // FDA disclaimer: do not rely on openFDA to make decisions regarding medical care.
+import { dedupeSentences } from "@/lib/dedupe-text";
 import { fetchJson, safeTerm, trimText } from "./http";
 
 const BASE = "https://api.fda.gov/drug/label.json";
@@ -42,29 +43,22 @@ function raw(r: Raw, ...keys: string[]) {
 const first = (r: Raw, ...keys: string[]) => trimText(raw(r, ...keys));
 
 /**
- * Prescription labels put the short "Highlights" boxed warning and the full one in the same field,
- * so the heading ("WARNING: FETAL TOXICITY") appears twice. Keep the first copy and drop the
- * "see full prescribing information" pointers and section numbers like "( 5.1 )".
+ * Boxed warnings, cleaned for display. Prescription labels put the short "Highlights" warning and the full one
+ * in the same field, so the text repeats ("WARNING: FETAL TOXICITY" twice on lisinopril). We drop pointers like
+ * "See full prescribing information…" and section numbers "( 5.1 )", then remove exact repeats with
+ * dedupeSentences (src/lib/dedupe-text.ts). Distinct sentences are always kept, and the text isn't shortened.
  */
 export function cleanBoxedWarning(text: string | undefined): string | undefined {
   if (!text) return undefined;
-  // the app's callout is already titled "FDA boxed warning", so drop a leading "BOXED WARNING" label
-  let t = text.replace(/\s+/g, " ").trim().replace(/^BOXED WARNING:?\s+(?=WARNING)/i, "");
-  const heading = t.match(/^WARNINGS?:?[A-Z0-9 ,;:'()&/-]*?(?=\s+[A-Z][a-z])/)?.[0]?.trim();
-  if (heading && heading.length >= 8) {
-    const again = t.indexOf(heading, heading.length);
-    if (again > 0) t = t.slice(0, again);
-  }
-  // Lettered warnings list their titles first ("(A) X (B) Y (A) X details…"); drop that list.
-  const a1 = t.indexOf("(A) ");
-  const a2 = a1 >= 0 ? t.indexOf("(A) ", a1 + 4) : -1;
-  if (a2 > 0) t = t.slice(0, a1) + t.slice(a2);
-  t = t
+  const t = text
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^BOXED WARNING:?\s+(?=WARNING)/i, "") // the app's callout is already titled "FDA boxed warning"
     .replace(/See full prescribing information for complete boxed warning\.?/gi, "")
     .replace(/\[\s*see [^\]]*\]/gi, "")
     .replace(/\(\s*\d+(\.\d+)*(\s*,\s*\d+(\.\d+)*)*\s*\)/g, "")
     .replace(/\s+([.,;])/g, "$1");
-  return trimText(t, 1000); // the most important text on the page, so allow more than other fields
+  return trimText(dedupeSentences(t), 10_000);
 }
 
 function toLabel(r: Raw): DrugLabel {
@@ -117,17 +111,14 @@ export async function searchLabelsByUse(term: string, limit = 5): Promise<DrugLa
   const q = safeTerm(term);
   if (!q) return [];
   const data = await fetchJson<{ results?: Raw[] }>(
-    url(`indications_and_usage:"${q}" OR purpose:"${q}"`, Math.min(limit * 4, 50)),
+    url(`indications_and_usage:"${q}" OR purpose:"${q}"`, Math.min(limit * 8, 50)), // extra, since combos and duplicates are skipped
   );
   const seen = new Set<string>();
   const labels: DrugLabel[] = [];
   for (const r of data?.results ?? []) {
     if (isHomeopathic(r)) continue;
     const label = toLabel(r);
-    if (!label.genericName) continue;
-    // some records have no substance list, so also count the ingredients in the name
-    const ingredients = Math.max(r.openfda?.substance_name?.length ?? 0, splitIngredients(label.genericName).length);
-    if (ingredients > MAX_INGREDIENTS) continue;
+    if (!label.genericName || isMessyName(label.genericName)) continue;
     // the same drug often has many labels from different makers and salts; keep one per ingredient set
     const key = ingredientKey(label.genericName);
     if (seen.has(key)) continue;
@@ -137,8 +128,16 @@ export async function searchLabelsByUse(term: string, limit = 5): Promise<DrugLa
   return labels.slice(0, limit);
 }
 
-/** Search results skip products with more ingredients than this (long multi-symptom or homeopathic mixes). */
-const MAX_INGREDIENTS = 3;
+/** Longest generic name a search result may have; longer ones are ingredient lists, not a drug name. */
+export const MAX_NAME_LENGTH = 60;
+
+/**
+ * Multi-ingredient lists ("A, B, AND C") and very long names make unreadable cards.
+ * Two-ingredient names without a comma ("LISINOPRIL AND HYDROCHLOROTHIAZIDE") are fine.
+ */
+function isMessyName(name: string) {
+  return name.length > MAX_NAME_LENGTH || name.includes(", ");
+}
 
 /** Homeopathic products aren't FDA-evaluated for effectiveness; they say so on the label. */
 function isHomeopathic(r: Raw) {
@@ -166,24 +165,9 @@ export function ingredientKey(name: string): string {
   return [...new Set(words)].sort().join("+");
 }
 
-/** "A, B and C" -> ["A", "B", "C"] */
-const splitIngredients = (name: string) => name.split(/\s*,\s*(?:and\s+)?|\s+and\s+/i).filter(Boolean);
-
-// Salt words people don't need on a result card.
-const SALTS = /\s+\b(hydrochloride|hydrobromide|hcl|hbr|maleate|sulfate|succinate|tartrate|citrate|besylate|mesylate|fumarate)\b/gi;
-
-/**
- * A name short enough for a result card. Title case; if too long, drop salt words
- * ("Brompheniramine, Pseudoephedrine, Dextromethorphan"), then fall back to "A, B and 2 more".
- */
-export function shortDrugName(name: string, max = 60): string {
+/** Title case, capped at `max` characters on a word boundary: "Esomeprazole Magnesium Delayed…". */
+export function shortDrugName(name: string, max = MAX_NAME_LENGTH): string {
   const titled = name.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   if (titled.length <= max) return titled;
-  const parts = splitIngredients(titled.replace(SALTS, ""));
-  const joined = parts.join(", ");
-  if (joined.length <= max) return joined;
-  let out = parts[0];
-  let used = 1;
-  while (used < parts.length && `${out}, ${parts[used]}`.length <= max - 12) out = `${out}, ${parts[used++]}`;
-  return used < parts.length ? `${out} and ${parts.length - used} more` : out.slice(0, max - 1) + "…";
+  return titled.slice(0, max - 1).replace(/\s+\S*$/, "") + "…";
 }
