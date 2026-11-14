@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
+import CheckinHistory from "@/components/CheckinHistory";
 import { InfoIcon, VideoIcon, WarningIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -257,6 +258,9 @@ export default function CheckinPage() {
           </div>
         )}
       </Card>
+
+      {/* FaceTime check-in summaries saved by the Chert agent; a new one appears here after a call ends. */}
+      <CheckinHistory />
 
       <SummaryPanel key={memberId} memberId={memberId} firstName={firstName} />
     </div>

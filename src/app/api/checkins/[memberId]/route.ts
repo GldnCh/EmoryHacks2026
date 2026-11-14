@@ -5,16 +5,14 @@ import { NextResponse } from "next/server";
 import { getMember } from "@/lib/sample-data/health";
 import { getCheckinSummaries, tigerConfigured } from "@/lib/tiger";
 import { DISCLAIMER } from "@/lib/ai/safety";
-import { authorize, withAuthErrors } from "@/lib/auth";
-import { listAccounts } from "@/lib/auth/store";
+import { authorizeMember, withAuthErrors } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export const GET = withAuthErrors(async (_req: Request, { params }: { params: Promise<{ memberId: string }> }) => {
   const { memberId } = await params;
   if (!getMember(memberId)) return NextResponse.json({ error: `Unknown member "${memberId}"` }, { status: 404 });
-  const account = (await listAccounts()).find((a) => a.memberId === memberId);
-  await authorize("checkins", account?.id ?? memberId); // 401 if this iPhone isn't set up, 403 without Full access
+  await authorizeMember("checkins", memberId); // 401 if this iPhone isn't set up, 403 without Full access
   if (!tigerConfigured()) return NextResponse.json({ memberId, checkins: [], source: "none (TIGER_DATABASE_URL is not set)" });
   try {
     const { checkins, queryMs } = await getCheckinSummaries(memberId);

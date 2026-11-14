@@ -54,7 +54,8 @@ await logActivity(actor.id, subject.id, "appointment.create", { providerNpi });
 ```
 - `withAuthErrors` turns a failed check into a JSON **401/403** instead of a crash.
 - Capabilities: `profile`, `conditions`, `trends`, `vitals`, `medications`, `checkins`, `appointments`, `reminders`, `act`, `manageSharing` (see `src/lib/auth/permissions.ts`).
-- `account.memberId` links an account to its health data (`/api/trends/<memberId>` etc.). Alex has none.
+- `account.memberId` links an account to its health data (`/api/trends/<memberId>` etc.). Alex has none. For routes keyed by member id, use `authorizeMember(capability, memberId)`.
+- **Protected health routes:** `/api/trends/<id>` (`trends`), `/api/vitals/<id>` (`vitals`), `/api/checkins/<id>` (`checkins`). `/api/sample/family` and `/api/family/<id>/profile` stay public (names, conditions and medicine names of the fictional family, used by the medicine chips and specialists pages).
 - Store new per-person data with an `account_id` column; add the table to `db/tiger/app-schema.sql` and its `GRANT ... TO idoc_team` line in `scripts/seed-app.mjs`, then ask Cam to run `npm run seed:app`.
 
 **Client side (pages):**
@@ -62,7 +63,12 @@ await logActivity(actor.id, subject.id, "appointment.create", { providerNpi });
 import { useMe } from "@/components/useMe";
 const { me } = useMe();          // me.account = whose iPhone this is; me.people = who they can see + capabilities
 const canBook = me?.people.find((p) => p.account.id === "mia")?.capabilities.includes("act");
+
+// People you may see, joined with their health profile, labelled from your point of view ("Mother", "Spouse"):
+import { usePeople } from "@/components/usePeople";
+const { me, people } = usePeople(); // people[i] = { person, member, label, can("trends") }
 ```
+The dashboard and `/family/<id>` use this: Full and Health-summary connections get trend cards, Basic connections get a status card, and people you aren't connected to aren't shown (their page says "You're not connected with ...").
 
 ## API
 | Route | What |
@@ -74,6 +80,10 @@ const canBook = me?.people.find((p) => p.account.id === "mia")?.capabilities.inc
 | `GET /api/connections` | Connected people (what each side sees), incoming and outgoing requests |
 | `POST /api/connections { toId, level, relationship? }` | Send a request (`level` = what they'll see of you) |
 | `POST /api/connections/<id> { action: "accept", level? }` | Accept (`level` = what the sender sees of you; null = nothing) |
+| `GET /api/report/<memberId>` | Doctor report data + Gemini overview and questions to ask the doctor (cached 1 h, `?refresh=1`). Needs `checkins` (Full). Page: `/family/<id>/report` |
+| `GET /api/alerts` | Family alerts for you and your connections: a status per person and the alerts their sharing level allows |
+| `GET /api/reminders/<memberId>?days=7` | Medicine schedules, every dose in the window (taken / missed / due / upcoming), adherence, `canAct`. Needs `reminders` (Full) |
+| `POST /api/reminders/<memberId>` | `{ action: "log", scheduleId, scheduledFor, status }`, `{ action: "add", medicine, times, label? }`, `{ action: "remove", scheduleId }`. Needs `act` (the person or a guardian); logged as `dose.log` / `reminder.add` / `reminder.remove` |
 | `POST /api/connections/<id> { action: "decline" or "cancel" }` | Decline (recipient) or withdraw (sender) |
 | `DELETE /api/connections?with=<accountId>` | Disconnect, both directions (a child can't disconnect a guardian) |
 | `POST /api/sharing { subjectId?, viewerId, level }` | Change what a **connected** person sees; guardians may also add someone to the person they care for |
@@ -84,3 +94,17 @@ const canBook = me?.people.find((p) => p.account.id === "mia")?.capabilities.inc
 - Data lives in Tiger Data tables `accounts`, `sharing`, `connection_requests`, `activity_log` (`db/tiger/app-schema.sql`). Without a database the app uses an in-memory copy of the demo data.
 - **Not yet:** the existing health pages (`/dashboard`, `/family/<id>`) and data routes are still open to everyone for the demo. Use `authorize()` in all **new** features; filtering the existing pages by `me.people` is a follow-up.
 - **Native app:** the device identity comes from the iPhone (and `accounts.apple_sub` from the user's Apple account) instead of `/setup`; connections, levels and permissions stay the same. Health data comes from HealthKit instead of the demo generator.
+
+## Medication reminders
+Schedules are copied from the prescription label (`med_schedules`); every tap is saved in `dose_log`. A dose is **due** from 1 hour before to 2 hours after its time, and **missed** after that if nobody logged it. iCare never suggests doses or changes. The demo family's schedules are marked `demo`: days before today are generated relative to today (all taken, except Rosa's evening metformin and atorvastatin yesterday and 3 days ago), so the story is fresh at any demo time. Code: `src/lib/reminders/`, UI: `src/components/MedReminders.tsx` on `/family/<id>`. `npm run seed:app` creates the tables and demo schedules; `-- --reset` also clears taps.
+
+## Family alerts
+Worked out live, never stored (`src/lib/alerts.ts`, shown on `/dashboard` and `/family/<id>`):
+
+| Alert | When | Full detail needs | Others see |
+|---|---|---|---|
+| **Urgent:** check-in mentioned emergency symptoms | `checkin_summaries.emergency` in the last 7 days | `checkins` | "Rosa may need help … Consider calling Rosa" (general words, no health details) |
+| Missed doses | Not logged in the last 2 days | `reminders` | Status only |
+| Blood pressure running high | Latest week of readings averages ≥ 140/90 | `trends` | Status only |
+
+Every connection also sees a coarse status: **Doing okay**, **May need a check-in** or **Needs attention now**. Alerts state facts and suggest calling or contacting a clinician; they never give medical advice.
