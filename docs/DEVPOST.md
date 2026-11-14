@@ -31,6 +31,7 @@ We wanted one place where a family can see its health over time, understand it i
 IDoc is a family telehealth companion. Our demo follows the **Rivera family**, a fictional family with a year of realistic health data:
 
 - **Family health dashboard:** a year of Apple Health–style data (steps, resting heart rate, sleep, exercise, blood pressure, blood glucose) for every family member, including relatives who live far away. **[WHEN BUILT: dashboard UI]**
+- **Minute-by-minute vitals:** zoom from a whole year down to a single day, hour by hour: heart rate while sleeping, during Sam's evening run, or through Jordan's flu week. **[WHEN BUILT: intraday chart UI]**
 - **Monthly and yearly health trends:** the data rolls up into monthly trends, so changes stand out: Jordan's blood pressure falling from 138/88 to 126/81 after he started walking, or Grandma Rosa's spiking to 151/90 over the summer and recovering after a medication review. **[WHEN BUILT: Gemini-written plain-language summaries]**
 - **Medicine search:** search by brand, generic name, misspelling or symptom ("zyrtec", "heartburn"). Every medicine shows official FDA label information, including boxed warnings, plus a plain-language explanation from MedlinePlus.
 - **Specialist finder:** IDoc matches each person's conditions to the right kind of specialist and finds real, licensed doctors near them using the national NPI Registry. Rosa, in Savannah, gets local endocrinologists and cardiologists.
@@ -42,7 +43,14 @@ IDoc never diagnoses. It explains, tracks and points you to a professional, and 
 
 ## How we built it
 - **Next.js + TypeScript + Tailwind**, deployed on **Vercel**, developed in shared **Coder** workspaces.
-- **Tiger Data (TimescaleDB)** stores each family member's daily health history in a hypertable. Monthly and weekly trends are computed in the database with `time_bucket()`. **[CHECK: confirm it's connected on the live site]**
+- **Tiger Data (TimescaleDB)** is our only database, and it holds **profiles and metrics side by side**:
+  - `family_members` (relational profiles: conditions, medications, location)
+  - `health_metrics` hypertable (one row per person per day: sleep, blood pressure, glucose)
+  - `vitals_minute` hypertable with **~2.1 million minute-by-minute heart-rate and step readings**, like an Apple Watch, in 7-day chunks
+  - **3 continuous aggregates** (`vitals_hourly`, `vitals_daily`, `health_monthly`) with auto-refresh policies, so dashboards read pre-computed results instead of scanning millions of rows. Every API response reports its database time (`queryMs`): monthly trends, hourly vitals and cohort queries return in about 20 ms. **[CHECK: re-measure on the live Vercel site, which is in the same AWS region as the database]**
+  - **Compression** segmented by family member. **212.3 MB → 6.2 MB (97% smaller)** across 53 compressed chunks.
+  - One SQL query JOINs profiles with time-series trends: "show everyone in the family with hypertension and their monthly blood pressure."
+  **[CHECK: confirm it's connected on the live site]**
 - **Public medical data, no patient data:**
   - **openFDA** for official drug labels: uses, boxed warnings, side effects, interactions
   - **RxNorm** (National Library of Medicine) to turn brand names and typos into standard drug names
@@ -97,7 +105,7 @@ Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB
 
 ## Prize tracks to select
 - **Healthcare** track
-- **Best Use of Tiger Data:** health history stored as a hypertable, with trends via `time_bucket()`. **[CHECK: sponsor's requirements]**
+- **Best Use of Tiger Data:** ~2.1M minute-level vitals in a hypertable; relational profiles and metric streams in one database; continuous aggregates powering lag-free dashboard charts; compression; measured raw-vs-aggregate speedups shown live in the demo (`/api/tiger/stats`). **[CHECK: sponsor's requirements]**
 - **Best Use of Gemini API** **[CHECK: only if Gemini is live in the demo; describe exactly how it's used]**
 - **[CHECK: any other MLH prizes we qualify for, e.g. domain or DEV writing]**
 

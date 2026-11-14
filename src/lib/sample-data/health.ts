@@ -275,3 +275,72 @@ export function getMonthlySummaries(memberId: string): MonthlySummary[] {
     return row;
   });
 }
+
+// ---------- minute-level vitals (Apple Watch-style) ----------
+// One reading per minute: heart rate + steps. 4 people x 365 days x 1,440 minutes = ~2.1 million rows.
+// Built from that day's DailyMetrics, so minute data always adds up to the daily totals' story
+// (resting HR while asleep, workouts at the member's usual time, flu week, etc.).
+
+export interface MinuteVital {
+  minute: number; // 0..1439, local time (fixed UTC-5 / Eastern Standard Time, no DST shift; Tiger queries use Etc/GMT+5)
+  heartRate: number; // bpm
+  steps: number;
+}
+
+/** When each member usually works out (minute of day) and how intense it is. */
+const WORKOUT: Record<string, { start: number; intensity: number }> = {
+  jordan: { start: 6 * 60 + 30, intensity: 45 }, // brisk morning walk
+  sam: { start: 18 * 60, intensity: 75 }, // evening run
+  mia: { start: 16 * 60, intensity: 65 }, // after-school sports
+  rosa: { start: 9 * 60 + 30, intensity: 25 }, // gentle morning walk
+};
+
+export function getMinuteVitals(memberId: string, date: string): MinuteVital[] {
+  const day = getDailyMetrics(memberId).find((d) => d.date === date);
+  if (!day) return [];
+  const rand = mulberry32(seedFrom(`${memberId}:${date}`));
+  const n = () => gauss(rand);
+
+  // sleep window: wake around 6:30 (+/- 30 min), sleep `sleepHours` before that
+  const wake = Math.round(390 + 20 * n());
+  const bed = Math.round(wake + (24 - day.sleepHours) * 60);
+  const asleep = (m: number) => m < wake || m >= Math.min(bed, 1440);
+
+  const plan = WORKOUT[memberId] ?? { start: 17 * 60, intensity: 50 };
+  const wStart = plan.start + Math.round(15 * n());
+  const wEnd = wStart + day.exerciseMinutes;
+  const working = (m: number) => m >= wStart && m < wEnd;
+
+  // spread the day's steps over waking minutes: most minutes idle, some light walking, workout minutes heavy
+  const weights = Array.from({ length: 1440 }, (_, m) => {
+    if (asleep(m)) return 0;
+    if (working(m)) return 6 + rand() * 2;
+    return rand() < 0.28 ? 0.5 + rand() : 0;
+  });
+  const total = weights.reduce((a, b) => a + b, 0) || 1;
+
+  return weights.map((w, m) => {
+    const steps = Math.min(190, Math.round((day.steps * w) / total));
+    let hr: number;
+    if (asleep(m)) hr = day.restingHeartRate - 4 + 1.5 * n();
+    else if (working(m)) hr = day.restingHeartRate + plan.intensity + 6 * n();
+    else hr = day.restingHeartRate + 12 + Math.min(45, steps * 0.35) + 4 * n();
+    return { minute: m, heartRate: Math.round(clamp(hr, 38, 195)), steps };
+  });
+}
+
+/** Hourly roll-up of one day (used when Tiger Data isn't connected). */
+export function getHourlyVitals(memberId: string, date: string) {
+  const mins = getMinuteVitals(memberId, date);
+  return Array.from({ length: 24 }, (_, h) => {
+    const slice = mins.slice(h * 60, h * 60 + 60);
+    const hrs = slice.map((s) => s.heartRate);
+    return {
+      hour: h,
+      avgHeartRate: slice.length ? Math.round(hrs.reduce((a, b) => a + b, 0) / slice.length) : 0,
+      minHeartRate: slice.length ? Math.min(...hrs) : 0,
+      maxHeartRate: slice.length ? Math.max(...hrs) : 0,
+      steps: slice.reduce((a, s) => a + s.steps, 0),
+    };
+  });
+}
