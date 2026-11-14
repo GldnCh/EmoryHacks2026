@@ -23,8 +23,7 @@ Emory Hacks requires separating original work from frameworks. Update this as yo
 - Next.js, React, TypeScript, Tailwind CSS (scaffolded with `create-next-app`)
 - Google Gemini API (`@google/genai`)
 - Typesense Cloud (`typesense`)
-- Supabase (`@supabase/supabase-js`)
-- Tiger Data / TimescaleDB (`pg`)
+- Tiger Data / TimescaleDB (`pg`): our database for health history
 - Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
 - Chert
 - Coder (dev environments), Vercel (hosting)
@@ -32,5 +31,5 @@ Emory Hacks requires separating original work from frameworks. Update this as yo
 ## Team
 - Cam — Lead / Product & Pitch
 - Ish — AI & Video (Chert + Gemini)
-- Jam — Search & Backend (Typesense + Supabase)
+- Jam — Search & Backend (Typesense + Tiger Data)
 - TD — Frontend & Apple Health

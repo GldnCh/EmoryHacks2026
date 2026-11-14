@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@google/genai": "^3.3.0",
-    "@supabase/supabase-js": "^2.119.0",
     "next": "15.5.29",
     "pg": "^8.23.1",
     "react": "19.1.0",
