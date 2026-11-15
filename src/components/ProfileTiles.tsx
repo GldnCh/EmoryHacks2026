@@ -2,8 +2,11 @@
 // "What matters most" cards on a person's profile (Cam). Each card shows one key thing (a value, a tiny 12-month
 // sparkline and an arrow + word) and opens in place for the details. Only one card is open at a time, so the page
 // never shows everything at once. Cards are ordered by `weight` (highest first); the caller decides the weights.
+// Motion (MIT): cards glide to their new places when one opens (layout animation), details fold open, numbers roll in.
 import { useState, type ReactNode } from "react";
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { ChevronRight } from "@/components/Icons";
+import RollingNumber from "@/components/RollingNumber";
 
 export type Tone = "good" | "warn" | "flat";
 
@@ -49,11 +52,21 @@ export function Sparkline({ values, color, width = 120, height = 34 }: { values:
 const GLASS =
   "rounded-[22px] border border-white/60 bg-white/65 shadow-[0_10px_28px_rgba(170,70,20,0.12),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-xl";
 
+const SPRING = { type: "spring", stiffness: 260, damping: 30, mass: 0.9 } as const;
+
 function Tile({ t, open, onToggle, glass }: { t: TileSpec; open: boolean; onToggle: () => void; glass?: boolean }) {
   const panelId = `tile-${t.key}`;
+  const reduce = useReducedMotion();
   return (
-    <section className={`${glass ? GLASS : "card"} overflow-hidden transition-shadow ${open ? "col-span-full shadow-raised" : ""}`}>
-      <button
+    <motion.section
+      layout={!reduce}
+      transition={SPRING}
+      style={{ borderRadius: 22 }}
+      className={`${glass ? GLASS : "card"} overflow-hidden transition-shadow ${open ? "col-span-full shadow-raised" : ""}`}
+    >
+      <motion.button
+        layout={reduce ? false : "position"}
+        transition={SPRING}
         type="button"
         onClick={onToggle}
         aria-expanded={open}
@@ -72,7 +85,7 @@ function Tile({ t, open, onToggle, glass }: { t: TileSpec; open: boolean; onTogg
         {t.value !== undefined ? (
           <span className="flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
             <span className="font-[family-name:var(--font-rounded)] text-[24px] font-semibold leading-none tracking-tight text-foreground">
-              {t.value}
+              {typeof t.value === "string" ? <RollingNumber value={t.value} /> : t.value}
               {t.unit && <span className="ml-1 font-sans text-footnote font-medium text-secondary">{t.unit}</span>}
             </span>
             {t.spark && <Sparkline values={t.spark} color={t.accent} width={open ? 160 : 92} />}
@@ -88,13 +101,23 @@ function Tile({ t, open, onToggle, glass }: { t: TileSpec; open: boolean; onTogg
           )}
           {t.why && <span className="text-caption text-muted">{t.why}</span>}
         </span>
-      </button>
-      {open && (
-        <div id={panelId} className="border-t border-line p-3.5 sm:p-4">
-          {t.detail}
-        </div>
-      )}
-    </section>
+      </motion.button>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="detail"
+            id={panelId}
+            initial={reduce ? false : { height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={reduce ? { opacity: 0 } : { height: 0, opacity: 0 }}
+            transition={SPRING}
+            className="overflow-hidden"
+          >
+            <div className="border-t border-line p-3.5 sm:p-4">{t.detail}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.section>
   );
 }
 
@@ -109,11 +132,13 @@ export default function ProfileTiles({ title, subtitle, tiles, glass = false }: 
         </h2>
         <p className="mt-0.5 text-footnote text-secondary">{subtitle}</p>
       </div>
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
-        {sorted.map((t) => (
-          <Tile key={t.key} t={t} glass={glass} open={open === t.key} onToggle={() => setOpen((o) => (o === t.key ? null : t.key))} />
-        ))}
-      </div>
+      <LayoutGroup>
+        <div className="grid grid-cols-2 gap-2.5 sm:gap-3 lg:grid-cols-3">
+          {sorted.map((t) => (
+            <Tile key={t.key} t={t} glass={glass} open={open === t.key} onToggle={() => setOpen((o) => (o === t.key ? null : t.key))} />
+          ))}
+        </div>
+      </LayoutGroup>
     </section>
   );
 }

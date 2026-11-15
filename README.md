@@ -76,6 +76,7 @@ Emory Hacks requires separating original work from frameworks.
 - The `/checkin` page: check-in chat, family member picker and monthly/yearly summary panel
 - Accounts and connections (`src/lib/auth/`, `/setup`, `/account`): the iPhone as identity (one-time setup, no sign-in), connection requests with accept/decline/cancel, disconnect from either side with warnings, Full / Health summary / Basic levels with guardians, and an activity log, stored in Tiger Data
 - The iCare logo ("Family hearts" in golden peach glass), drawn as an SVG, plus the script that renders every app icon, the favicon and the Devpost thumbnail from it (`scripts/make-icons.mjs`, `src/components/BrandMark.tsx`) (Cam)
+- Warm glass redesign (Cam): the family home on a turning platform with original Memoji-style portraits, 'What matters most' profile cards ordered per person, glass cards over warm artwork on every page, and spring motion (design ideas from transitions.dev, beUI, Rare UI and Canvas UI; no code copied)
 - Health-app style redesign: "at a glance" chips and a highlight card on each person's page (computed from their trends), a liquid-glass navigation bar, and a soft color wash per section (TD)
 - Installable app (PWA): web app manifest, home-screen icons, an offline page, and a service worker that never caches health data (`/api/*` always goes to the network) (TD)
 - Connected dashboard and permission checks: `/dashboard` and `/family/<id>` show only you and the people you're connected to, at the level they share; trends, vitals, check-ins, AI summaries and the check-in chat all check permissions on the server (the emergency check still runs first for everyone)
@@ -92,6 +93,7 @@ Emory Hacks requires separating original work from frameworks.
 - Google Gemini API (`@google/genai`): `gemini-3.5-flash-lite` for text, Gemini Live native audio (`gemini-2.5-flash-native-audio-preview-12-2025`) for FaceTime voice
 - Typesense Cloud (`typesense`)
 - Web Speech API (built into the browser, no package): voice search on the Medicines page
+- Motion (`motion`, MIT): spring layout animations, the profile cards' fold-open and the rolling numbers
 - sharp (`sharp`, installed with Next.js): renders the logo SVG into PNG app icons in `scripts/make-icons.mjs`
 - Recharts (`recharts`): charts on the dashboard, family and Tiger Data pages
 - Tiger Data / TimescaleDB (`pg`): our database for health history
