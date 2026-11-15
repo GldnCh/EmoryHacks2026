@@ -80,6 +80,9 @@ Emory Hacks requires separating original work from frameworks.
 - Family alerts (`src/lib/alerts.ts`, `/api/alerts`): missed doses, high blood pressure and emergency check-ins, with detail limited by each viewer's sharing level
 - Doctor report (`/family/<id>/report`, `/api/report/<id>`): a printable page with conditions, medicines, doses taken, a year of monthly averages, recent check-ins and alerts, plus Gemini's overview and questions to ask the doctor
 - The Chert FaceTime check-in agent (`chert-agent/agent.mjs`): Gemini Live voice, iCare's shared prompts and safety rules, emergency check on every caller sentence
+- Recent FaceTime check-ins on `/checkin` (`src/components/CheckinHistory.tsx`, `GET /api/checkins/<id>`): after each call the agent saves a short summary (never the transcript) with points, one next step and an emergency flag, shown newest first for you and anyone who shares Full access with you
+- FaceTime iCare call button on `/checkin` (`src/components/FaceTimeCall.tsx`, built by TD): **Start FaceTime call** opens a FaceTime Video call to our Chert line from an iPhone, iPad or Mac, plus a copy-number button
+- The animated heart the caller sees on FaceTime (`chert-agent/face.mjs`): a glowing glass heart with colored light flowing inside, drawn frame by frame in plain JavaScript; it breathes while listening and swells and glows while iCare talks
 
 **Frameworks, libraries and services used:**
 - Next.js, React, TypeScript, Tailwind CSS (scaffolded with `create-next-app`)
