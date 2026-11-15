@@ -398,10 +398,11 @@ export default function FamilyMemberPage() {
   return (
     <div className="flex flex-col gap-6">
       {header}
+      {/* Alerts first: an urgent one must never sit below a step count. */}
+      {alerts.data && <FamilyAlerts data={alerts.data} onlyAccount={p.person.account.id} title="Alerts" />}
       {p.can("trends") && trends.data && trends.data.trends.length > 1 && (
         <Highlights trends={trends.data.trends} firstName={data.member.name.split(" ")[0]} self={p.person.self} memberId={memberId} />
       )}
-      {alerts.data && <FamilyAlerts data={alerts.data} onlyAccount={p.person.account.id} title="Alerts" />}
       {!p.can("conditions") && !p.can("medications") && !p.can("trends") && <BasicCard p={p} />}
       {(p.can("conditions") || p.can("medications")) && (loading ? <CardSkeleton lines={2} /> : <HealthRecords data={data} p={p} />)}
       {p.can("reminders") && (
