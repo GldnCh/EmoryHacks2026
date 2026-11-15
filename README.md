@@ -75,6 +75,8 @@ Emory Hacks requires separating original work from frameworks.
 - Gemini routes: monthly/yearly health summaries (`/api/ai/summary/<id>`), wellness check-in chat (`/api/ai/checkin`), plain-language FDA label explanations (`/api/ai/explain-label`), and the voice agent's prompt and red-flag routes
 - The `/checkin` page: check-in chat, family member picker and monthly/yearly summary panel
 - Accounts and connections (`src/lib/auth/`, `/setup`, `/account`): the iPhone as identity (one-time setup, no sign-in), connection requests with accept/decline/cancel, disconnect from either side with warnings, Full / Health summary / Basic levels with guardians, and an activity log, stored in Tiger Data
+- Health-app style redesign: "at a glance" chips and a highlight card on each person's page (computed from their trends), a liquid-glass navigation bar, and a soft color wash per section (TD)
+- Installable app (PWA): web app manifest, home-screen icons, an offline page, and a service worker that never caches health data (`/api/*` always goes to the network) (TD)
 - Connected dashboard and permission checks: `/dashboard` and `/family/<id>` show only you and the people you're connected to, at the level they share; trends, vitals, check-ins, AI summaries and the check-in chat all check permissions on the server (the emergency check still runs first for everyone)
 - Medication reminders and dose tracking (`src/lib/reminders/`, `/api/reminders/<id>`): schedules from the prescription label, a Taken button, missed doses, a 7-day grid, guardians logging for a parent or child, stored in Tiger Data
 - Family alerts (`src/lib/alerts.ts`, `/api/alerts`): missed doses, high blood pressure and emergency check-ins, with detail limited by each viewer's sharing level
