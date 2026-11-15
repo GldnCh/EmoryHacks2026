@@ -16,7 +16,7 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 | About the project | ✅ Updated Sat night: What it does (family sharing, reminders, alerts, doctor report, search by photo, saved FaceTime check-ins, installable app), Accomplishments, What we learned, and the expanded What's next |
 | Built with | ✅ 21 tags (added chert, livekit, gemini-live, pwa) |
 | Try it out | ✅ https://icare-wall-e9.vercel.app + GitHub |
-| Video demo link | ⚠️ **Required, currently empty.** The old link was an unrelated YouTube video and was removed. Record the demo (docs/DEMO.md), upload unlisted, add the link before 8 AM |
+| Video demo link | ✅ https://youtu.be/5OxAAXvU8ZU (unlisted, 2:52, added Sun Nov 15) |
 | Judging title / track | ✅ iCare / Healthcare |
 | Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense, Gemini, **Chert (a full FaceTime call worked, so keep it)** |
 | Gemini Project Number | ⚠️ Optional field for the Gemini prize: AI Studio → API key → Project Number |
@@ -38,7 +38,7 @@ Your family's health, explained. AI-led wellness check-ins, plain-language medic
 ## Try it out (links)
 - Live app: https://icare-wall-e9.vercel.app
 - GitHub: https://github.com/GldnCh/EmoryHacks2026
-- Demo video: **[ADD LINK]**
+- Demo video: **https://youtu.be/5OxAAXvU8ZU**
 
 ---
 
@@ -174,7 +174,7 @@ Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB
 ## Pre-submit checklist (Sun 6:30–7:30AM)
 - [ ] Every claim above works on https://icare-wall-e9.vercel.app
 - [ ] Every **[WHEN BUILT]**, **[CHECK]** and **[ADD]** marker is resolved or deleted
-- [ ] Demo video uploaded and linked (backup in case the live demo fails)
+- [x] Demo video uploaded and linked (backup in case the live demo fails)
 - [ ] All teammates added to the Devpost submission
 - [ ] Prize tracks selected, and each sponsor's extra requirements met (re-read the Tiger Data and Gemini prize pages; add the Gemini Project Number on Devpost: AI Studio → API key → Project Number)
 - [ ] Checked the MLH prize list for any other prize we qualify for
