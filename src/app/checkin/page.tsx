@@ -126,7 +126,7 @@ export default function CheckinPage() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-5">
       <PageHeader
         title="Wellness check-in"
         subtitle="A quick, friendly AI check-in about sleep, energy, pain, mood and medications. Chat here, or FaceTime iCare from an iPhone."

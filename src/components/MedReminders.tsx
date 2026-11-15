@@ -2,7 +2,7 @@
 // Medication reminders and dose tracking for one person (Cam). Shown on /family/<id> to that person and to
 // Full connections. Logging doses and changing reminders needs "act" (the person, or their guardian).
 // Data: /api/reminders/<memberId>. iCare never suggests doses: schedules are copied from the prescription label.
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import Card from "@/components/Card";
 import ConfirmSheet from "@/components/ConfirmSheet";
 import { PillIcon } from "@/components/Icons";
@@ -45,6 +45,11 @@ const STATUS: Record<DoseStatus, { text: string; cls: string; mark: string }> = 
   missed: { text: "Missed", cls: "bg-[#fde8e6] text-danger", mark: "✕" },
 };
 
+/** Same content without the card frame, for use inside a profile card. */
+function BareCard({ children }: { children: ReactNode; title?: ReactNode; subtitle?: ReactNode }) {
+  return <div>{children}</div>;
+}
+
 const medicineName = medicineLabel;
 const clock = clockLabel;
 
@@ -55,7 +60,8 @@ function Chip({ status }: { status: DoseStatus }) {
   return <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-caption font-semibold ${s.cls}`}>{s.text}</span>;
 }
 
-export default function MedReminders({ memberId, firstName, self, medicines }: { memberId: string; firstName: string; self: boolean; medicines: string[] }) {
+export default function MedReminders({ memberId, firstName, self, medicines, bare = false }: { memberId: string; firstName: string; self: boolean; medicines: string[]; bare?: boolean }) {
+  const Wrapper = (bare ? BareCard : Card) as typeof Card;
   const { data, error, loading, retry } = useJson<RemindersResponse>(`/api/reminders/${memberId}?days=7`);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -111,7 +117,7 @@ export default function MedReminders({ memberId, firstName, self, medicines }: {
   );
 
   return (
-    <Card
+    <Wrapper
       title={
         <span className="flex items-center gap-2">
           <PillIcon size={20} className="text-brand" /> Medication reminders
@@ -247,7 +253,7 @@ export default function MedReminders({ memberId, firstName, self, medicines }: {
           }
         }}
       />
-    </Card>
+    </Wrapper>
   );
 }
 

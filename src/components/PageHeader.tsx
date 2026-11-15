@@ -35,7 +35,7 @@ export default function PageHeader({ title, eyebrow, subtitle, back, leading, ch
   }, [title]);
 
   return (
-    <header className="flex flex-col gap-1 pt-2">
+    <header className="flex flex-col gap-1 pt-1">
       {back && (
         <Link href={back.href} className="btn btn-tertiary -ml-3 hidden self-start px-3 sm:inline-flex">
           <ChevronLeft size={18} />

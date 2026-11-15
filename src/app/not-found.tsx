@@ -4,7 +4,7 @@ import { InfoIcon } from "@/components/Icons";
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center px-4 py-16 text-center">
+    <div className="card mx-auto mt-4 flex max-w-md flex-col items-center px-6 py-10 text-center">
       <span className="grid h-16 w-16 place-items-center rounded-full bg-fill text-muted">
         <InfoIcon size={32} />
       </span>

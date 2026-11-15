@@ -57,7 +57,7 @@ export default function DoctorReportPage() {
   if (me && !me.setUp) return <SetupPrompt what="health reports" />;
   if (status === 403) {
     return (
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 sm:gap-5">
         <PageHeader back={{ href: `/family/${memberId}`, label: "Back" }} title="Doctor report" />
         <p className="card p-6 text-subhead text-secondary">Only the person, or someone they share Full access with, can prepare their doctor report.</p>
       </div>

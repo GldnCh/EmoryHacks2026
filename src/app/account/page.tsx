@@ -84,7 +84,7 @@ export default function MyICarePage() {
 
   if (!me?.setUp || !me.account || !data) {
     return (
-      <main className="mx-auto max-w-2xl px-4 pb-28 sm:px-6">
+      <main className="mx-auto max-w-3xl pb-4">
         <PageHeader title="My iCare" />
         {err ? <ErrorNote message={err} /> : <CardSkeleton lines={5} />}
       </main>
@@ -94,7 +94,7 @@ export default function MyICarePage() {
   const caredFor = me.people.filter((p) => !p.self && p.guardian);
 
   return (
-    <main className="mx-auto max-w-2xl px-4 pb-28 sm:px-6">
+    <main className="mx-auto max-w-3xl pb-4">
       <PageHeader
         title="My iCare"
         leading={<Avatar id={me.account.id} name={me.account.displayName} size={44} />}

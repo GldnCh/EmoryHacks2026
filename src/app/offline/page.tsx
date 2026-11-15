@@ -4,7 +4,7 @@
 
 export default function OfflinePage() {
   return (
-    <div className="flex flex-col items-center px-4 py-16 text-center">
+    <div className="card mx-auto mt-4 flex max-w-md flex-col items-center px-6 py-10 text-center">
       <span aria-hidden className="grid h-16 w-16 place-items-center rounded-full bg-fill text-muted">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
           <path d="M2 8.8a15 15 0 0 1 20 0M5 12.5a10 10 0 0 1 14 0M8.5 16a5 5 0 0 1 7 0" />
