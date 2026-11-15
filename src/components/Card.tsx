@@ -6,12 +6,14 @@ interface CardProps {
   subtitle?: ReactNode;
   action?: ReactNode;
   className?: string;
+  /** Anchor id, e.g. for /family/jordan#trends */
+  id?: string;
   children: ReactNode;
 }
 
-export default function Card({ title, subtitle, action, className = "", children }: CardProps) {
+export default function Card({ title, subtitle, action, className = "", id, children }: CardProps) {
   return (
-    <section className={`card p-5 sm:p-6 ${className}`}>
+    <section id={id} className={`card scroll-mt-20 p-5 sm:p-6 ${className}`}>
       {(title || action) && (
         <div className="mb-4 flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
           <div className="min-w-0">

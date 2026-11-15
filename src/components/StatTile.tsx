@@ -1,4 +1,5 @@
-// Health-app style tile: metric name (with a small colored icon), big rounded number, change vs last month.
+// Health-app (iOS 15) style tile: metric name in its category color with a small icon, big rounded number with a
+// gray unit, then the change vs last month as plain text.
 // Green with "improving" when the change goes the healthy way, amber with "worsening" when it doesn't,
 // gray "steady" when it moved less than STEADY_FRACTION (normal month-to-month noise).
 // The arrow and word always go with the color, so meaning never depends on color alone.
@@ -45,12 +46,14 @@ export default function StatTile({ label, value, unit, decimals = 0, previous, b
       };
     }
   }
-  const toneClass =
-    change?.tone === "good" ? "bg-good-soft text-good" : change?.tone === "warn" ? "bg-warn-soft text-warn" : "bg-fill text-secondary";
+  const toneClass = change?.tone === "good" ? "text-good" : change?.tone === "warn" ? "text-warn" : "text-secondary";
 
   return (
-    <div className="flex flex-col rounded-2xl bg-surface-muted p-3.5">
-      <p className="flex items-start gap-1.5 text-footnote font-semibold leading-snug text-secondary">
+    <div className="flex flex-col rounded-xl bg-surface-muted p-3.5">
+      <p
+        className="flex items-start gap-1.5 text-footnote font-semibold leading-snug text-secondary"
+        style={accent ? { color: `color-mix(in srgb, ${accent} 74%, black)` } : undefined}
+      >
         {icon && (
           <span style={{ color: accent }} className="mt-px shrink-0">
             {icon}
@@ -58,12 +61,12 @@ export default function StatTile({ label, value, unit, decimals = 0, previous, b
         )}
         <span className="line-clamp-2">{label}</span>
       </p>
-      <p className="mb-2.5 mt-1.5 font-[family-name:var(--font-rounded)] text-[28px] font-semibold leading-none tracking-tight">
+      <p className="mb-2 mt-2 font-[family-name:var(--font-rounded)] text-[28px] font-semibold leading-none tracking-tight">
         {display ?? fmt(value, decimals)}
         {unit && <span className="ml-1 font-sans text-footnote font-medium text-secondary">{unit}</span>}
       </p>
       {change && (
-        <p className={`mt-auto self-start rounded-[10px] px-2 py-1 text-caption font-semibold leading-tight ${toneClass}`}>
+        <p className={`mt-auto text-caption font-semibold leading-tight ${toneClass}`}>
           {change.text}
           {change.tone === "flat" && <span className="sr-only"> vs last month</span>}
         </p>

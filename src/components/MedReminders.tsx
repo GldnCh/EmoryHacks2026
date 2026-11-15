@@ -138,7 +138,7 @@ export default function MedReminders({ memberId, firstName, self, medicines }: {
           )}
 
           <h3 className="mb-2 mt-5 text-footnote font-semibold uppercase tracking-wide text-muted">Last 7 days</h3>
-          <div className="-mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
+          <div className="relative -mx-5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
             <table className="w-full min-w-[420px] border-separate border-spacing-y-1 text-footnote">
               <thead>
                 <tr>

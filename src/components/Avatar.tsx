@@ -6,6 +6,15 @@ const GRADIENTS: Record<string, string> = {
   rosa: "from-[#bb98f3] to-[#7a52d6]",
 };
 
+/** Soft pastel wash behind a person's avatar in list rows (Health app "Sharing" style). Decorative. */
+const PANELS: Record<string, string> = {
+  jordan: "linear-gradient(135deg, #cfe5ff, #a9c9f5 55%, #d8cdfb)",
+  sam: "linear-gradient(135deg, #ffe0bf, #f9b98a 55%, #f7c8d6)",
+  mia: "linear-gradient(135deg, #ffd6e7, #f5a9c9 55%, #fbd9b5)",
+  rosa: "linear-gradient(135deg, #e3d5ff, #c2a8f2 55%, #b9e4f0)",
+};
+export const avatarPanel = (id: string) => PANELS[id] ?? "linear-gradient(135deg, #e5e5ea, #c7c7cc)";
+
 export default function Avatar({ id, name, size = 44 }: { id: string; name: string; size?: number }) {
   const initials = name
     .split(" ")

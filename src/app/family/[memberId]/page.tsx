@@ -4,7 +4,7 @@
 // ?tab=bp|steps|heart|sleep|glucose opens the trends on that measure (default: BP for people with BP data).
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
 import DayCharts from "@/components/DayCharts";
@@ -24,7 +24,8 @@ import {
   type TrendsResponse,
   type VitalsResponse,
 } from "@/components/types";
-import { useJson } from "@/components/useJson";
+import { useJson, type JsonState } from "@/components/useJson";
+import Highlights from "@/components/Highlights";
 import { usePeople, type PersonWithHealth } from "@/components/usePeople";
 import { NotConnected, SetupPrompt } from "@/components/SetupPrompt";
 import { BasicCard } from "@/components/PersonCards";
@@ -176,10 +177,12 @@ function HealthRecords({ data, p }: { data: ProfileResponse; p: PersonWithHealth
   );
 }
 
-function YearTrends({ memberId }: { memberId: string }) {
-  const { data, error, loading, status, retry } = useJson<TrendsResponse>(`/api/trends/${memberId}`);
+function YearTrends({ memberId, trends }: { memberId: string; trends: JsonState<TrendsResponse> }) {
+  const { data, error, loading, status, retry } = trends;
   const requested = useSearchParams().get("tab");
   const [metric, setMetricState] = useState<MetricKey | null>(null);
+  // A highlight card link (?tab=sleep) wins over an earlier tap on the segmented control.
+  useEffect(() => setMetricState(null), [requested]);
   const setMetric = (k: MetricKey) => {
     setMetricState(k);
     // keep the URL shareable (?tab=bp) without a navigation
@@ -203,6 +206,7 @@ function YearTrends({ memberId }: { memberId: string }) {
 
   return (
     <Card
+      id="trends"
       title="12-month trends"
       subtitle={`Monthly averages, ${monthLong(first.month)} – ${monthLong(last.month)}`}
       action={<SourceBadge source={data.source} queryMs={data.queryMs} />}
@@ -333,6 +337,7 @@ export default function FamilyMemberPage() {
   // The profile route is public (names, conditions and medicines of the fictional family); trends and vitals are not.
   const { data, error, loading, status, retry } = useJson<ProfileResponse>(`/api/family/${memberId}/profile`);
   const alerts = useJson<AlertsResponse>(p ? "/api/alerts" : null);
+  const trends = useJson<TrendsResponse>(p?.can("trends") ? `/api/trends/${memberId}` : null);
   const m = data?.member;
 
   if (status === 404) return <MemberNotFound />;
@@ -393,13 +398,16 @@ export default function FamilyMemberPage() {
   return (
     <div className="flex flex-col gap-6">
       {header}
+      {p.can("trends") && trends.data && trends.data.trends.length > 1 && (
+        <Highlights trends={trends.data.trends} firstName={data.member.name.split(" ")[0]} self={p.person.self} memberId={memberId} />
+      )}
       {alerts.data && <FamilyAlerts data={alerts.data} onlyAccount={p.person.account.id} title="Alerts" />}
       {!p.can("conditions") && !p.can("medications") && !p.can("trends") && <BasicCard p={p} />}
       {(p.can("conditions") || p.can("medications")) && (loading ? <CardSkeleton lines={2} /> : <HealthRecords data={data} p={p} />)}
       {p.can("reminders") && (
         <MedReminders memberId={memberId} firstName={data.member.name.split(" ")[0]} self={p.person.self} medicines={data.member.medications} />
       )}
-      {p.can("trends") && <YearTrends memberId={memberId} />}
+      {p.can("trends") && <YearTrends memberId={memberId} trends={trends} />}
       {p.can("vitals") ? (
         <DayZoom memberId={memberId} />
       ) : p.can("trends") ? (
