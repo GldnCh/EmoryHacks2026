@@ -193,27 +193,26 @@ I'm TD on iCare. Read CLAUDE.md, docs/WORKFLOW.md and docs/DEMO.md first and fol
 ---
 
 ## Final round prompts (Sat night → Sun 7:30AM)
-Written Sat Nov 14, ~8PM, after PR #42 (Search by photo) merged. Each prompt starts by syncing with `main`.
+Written Sat Nov 14, ~8PM, after PR #42 (Search by photo) merged; updated after the PWA (#50) and photo docs (#52) merged. Each prompt starts by syncing with `main`.
 
 | Teammate | Task | Branch | Due |
 |---|---|---|---|
 | Jam | ✅ Done: docs PR #52 is open. Only left: try 📷 on a real phone | none | Tonight |
-| TD | Get PWA PR #50 merged, README lines, iPhone walkthrough, rehearse | `td/pwa` (existing) | Before 6:30AM |
+| TD | README lines for the PWA and redesign, iPhone walkthrough from the home-screen app, rehearse | `td/final-docs` | Before 6:30AM |
 | Ish | README/Devpost lines for recent check-in work; Chert agent ready for judging | `ish/final-docs` | Before 6:30AM; agent at demo time |
 | Cam | Merge everything, fix stale docs, finish Devpost and video, run checklists, submit | `cam/final-docs` | Submit by 7:30AM |
 
 ### Jam (final): done
 Search by photo (#42) is merged and live. Docs PR #52 adds it to the README credits and the `docs/MEDICAL-DATA.md` route table. Last step, no prompt needed: on your phone, open https://icare-wall-e9.vercel.app/medicines, tap 📷, photograph a real medicine box, and tell Cam whether the name filled in and results loaded.
 
-### TD (final): PWA merge, phone walkthrough, rehearsal
+### TD (final): README lines, phone walkthrough, rehearsal
 ```
 I'm TD on iCare. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merge cutoff is Sun 6:30AM; I'm also the demo driver.
 
-1. git fetch origin, git checkout td/pwa, git merge origin/main, npm install. PR #50 (installable PWA) is open, not yet merged. Resolve any conflicts with the redesign (#47) and the other merges.
-2. npm run lint and npm run build must pass. Re-test the preview: /manifest.webmanifest loads, icons load, /offline renders, and the service worker never caches /api/* (check public/sw.js). Push, and send Cam the PR link + preview link with "ready to merge".
-3. README.md "Built during the hackathon": add one line for the installable PWA (manifest, icons, offline page, service worker that never caches health data) and one for the Health-app style redesign (#47: glance chips, highlight card, liquid-glass nav), if they aren't there. Shared file; mention it in the PR.
-4. After #50 merges: on my real iPhone, open https://icare-wall-e9.vercel.app, Share → Add to Home Screen, open it from the icon, and walk the demo flow from docs/DEMO.md (dashboard → Rosa → medicines → specialists → Tiger Data). List anything broken at phone width and fix only my own files.
-5. Rehearse the click path in docs/DEMO.md with Cam at least once.
+1. git checkout main && git pull && npm install, then git checkout -b td/final-docs. The PWA (#50) and the redesign (#47) are already merged and live.
+2. README.md "Built during the hackathon": add one line for the installable PWA (manifest, icons, offline page, service worker that never caches health data) and one for the Health-app style redesign (#47: glance chips, highlight card, liquid-glass nav), if they aren't there. Shared file; mention it in the PR. npm run lint and npm run build, commit, push, gh pr create, and send Cam the PR link.
+3. On my real iPhone, open https://icare-wall-e9.vercel.app in Safari, Share → Add to Home Screen, and open it from the icon. The installed app doesn't share cookies with Safari, so it asks "Whose iPhone is this?" once: choose Jordan. Then walk the demo flow from docs/DEMO.md (dashboard → Rosa → medicines → specialists → Tiger Data). List anything broken at phone width and fix only my own files, each as a PR.
+4. Rehearse the click path in docs/DEMO.md with Cam at least once.
 ```
 
 ### Ish (final): docs for recent check-in work, Chert ready for judging
@@ -233,13 +232,13 @@ I'm Cam on iCare (Lead). Read CLAUDE.md, docs/WORKFLOW.md, docs/DEMO.md, docs/DE
 
 PART A: Merge queue (tonight, and again at ~5:30AM)
 1. gh pr list --state open. For each PR: check the Vercel preview loads, the checks pass, it stays inside its owner's files (ownership map in docs/WORKFLOW.md), new libraries are credited in the README, and no secrets or real patient data are added. Summarise each one for me; I'll say "merge PR <number>" before you merge.
-2. Expected PRs: #50 (TD, PWA), #52 (Jam, docs), Ish's ish/final-docs, any TD README PR. Merge the code PR (#50) before the docs PRs. After each merge, check that the main deployment on Vercel succeeded and that https://icare-wall-e9.vercel.app still loads.
+2. Expected PRs: Ish's ish/final-docs, TD's td/final-docs, and any small fixes (#50 PWA and #52 photo docs are already merged). Merge code PRs before docs PRs. After each merge, check that the main deployment on Vercel succeeded and that https://icare-wall-e9.vercel.app still loads.
 3. Tell me who still has open work at 5:30AM so I can nudge them before the 6:30AM cutoff.
 
 PART B: Fix stale docs (branch cam/final-docs off the latest main, after Part A)
 4. CLAUDE.md features table:
    - Row 2: replace "Photo search: not built" with "✅ Search by photo: /medicines 📷, /api/medicines/photo (reads the label name only; refuses loose pills)".
-   - Row 8: add the installable PWA once #50 merges.
+   - Row 8: add the installable PWA (merged in #50).
    - Add rows or notes for reminders, family alerts and the doctor report if missing.
 5. docs/DEMO.md:
    - Remove the ⏳ markers (all those pages are merged) and the sentence about ⏳ near the top.
@@ -252,12 +251,12 @@ PART B: Fix stale docs (branch cam/final-docs off the latest main, after Part A)
    - Resolve "[CHECK: any other MLH prizes…]" and the [CHECK] notes on the Tiger Data and Gemini prize lines.
    - Add short prize lines for the other opt-ins (Typesense, Chert, Coder) if Devpost asks for a write-up.
    - Make "Built during the hackathon" match README.md, and add any new tags to "Built with" (e.g. pwa).
-   - Delete the outdated second status table and update "Submission status" to the current state.
+   - Update the "Submission status" table to the current state.
 7. README.md "Built": add my own features if missing: medication reminders and dose tracking, family alerts, doctor report (/family/<id>/report), connected dashboard.
 8. Run grep -rn "\[WHEN BUILT\|\[CHECK\|\[ADD\|\[MOVE" docs README.md CLAUDE.md; it must return nothing (apart from the rule text that explains the markers). npm run lint and npm run build, commit, push, gh pr create, and merge before 6:30AM.
 
 PART C: Live-site check (6:30–7:00AM, after the last merge)
-9. curl https://icare-wall-e9.vercel.app/api/health: gemini, typesense and tigerData must all be true. If any is false, check that key in Vercel (Production) and redeploy; don't paste values anywhere.
+9. Open https://icare-wall-e9.vercel.app/api/health in a browser (curl from the terminal is blocked by Vercel's bot check): gemini, typesense and tigerData must all be true. If any is false, check that key in Vercel (Production) and redeploy; don't paste values anywhere.
 10. Load every page from the DEMO.md warm-up list, plus /checkin, /family/rosa/report, /medicines/lisinopril ("Explain this label simply"), /specialists?memberId=rosa, /data and /offline. Run: the search API with wal-zyr, zyrtec, lisinopril, allergies and heartburn; the photo API with a label photo and a loose-pills photo; Rosa's yearly summary; the doctor report. Give me a pass/fail table.
 11. Anything broken: only small fixes after 6:30AM, each as a PR that I merge after checking the preview. If a feature can't be fixed in time, remove its claim from Devpost and move it to "What's next".
 
@@ -267,7 +266,7 @@ PART D: Video and Devpost (7:00–7:30AM)
 14. Submit by 7:30AM. Confirm the project page shows as submitted, and screenshot it.
 
 PART E: Judging (8:15AM expo, 10:15AM finalists)
-15. Run the "Before you present" checklist in docs/DEMO.md 15 minutes before: /setup as Jordan, warm up pages and AI answers, don't log Rosa's missed doses, laptop zoom, phone hotspot, backup video open.
+15. Run the "Before you present" checklist in docs/DEMO.md 15 minutes before: /setup as Jordan, warm up pages and AI answers, don't log Rosa's missed doses, don't decline Grandma Rosa's connection request on Mia's iPhone (it's the demo for the accept flow), laptop zoom, phone hotspot, backup video open.
 16. Confirm with Ish that the Chert agent is running and a test FaceTime call worked; if not, demo the /checkin chat instead.
 17. Keep the "Likely judge questions" table in docs/DEMO.md open. If something fails live, use the backup API URLs listed in each demo segment.
 ```
