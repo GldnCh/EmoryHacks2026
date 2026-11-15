@@ -4,6 +4,7 @@
 // and an iOS tab bar along the bottom edge (icon over label, tint color for the current tab, hairline on top).
 // Larger screens: the logo plus the tabs as an iOS segmented control.
 import Link from "next/link";
+import BrandMark from "@/components/BrandMark";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronLeft, DatabaseIcon, PeopleIcon, PillIcon, StethoscopeIcon, VideoIcon } from "@/components/Icons";
@@ -25,11 +26,7 @@ function isCurrent(path: string, href: string) {
 function Logo() {
   return (
     <Link href="/" className="pressable flex min-h-11 items-center gap-2 rounded-xl text-headline">
-      <span aria-hidden className="grid h-8 w-8 place-items-center rounded-[10px] bg-gradient-to-b from-[#16a3a1] to-brand text-white shadow-sm">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-          <path d="M6.5 2h3v4.5H14v3H9.5V14h-3V9.5H2v-3h4.5Z" />
-        </svg>
-      </span>
+      <BrandMark size={32} className="drop-shadow-sm" />
       iCare
     </Link>
   );
