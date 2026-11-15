@@ -48,6 +48,11 @@ Every page in this script is merged and live. Each segment still lists a **backu
 > "And it doesn't have to be a website. Grandma Rosa can just FaceTime iCare, and the same check-in answers, by voice, with her own health data."
 *(Ish's agent must be running in Ish's Coder workspace before the demo. If the call doesn't connect within ~5 seconds, hang up and continue with `/checkin`.)*
 
+**Apple Watch moment (confirmed working on a real Watch, ~20 s):** on the Watch, open `/watch` (text yourself the link and tap it). Rosa is at the top with *"May need a check-in"*; tap her to show *"Rosa missed 2 doses in the last 2 days"* and her next medicine. Then tap **Check in with iCare**: it starts a FaceTime audio call to the same Chert agent, and the summary saves like any other check-in. Same "stay quiet during the greeting" rule.
+> "Rosa doesn't even need her phone. She sees the alert on her wrist and taps once to check in with iCare."
+
+**Judges on a laptop?** Show `/apple-watch` (the watch view in a watch frame) or `/iphone` (the app in an iPhone frame). The switch at the top flips between Desktop, iPhone and Apple Watch.
+
 **Backup:** skip the live AI; describe it in one sentence and move on. (The summary is cached after the first click, so pre-run it before presenting.)
 
 ### 1:15–1:35 · Medicine search (Jam's feature)
@@ -97,11 +102,12 @@ Every page in this script is merged and live. Each segment still lists a **backu
 - [ ] **Ish: start the Chert FaceTime agent** in your Coder workspace (see `chert-agent/README.md`) and place one test FaceTime call; keep the workspace awake through the demo. Presenter: pair AirPods with the demo iPhone (speakerphone in a noisy room can interrupt the greeting)
 - [ ] Laptop: browser zoom 125–150%, notifications off, charger plugged in, other tabs closed
 - [ ] Open the site on a phone once too (bottom tab bar), in case a judge asks to see mobile
+- [ ] **Apple Watch:** open `icare-wall-e9.vercel.app/watch` on the Watch from Messages, choose **Jordan** if it asks, and keep the Watch charged. Place one short test call with **Check in with iCare** during the agent check (FaceTime minutes are limited)
 - [ ] Have the **backup video** open in another tab (see below)
 - [ ] Phone hotspot ready in case the venue Wi-Fi drops
 
 ## Backup plan
-1. **Record a backup video** of this exact script once the pages are merged (Sat evening). Upload it unlisted (e.g. YouTube) and add the link to `docs/DEVPOST.md`.
+1. **Backup video (done):** https://youtu.be/5OxAAXvU8ZU (unlisted, 2:52). Keep it open in a tab, and keep the downloaded copy on the laptop in case the Wi-Fi drops.
 2. If one page fails live: say "let me show you what's underneath" and open its backup API URL above (they return readable JSON).
 3. If the whole site fails: play the video and narrate over it.
 
@@ -114,4 +120,5 @@ Every page in this script is merged and live. Each segment still lists a **backu
 | How does it connect to Apple Health? | The data model mirrors Apple HealthKit (each field maps to a HealthKit identifier). A native iOS app syncing real HealthKit data is our next step. |
 | Are the doctors real? | Yes: licensed providers from the public NPI Registry. iCare suggests them; it doesn't endorse or book. |
 | What did you build vs. use? | See the README: we built the app, data generator, all five public-data connectors, the Tiger schema/queries and the AI features; we used Next.js, Gemini, Tiger Data, Typesense, Coder and Vercel. |
+| Does it work on Apple Watch? | Yes. `/watch` runs in the Watch's built-in web view (open the link from Messages): family status, alerts, next medicine, and a FaceTime audio check-in with the same AI agent. A native watchOS app with complications and notifications is the next step. |
 | What's next? | Native iOS + HealthKit, clinician review of AI summaries, sharing a monthly report with your doctor, medication reminders (which would have caught Rosa's missed doses). |
