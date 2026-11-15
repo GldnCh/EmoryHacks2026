@@ -1,7 +1,7 @@
 "use client";
 // iOS-style navigation (TD).
 // Phones: a translucent top bar (back button or logo, plus the page title once the large title scrolls away)
-// and a frosted tab bar at the bottom. Larger screens: the logo plus a floating pill tab bar, like iPadOS.
+// and a floating "liquid glass" tab bar at the bottom. Larger screens: the logo plus a floating pill tab bar, like iPadOS.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -38,6 +38,11 @@ export default function SiteHeader() {
   const path = usePathname();
   const nav = useNav();
   const [scrolled, setScrolled] = useState(false);
+
+  // Which color wash sits behind the large title (see globals.css body[data-section]).
+  useEffect(() => {
+    document.body.dataset.section = path.split("/")[1] || "home";
+  }, [path]);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
@@ -81,7 +86,7 @@ export default function SiteHeader() {
             {nav.title}
           </p>
           <nav aria-label="Main" className="hidden sm:block">
-            <ul className="glass flex gap-1 rounded-full p-1 shadow-card">
+            <ul className="liquid-glass flex gap-1 rounded-full p-1">
               {NAV.map(({ href, label }) => {
                 const current = isCurrent(path, href);
                 return (
@@ -106,9 +111,9 @@ export default function SiteHeader() {
         </div>
       </header>
 
-      {/* Bottom tab bar (phones only) */}
-      <nav aria-label="Main" className="glass fixed inset-x-0 bottom-0 z-40 shadow-[0_-0.5px_0_var(--border)] sm:hidden">
-        <ul className="grid grid-cols-5 pb-[env(safe-area-inset-bottom)]">
+      {/* Floating tab bar (phones only): a rounded glass bar that hovers above the content */}
+      <nav aria-label="Main" className="fixed inset-x-3 bottom-[calc(8px+env(safe-area-inset-bottom))] z-40 sm:hidden">
+        <ul className="liquid-glass grid grid-cols-5 gap-0.5 rounded-[30px] p-1.5">
           {NAV.map(({ href, label, Icon }) => {
             const current = isCurrent(path, href);
             return (
@@ -116,11 +121,11 @@ export default function SiteHeader() {
                 <Link
                   href={href}
                   aria-current={current ? "page" : undefined}
-                  className={`pressable flex min-h-[54px] flex-col items-center justify-center gap-0.5 pt-1 text-[10.5px] font-medium ${
-                    current ? "text-brand" : "text-muted"
+                  className={`pressable flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-[24px] text-[10.5px] font-semibold ${
+                    current ? "bg-[rgba(118,118,128,0.14)] text-brand" : "text-secondary"
                   }`}
                 >
-                  <Icon size={25} strokeWidth={current ? 2.2 : 1.8} />
+                  <Icon size={23} strokeWidth={current ? 2.2 : 1.8} />
                   {label}
                 </Link>
               </li>
