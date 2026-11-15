@@ -1,42 +1,45 @@
 // The picture the caller sees: one RGBA frame per call to drawFace. Owner: Ish.
-// Started from Chert's starter face; redrawn as iCare's check-in companion: a friendly heart that beats
-// gently while listening and pulses bigger, with a glow, while it talks.
-// Plain JavaScript with no dependencies. Shapes are signed distance fields with 1-pixel edge blending, so
-// edges stay smooth. The heart always moves a little (heartbeat, glances, blinks), which also makes a frozen
-// video easy to spot.
+// Started from Chert's starter face; redrawn as iCare's check-in companion: a glowing glass heart with soft
+// colored light flowing inside it. It breathes gently while listening, and while it talks it swells, glows
+// brighter, and the light inside moves faster.
+// Plain JavaScript with no dependencies. The heart is a signed distance field with 1-pixel edge blending, so
+// edges stay smooth. The light always moves, which also makes a frozen video easy to spot.
 export const WIDTH = 640;
 export const HEIGHT = 360;
-export const FPS = 15;
+export const FPS = 30;
 
-const BG_TOP = [226, 242, 241]; // the app's --brand-soft
-const BG_BOTTOM = [196, 228, 225];
-const HEART_TOP = [255, 112, 136];
-const HEART_BOTTOM = [222, 52, 86];
-const GLOW = [255, 120, 145];
-const INK = [70, 14, 32];
-const WHITE = [255, 255, 255];
-const CHEEK = [255, 178, 192];
-
+const DT = 1 / FPS;
 // Heart size in pixels: the heart is about 1.1 of these units tall and 1.2 wide.
-const SIZE = 240;
+const SIZE = 230;
 // Heart units (y up) are shifted so the heart's middle sits on the frame's center point.
 const MID = 0.55;
-const GLOW_REACH = 28;
+const HALO_REACH = 64;
+
+// Colors are 0 to 1 here and mapped to bytes at the end.
+const BG_TOP = [0.05, 0.05, 0.1];
+const BG_BOTTOM = [0.015, 0.015, 0.04];
+const GLASS = [0.07, 0.03, 0.14];
+const RIM = [0.55, 0.45, 1.0];
+const HALO_TINT = [0.5, 0.3, 1.0];
+// The lights that drift inside the heart: color, size, a home spot (heart units), and a Lissajous path around it.
+// Each has its own home so the colors stay distinct instead of merging into white.
+const LIGHTS = [
+  { color: [1.0, 0.18, 0.6], r: 0.32, hx: -0.24, hy: 0.78, ax: 0.12, ay: 0.12, fx: 0.31, fy: 0.47, px: 0.0, py: 1.3 },
+  { color: [0.12, 0.4, 1.0], r: 0.32, hx: 0.24, hy: 0.78, ax: 0.12, ay: 0.13, fx: 0.43, fy: 0.29, px: 2.1, py: 0.4 },
+  { color: [0.55, 0.22, 1.0], r: 0.3, hx: 0.0, hy: 0.52, ax: 0.16, ay: 0.1, fx: 0.23, fy: 0.37, px: 4.0, py: 2.6 },
+  { color: [0.1, 0.95, 0.95], r: 0.25, hx: 0.0, hy: 0.3, ax: 0.1, ay: 0.08, fx: 0.37, fy: 0.53, px: 5.2, py: 3.9 },
+];
 
 // The background never changes, so it is drawn once and copied into every frame.
 const BACKGROUND = (() => {
   const px = new Uint8Array(WIDTH * HEIGHT * 4);
-  const cx = WIDTH / 2, cy = HEIGHT / 2;
   for (let y = 0; y < HEIGHT; y++) {
     const t = y / (HEIGHT - 1);
     for (let x = 0; x < WIDTH; x++) {
       const i = (y * WIDTH + x) * 4;
-      // A soft white glow behind the heart.
-      const glow = 0.55 * Math.max(0, 1 - Math.hypot(x - cx, y - cy) / (SIZE * 1.4)) ** 2;
-      for (let c = 0; c < 3; c++) {
-        const base = BG_TOP[c] + (BG_BOTTOM[c] - BG_TOP[c]) * t;
-        px[i + c] = base + (WHITE[c] - base) * glow;
-      }
+      // A slight vignette keeps the eye on the heart.
+      const v = 1 - 0.35 * Math.hypot((x - WIDTH / 2) / WIDTH, (y - HEIGHT / 2) / HEIGHT) ** 2 * 4;
+      for (let c = 0; c < 3; c++) px[i + c] = 255 * v * (BG_TOP[c] + (BG_BOTTOM[c] - BG_TOP[c]) * t);
       px[i + 3] = 255;
     }
   }
@@ -46,29 +49,10 @@ const BACKGROUND = (() => {
 const clamp01 = v => (v < 0 ? 0 : v > 1 ? 1 : v);
 /** Edge coverage for a signed distance: 1 inside, 0 outside, blended across one pixel. */
 const cover = d => clamp01(0.5 - d);
-
-function blend(px, i, r, g, b, alpha) {
-  if (alpha <= 0) return;
-  px[i] += (r - px[i]) * alpha;
-  px[i + 1] += (g - px[i + 1]) * alpha;
-  px[i + 2] += (b - px[i + 2]) * alpha;
-}
-const paint = (px, i, color, alpha) => blend(px, i, color[0], color[1], color[2], alpha);
-
-/** Approximate signed distance to an axis-aligned ellipse. */
-function ellipse(x, y, cx, cy, rx, ry) {
-  return (Math.hypot((x - cx) / rx, (y - cy) / ry) - 1) * Math.min(rx, ry);
-}
-
-/** Signed distance to a stroked circular arc with round ends, between angles a0 < a1 (radians, y pointing down). */
-function arc(x, y, cx, cy, r, a0, a1, width) {
-  let a = Math.atan2(y - cy, x - cx);
-  if (a < a0 - Math.PI) a += 2 * Math.PI;
-  if (a >= a0 && a <= a1) return Math.abs(Math.hypot(x - cx, y - cy) - r) - width / 2;
-  const d0 = Math.hypot(x - (cx + r * Math.cos(a0)), y - (cy + r * Math.sin(a0)));
-  const d1 = Math.hypot(x - (cx + r * Math.cos(a1)), y - (cy + r * Math.sin(a1)));
-  return Math.min(d0, d1) - width / 2;
-}
+/** Soft saturation: bright light rolls off smoothly instead of clipping. */
+const tone = v => (v <= 0 ? 0 : (1.4 * v) / (1 + 1.4 * v));
+/** A smooth, cheap bell curve: 1 at q = 0, easing to exactly 0 at q = 1 (q is a squared, normalized distance). */
+const bell = q => (q >= 1 ? 0 : (1 - q) * (1 - q) * (1 - q));
 
 /**
  * Exact signed distance to a heart, in heart units with y pointing up: the tip is at (0, 0) and the
@@ -81,108 +65,108 @@ function heart(x, y) {
   return Math.sqrt(Math.min(x * x + (y - 1) ** 2, (x - m) ** 2 + (y - m) ** 2)) * Math.sign(x - y);
 }
 
-/** How open the eyes are (0 to 1): a blink every few seconds at uneven times, with an occasional double blink. */
-export function eyeOpenness(tick) {
-  const single = tick % 97;
-  const double = (tick % 291) - 9;
-  const phase = single < 3 ? single : double >= 0 && double < 3 ? double : -1;
-  if (phase < 0) return 1;
-  return phase === 1 ? 0.08 : 0.4;
-}
+// Animation state carried between frames, so speech eases in and out instead of jumping.
+// Each call runs in its own agent process; a tick that is not the next one starts fresh.
+const state = { tick: -1, time: 0, flow: 0, level: 0 };
 
-/** A calm resting heartbeat (0 to 1): a "lub" then a softer "dub" about 64 times a minute. */
-export function heartbeat(tick) {
-  const p = tick % 14;
-  return Math.exp(-(((p - 1) / 0.9) ** 2)) + 0.6 * Math.exp(-(((p - 4) / 0.9) ** 2));
-}
-
-/** How strongly the heart pulses with speech (0 to 1), in an uneven rhythm like syllables. */
-export function talkPulse(tick, speaking) {
+/** How loud the speech pulse should be right now (0 to 1): an uneven, syllable-like swell while talking. */
+function speechTarget(time, speaking) {
   if (!speaking) return 0;
-  return 0.35 + 0.65 * Math.abs(Math.sin(tick * 0.75)) * (0.6 + 0.4 * Math.abs(Math.sin(tick * 0.23)));
+  const syllables = 0.5 + 0.5 * Math.sin(time * 9.0);
+  const phrases = 0.65 + 0.35 * Math.sin(time * 3.1 + 1.0);
+  return 0.45 + 0.55 * syllables * phrases;
+}
+
+/** A soft resting heartbeat (0 to 1): a "lub" and a gentler "dub" about 60 times a minute. */
+function restingBeat(time) {
+  const p = time % 1;
+  return Math.exp(-(((p - 0.12) / 0.09) ** 2)) + 0.55 * Math.exp(-(((p - 0.36) / 0.09) ** 2));
 }
 
 /**
- * iCare's friendly heart. `tick` counts frames; `speaking` is true while the agent talks.
+ * iCare's glowing heart. `tick` counts frames; `speaking` is true while the agent talks.
  * Returns WIDTH x HEIGHT pixels, four bytes each: red, green, blue, alpha.
  */
 export function drawFace(tick, speaking) {
-  const px = BACKGROUND.slice();
+  if (tick !== state.tick + 1) Object.assign(state, { time: 0, flow: 0, level: 0 });
+  state.tick = tick;
+  state.time += DT;
+  const target = speechTarget(state.time, speaking);
+  // Rise quickly when a sound starts, fall back more slowly, like a VU meter.
+  state.level += (target - state.level) * (target > state.level ? 0.35 : 0.12);
+  const level = state.level;
+  // The light inside flows faster while talking.
+  state.flow += DT * (0.6 + 1.4 * level);
+  const flow = state.flow;
 
-  const beat = heartbeat(tick);
-  const talk = talkPulse(tick, speaking);
-  const scale = SIZE * (1 + 0.035 * beat + 0.09 * talk);
-  // A gentle float, and slow glances to the side now and then.
+  const px = BACKGROUND.slice();
+  const scale = SIZE * (1 + 0.018 * restingBeat(state.time) + 0.07 * level);
   const cx = WIDTH / 2;
-  const cy = HEIGHT / 2 + 2 * Math.sin(tick * 0.11);
-  const look = 4 * Math.sin(tick * 0.043) * (Math.sin(tick * 0.017) > 0.3 ? 1 : 0.25);
-  const open = eyeOpenness(tick);
-  // The glow around the heart: faint with each resting beat, stronger while talking.
-  const glowStrength = 0.12 * beat + 0.55 * talk;
+  const cy = HEIGHT / 2 + 3 * Math.sin(state.time * 0.9);
+  const brightness = 1.5 + 0.9 * level;
+  const haloStrength = 0.4 + 0.7 * level;
+  const haloFalloff = 20 + 18 * level;
+
+  // Where each light is this frame.
+  const lights = LIGHTS.map(l => ({
+    color: l.color,
+    x: l.hx + l.ax * Math.sin(flow * l.fx * 2 + l.px),
+    y: l.hy + l.ay * Math.sin(flow * l.fy * 2 + l.py),
+    inv: 1 / (2.6 * l.r * l.r),
+  }));
 
   const top = cy - (1.11 - MID) * scale, bottom = cy + MID * scale;
-  const eyeY = cy - 0.07 * scale, eyeDx = 0.2 * scale, eyeRx = 0.05 * scale, eyeRy = 0.072 * scale;
-  const cheekY = cy + 0.05 * scale, cheekDx = 0.31 * scale, cheekR = 0.065 * scale;
-  const smileY = cy - 0.02 * scale, smileR = 0.07 * scale;
-
-  // Only pixels near the heart change; the rest stays background. The margin leaves room for glow and shadow.
-  const x0 = Math.max(0, Math.floor(cx - 0.61 * scale - GLOW_REACH)), x1 = Math.min(WIDTH, Math.ceil(cx + 0.61 * scale + GLOW_REACH));
-  const y0 = Math.max(0, Math.floor(top - GLOW_REACH)), y1 = Math.min(HEIGHT, Math.ceil(bottom + GLOW_REACH));
-  // Features are only evaluated inside their own bands, which keeps a frame well within the 15 FPS budget.
-  const eyeTop = eyeY - eyeRy - 2, eyeBottom = eyeY + eyeRy + 2;
-  const cheekTop = cheekY - 2 * cheekR, cheekBottom = cheekY + 2 * cheekR;
-  const smileTop = smileY, smileBottom = smileY + smileR + 6;
+  const x0 = Math.max(0, Math.floor(cx - 0.61 * scale - HALO_REACH)), x1 = Math.min(WIDTH, Math.ceil(cx + 0.61 * scale + HALO_REACH));
+  const y0 = Math.max(0, Math.floor(top - HALO_REACH)), y1 = Math.min(HEIGHT, Math.ceil(bottom + HALO_REACH));
+  const rimWidth = 0.05 * scale;
+  // The silky bands are sin(a(u) + b(v)); splitting the sum lets each row and column be computed once.
+  const colSin = new Float32Array(x1 - x0), colCos = new Float32Array(x1 - x0);
+  for (let x = x0; x < x1; x++) {
+    const a = 5.5 * (x - cx) / scale;
+    colSin[x - x0] = Math.sin(a);
+    colCos[x - x0] = Math.cos(a);
+  }
 
   for (let y = y0; y < y1; y++) {
-    const t = clamp01((y - top) / (bottom - top));
-    const hr = HEART_TOP[0] + (HEART_BOTTOM[0] - HEART_TOP[0]) * t;
-    const hg = HEART_TOP[1] + (HEART_BOTTOM[1] - HEART_TOP[1]) * t;
-    const hb = HEART_TOP[2] + (HEART_BOTTOM[2] - HEART_TOP[2]) * t;
-    const hy = MID - (y - cy) / scale;
+    const v = MID - (y - cy) / scale;
+    const rowPhase = 3.5 * v + 1.6 * flow + 1.4 * Math.sin(3 * v - 0.8 * flow);
+    const rowSin = Math.sin(rowPhase), rowCos = Math.cos(rowPhase);
     for (let x = x0; x < x1; x++) {
+      const u = (x - cx) / scale;
+      const d = heart(u, v) * scale;
+      if (d >= HALO_REACH) continue;
       const i = (y * WIDTH + x) * 4;
-      const d = heart((x - cx) / scale, hy) * scale;
+
+      // Light from each source, with slow silky bands running through it.
+      const band = 0.75 + 0.35 * (colSin[x - x0] * rowCos + colCos[x - x0] * rowSin);
+      let r = 0, g = 0, b = 0;
+      for (const l of lights) {
+        const k = bell(((u - l.x) ** 2 + (v - l.y) ** 2) * l.inv) * band;
+        r += l.color[0] * k; g += l.color[1] * k; b += l.color[2] * k;
+      }
 
       if (d > 0) {
-        // Outside the heart: a soft shadow below it and the pulsing glow around it.
-        const shadow = heart((x - cx) / scale, hy + 10 / scale) * scale;
-        paint(px, i, INK, 0.1 * clamp01(1 - (shadow + 2) / 14));
-        if (glowStrength > 0 && d < GLOW_REACH) paint(px, i, GLOW, glowStrength * (1 - d / GLOW_REACH) ** 2);
+        // Outside: a colored halo that hugs the heart and grows while talking.
+        const f = 1 / (1 + d / haloFalloff);
+        const a = haloStrength * f * f * (1 - d / HALO_REACH);
+        px[i] += (255 - px[i]) * tone((1.5 * r + HALO_TINT[0]) * a);
+        px[i + 1] += (255 - px[i + 1]) * tone((1.5 * g + HALO_TINT[1]) * a);
+        px[i + 2] += (255 - px[i + 2]) * tone((1.5 * b + HALO_TINT[2]) * a);
         if (d >= 0.5) continue;
       }
 
-      const heartA = cover(d);
-      blend(px, i, hr, hg, hb, heartA);
-      // A glossy highlight on the left lobe, so the heart looks plump rather than flat.
-      paint(px, i, WHITE, heartA * 0.4 * clamp01(1 - Math.hypot(x - (cx - 0.3 * scale), y - (cy - 0.27 * scale)) / (0.11 * scale)) ** 2);
-
-      const nearEyes = y >= eyeTop && y <= eyeBottom && Math.abs(Math.abs(x - cx - look) - eyeDx) < eyeRx + 4;
-      const nearCheeks = y >= cheekTop && y <= cheekBottom && Math.abs(Math.abs(x - cx) - cheekDx) < 2 * cheekR;
-      for (const side of [-1, 1]) {
-        if (nearCheeks) {
-          // Rosy cheeks.
-          const cheek = Math.hypot((x - (cx + side * cheekDx)) / 1.3, y - cheekY);
-          paint(px, i, CHEEK, heartA * 0.8 * clamp01(1.4 - cheek / cheekR) ** 1.2);
-        }
-        if (!nearEyes) continue;
-
-        // Eyes: tall ovals with two sparkles each. Mid-blink they become a soft curved line.
-        const ex = cx + side * eyeDx + look;
-        if (open < 0.2) {
-          paint(px, i, INK, cover(arc(x, y, ex, eyeY - 6, eyeRx + 1, 0.35, Math.PI - 0.35, 4.5)));
-          continue;
-        }
-        paint(px, i, INK, cover(ellipse(x, y, ex, eyeY, eyeRx, eyeRy * open)));
-        if (open > 0.5) {
-          paint(px, i, WHITE, cover(Math.hypot(x - (ex - 3.5), y - (eyeY - 6)) - 4.5));
-          paint(px, i, WHITE, 0.85 * cover(Math.hypot(x - (ex + 4), y - (eyeY + 5)) - 2));
-        }
-      }
-
-      // A small, warm smile. The heart's pulse does the talking.
-      if (y >= smileTop && y <= smileBottom && Math.abs(x - cx) <= smileR + 4) {
-        paint(px, i, INK, cover(arc(x, y, cx, smileY, smileR, 0.45, Math.PI - 0.45, 5)));
-      }
+      // Inside: dark glass lit from within, a bright rim at the edge, and a soft gloss on the left lobe.
+      const rimT = 1 + Math.max(-d, 0) / rimWidth, rim = 1 / (rimT * rimT * rimT);
+      const gloss = 0.28 * clamp01(1 - Math.hypot((u + 0.27) / 1.3, v - 0.86) / 0.13) ** 2;
+      const lit = brightness * (1 - 0.3 * rim);
+      const rimGlow = 0.35 * rim * (0.7 + 0.5 * level);
+      const cr = tone(GLASS[0] + r * lit + (RIM[0] + 1.6 * r) * rimGlow) + gloss;
+      const cg = tone(GLASS[1] + g * lit + (RIM[1] + 1.6 * g) * rimGlow) + gloss;
+      const cb = tone(GLASS[2] + b * lit + (RIM[2] + 1.6 * b) * rimGlow) + gloss;
+      const a = cover(d);
+      px[i] += (255 * clamp01(cr) - px[i]) * a;
+      px[i + 1] += (255 * clamp01(cg) - px[i + 1]) * a;
+      px[i + 2] += (255 * clamp01(cb) - px[i + 2]) * a;
     }
   }
   return px;
