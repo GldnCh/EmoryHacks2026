@@ -25,7 +25,7 @@ import {
   type VitalsResponse,
 } from "@/components/types";
 import { useJson, type JsonState } from "@/components/useJson";
-import { GlanceChips, HighlightCard } from "@/components/Highlights";
+import Highlights from "@/components/Highlights";
 import { usePeople, type PersonWithHealth } from "@/components/usePeople";
 import { NotConnected, SetupPrompt } from "@/components/SetupPrompt";
 import { BasicCard } from "@/components/PersonCards";
@@ -181,7 +181,7 @@ function YearTrends({ memberId, trends }: { memberId: string; trends: JsonState<
   const { data, error, loading, status, retry } = trends;
   const requested = useSearchParams().get("tab");
   const [metric, setMetricState] = useState<MetricKey | null>(null);
-  // A glance chip (?tab=sleep) wins over an earlier tap on the segmented control.
+  // A highlight card link (?tab=sleep) wins over an earlier tap on the segmented control.
   useEffect(() => setMetricState(null), [requested]);
   const setMetric = (k: MetricKey) => {
     setMetricState(k);
@@ -399,10 +399,7 @@ export default function FamilyMemberPage() {
     <div className="flex flex-col gap-6">
       {header}
       {p.can("trends") && trends.data && trends.data.trends.length > 1 && (
-        <>
-          <GlanceChips trends={trends.data.trends} memberId={memberId} />
-          <HighlightCard trends={trends.data.trends} firstName={data.member.name.split(" ")[0]} self={p.person.self} />
-        </>
+        <Highlights trends={trends.data.trends} firstName={data.member.name.split(" ")[0]} self={p.person.self} memberId={memberId} />
       )}
       {alerts.data && <FamilyAlerts data={alerts.data} onlyAccount={p.person.account.id} title="Alerts" />}
       {!p.can("conditions") && !p.can("medications") && !p.can("trends") && <BasicCard p={p} />}

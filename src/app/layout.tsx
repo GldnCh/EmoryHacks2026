@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} flex min-h-dvh flex-col pb-[calc(80px+env(safe-area-inset-bottom))] sm:pb-0`}
+        className={`${geistSans.variable} ${geistMono.variable} flex min-h-dvh flex-col pb-[calc(72px+env(safe-area-inset-bottom))] sm:pb-0`}
       >
         <SiteHeader />
         <main className="mx-auto w-full max-w-5xl flex-1 px-4 pb-10 pt-2 sm:px-6">{children}</main>

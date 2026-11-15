@@ -1,7 +1,8 @@
 "use client";
 // iOS-style navigation (TD).
 // Phones: a translucent top bar (back button or logo, plus the page title once the large title scrolls away)
-// and a floating "liquid glass" tab bar at the bottom. Larger screens: the logo plus a floating pill tab bar, like iPadOS.
+// and an iOS tab bar along the bottom edge (icon over label, tint color for the current tab, hairline on top).
+// Larger screens: the logo plus the tabs as an iOS segmented control.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -39,11 +40,6 @@ export default function SiteHeader() {
   const nav = useNav();
   const [scrolled, setScrolled] = useState(false);
 
-  // Which color wash sits behind the large title (see globals.css body[data-section]).
-  useEffect(() => {
-    document.body.dataset.section = path.split("/")[1] || "home";
-  }, [path]);
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 4);
     onScroll();
@@ -55,7 +51,7 @@ export default function SiteHeader() {
     <>
       <header
         className={`sticky top-0 z-40 pt-[env(safe-area-inset-top)] transition-[background-color,box-shadow] duration-300 ${
-          scrolled ? "glass shadow-[0_0.5px_0_var(--border)]" : "bg-transparent"
+          scrolled ? "bar shadow-[0_0.5px_0_var(--separator)]" : "bg-background"
         }`}
       >
         <div className="mx-auto grid h-[52px] max-w-5xl grid-cols-[1fr_auto_1fr] items-center px-4 sm:h-16 sm:px-6">
@@ -86,7 +82,7 @@ export default function SiteHeader() {
             {nav.title}
           </p>
           <nav aria-label="Main" className="hidden sm:block">
-            <ul className="liquid-glass flex gap-1 rounded-full p-1">
+            <ul className="segment-track flex gap-0.5">
               {NAV.map(({ href, label }) => {
                 const current = isCurrent(path, href);
                 return (
@@ -94,8 +90,8 @@ export default function SiteHeader() {
                     <Link
                       href={href}
                       aria-current={current ? "page" : undefined}
-                      className={`pressable flex min-h-11 items-center rounded-full px-3 text-[15px] md:px-4 font-medium ${
-                        current ? "bg-surface text-brand shadow-sm" : "text-secondary hover:bg-fill hover:text-foreground"
+                      className={`flex min-h-10 items-center rounded-[7px] px-3 text-[14px] md:px-4 ${
+                        current ? "segment-on font-semibold text-foreground" : "font-medium text-secondary hover:text-foreground"
                       }`}
                     >
                       {label}
@@ -111,9 +107,9 @@ export default function SiteHeader() {
         </div>
       </header>
 
-      {/* Floating tab bar (phones only): a rounded glass bar that hovers above the content */}
-      <nav aria-label="Main" className="fixed inset-x-3 bottom-[calc(8px+env(safe-area-inset-bottom))] z-40 sm:hidden">
-        <ul className="liquid-glass grid grid-cols-5 gap-0.5 rounded-[30px] p-1.5">
+      {/* Tab bar (phones only): full width along the bottom, like the Health app's Summary / Sharing / Browse */}
+      <nav aria-label="Main" className="bar fixed inset-x-0 bottom-0 z-40 pb-[env(safe-area-inset-bottom)] shadow-[0_-0.5px_0_var(--separator)] sm:hidden">
+        <ul className="grid grid-cols-5">
           {NAV.map(({ href, label, Icon }) => {
             const current = isCurrent(path, href);
             return (
@@ -121,11 +117,11 @@ export default function SiteHeader() {
                 <Link
                   href={href}
                   aria-current={current ? "page" : undefined}
-                  className={`pressable flex min-h-[52px] flex-col items-center justify-center gap-0.5 rounded-[24px] text-[10.5px] font-semibold ${
-                    current ? "bg-[rgba(118,118,128,0.14)] text-brand" : "text-secondary"
+                  className={`flex min-h-[54px] flex-col items-center justify-center gap-0.5 pt-1 text-[10.5px] font-medium ${
+                    current ? "text-brand" : "text-[#6c6c70]"
                   }`}
                 >
-                  <Icon size={23} strokeWidth={current ? 2.2 : 1.8} />
+                  <Icon size={25} strokeWidth={current ? 2.3 : 1.8} />
                   {label}
                 </Link>
               </li>

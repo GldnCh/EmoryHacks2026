@@ -31,16 +31,10 @@
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
   --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
   --ease-ios: cubic-bezier(0.2, 0.8, 0.2, 1);
-  /* Soft color wash at the top of each screen (Health-app style). SiteHeader sets body[data-section]. */
-  --ambient: #0e7c7b;
-  --ambient-2: #8e7cf0;
+  --separator: rgba(60, 60, 67, 0.18);
+  /* iOS bar material (tab bar, nav bar) */
+  --bar: rgba(249, 249, 249, 0.94);
 }
-
-body[data-section="checkin"] { --ambient: #2a78d6; --ambient-2: #16a3a1; }
-body[data-section="family"] { --ambient: #7a6ff0; --ambient-2: #e5383b; }
-body[data-section="medicines"] { --ambient: #16a37a; --ambient-2: #2a78d6; }
-body[data-section="specialists"] { --ambient: #e8590c; --ambient-2: #d63384; }
-body[data-section="data"] { --ambient: #2a6fd0; --ambient-2: #0e7c7b; }
 
 @theme inline {
   --color-background: var(--background);
@@ -77,21 +71,6 @@ body {
   line-height: 1.45;
   -webkit-tap-highlight-color: transparent;
   -webkit-font-smoothing: antialiased;
-  position: relative;
-}
-
-/* The wash: decorative only, scrolls away with the large title. */
-body::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 560px;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(70% 80% at 12% 0%, color-mix(in srgb, var(--ambient) 17%, transparent), transparent 72%),
-    radial-gradient(60% 70% at 92% 0%, color-mix(in srgb, var(--ambient-2) 13%, transparent), transparent 72%);
-  transition: background 400ms var(--ease-ios);
 }
 
 :focus-visible {
@@ -112,6 +91,12 @@ body::before {
   font-weight: 700;
   letter-spacing: -0.016em;
 }
+@utility text-title3 {
+  font-size: 1.25rem; /* 20 */
+  line-height: 1.25;
+  font-weight: 700;
+  letter-spacing: -0.014em;
+}
 @utility text-headline {
   font-size: 1.0625rem; /* 17 */
   line-height: 1.3;
@@ -131,11 +116,11 @@ body::before {
   line-height: 1.33;
 }
 
-/* Cards: white, soft shadow, 20px corners, no border */
+/* Cards: flat white on the grouped gray, like the iOS 15 Health app. 14px corners, no border, barely-there shadow. */
 @utility card {
   background: var(--surface);
-  border-radius: 20px;
-  box-shadow: var(--shadow-card);
+  border-radius: 14px;
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.04);
 }
 
 /* Frosted iOS material for bars and floating controls */
@@ -145,16 +130,23 @@ body::before {
   backdrop-filter: saturate(180%) blur(20px);
 }
 
-/* "Liquid glass" for floating controls (tab bars): brighter, with a light rim and a soft lift. */
-@utility liquid-glass {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(250, 250, 252, 0.6));
-  -webkit-backdrop-filter: saturate(190%) blur(24px);
-  backdrop-filter: saturate(190%) blur(24px);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    inset 0 0 0 0.5px rgba(255, 255, 255, 0.6),
-    0 0 0 0.5px rgba(0, 0, 0, 0.07),
-    0 10px 30px rgba(0, 0, 0, 0.12);
+/* iOS bar: translucent material with a hairline edge (tab bar at the bottom, nav bar on scroll). */
+@utility bar {
+  background: var(--bar);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px);
+}
+
+/* iOS segmented-control track and its selected segment (also used for the desktop tab switcher). */
+@utility segment-track {
+  background: rgba(118, 118, 128, 0.12);
+  border-radius: 9px;
+  padding: 2px;
+}
+@utility segment-on {
+  background: #fff;
+  border-radius: 7px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
 }
 
 /* Anything tappable: a gentle press-down */
@@ -260,9 +252,6 @@ body::before {
   body > footer,
   .no-print {
     display: none !important;
-  }
-  body::before {
-    display: none;
   }
   body {
     background: #fff;

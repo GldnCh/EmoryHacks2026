@@ -2,9 +2,10 @@
 // Family overview (TD; connections by Cam). One card per person this iPhone is connected to (and yourself):
 // latest month vs the month before from /api/trends/<id> if they share trends, otherwise a basic status card.
 import Link from "next/link";
-import Avatar from "@/components/Avatar";
+import Avatar, { avatarPanel } from "@/components/Avatar";
 import Disclaimer from "@/components/Disclaimer";
-import { ChevronRight, PinIcon } from "@/components/Icons";
+import { ChevronRight, PinIcon, WarningIcon } from "@/components/Icons";
+import { notableChanges } from "@/components/Highlights";
 import { METRICS } from "@/components/metrics";
 import PageHeader from "@/components/PageHeader";
 import StatTile from "@/components/StatTile";
@@ -23,23 +24,50 @@ function MemberCard({ p, status }: { p: PersonWithHealth; status?: PersonAlerts 
   const latest = data?.trends.at(-1);
   const prev = data?.trends.at(-2);
   const first = member.name.split(" ")[0];
+  const alertCount = status?.alerts.length ?? 0;
+  const changes = data ? notableChanges(data.trends).length : 0;
 
   return (
-    <section className={`card flex flex-col p-5 sm:p-6 ${remote ? "ring-2 ring-brand/35" : ""}`} aria-labelledby={`m-${member.id}`}>
-      {/* Header row is one big tap target into the person's page */}
-      <Link href={`/family/${member.id}`} className="pressable group -m-2 flex items-center gap-3 rounded-2xl p-2 hover:bg-fill/60">
-        <Avatar id={member.id} name={member.name} size={48} />
-        <span className="min-w-0 flex-1">
-          <span id={`m-${member.id}`} className="block text-headline">
-            {member.name}
+    <section className={`card flex flex-col overflow-hidden ${remote ? "ring-2 ring-brand/35" : ""}`} aria-labelledby={`m-${member.id}`}>
+      {/* Header row (Health app "Sharing" style): avatar on a soft color panel, name, alerts and changes, chevron.
+          One big tap target into the person's page. */}
+      <Link href={`/family/${member.id}`} className="group flex items-stretch hover:bg-fill/40">
+        <span aria-hidden className="grid w-[84px] shrink-0 place-items-center py-3 sm:w-[96px]" style={{ background: avatarPanel(member.id) }}>
+          <Avatar id={member.id} name={member.name} size={56} />
+        </span>
+        <span className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 py-3 pl-4 pr-3">
+          <span className="flex items-center gap-2">
+            <span id={`m-${member.id}`} className="min-w-0 flex-1 truncate text-headline">
+              {member.name}
+            </span>
+            {latest && <span className="shrink-0 text-footnote text-secondary">{monthLong(latest.month).split(" ")[0].slice(0, 3)}</span>}
+            <ChevronRight size={17} className="shrink-0 text-[#c4c4c7] transition-transform group-hover:translate-x-0.5" />
           </span>
-          <span className="block truncate text-footnote text-secondary">
+          <span className="truncate text-footnote text-secondary">
             {p.label} · {member.age} · {member.location.city}, {member.location.state}
           </span>
+          {alertCount > 0 && (
+            <span className="flex items-center gap-1.5 text-subhead font-semibold">
+              <WarningIcon size={16} className="text-warn" />
+              {alertCount} {alertCount === 1 ? "Alert" : "Alerts"}
+            </span>
+          )}
+          {data && (
+            <span className="flex items-center gap-1.5 text-subhead text-secondary">
+              {changes > 0 ? (
+                <>
+                  <StarBadge />
+                  {changes} {changes === 1 ? "Change" : "Changes"} since {prev ? monthLong(prev.month).split(" ")[0] : "last month"}
+                </>
+              ) : (
+                "No recent changes"
+              )}
+            </span>
+          )}
         </span>
-        <ChevronRight size={18} className="shrink-0 text-muted transition-transform group-hover:translate-x-0.5" />
       </Link>
 
+      <div className="flex flex-1 flex-col px-5 pb-5 sm:px-6 sm:pb-6">
       <div className="mt-4 flex flex-wrap items-center gap-2">
         {status && <StatusPill status={status.status} text={status.statusText} />}
         <LevelChip p={p} />
@@ -117,7 +145,18 @@ function MemberCard({ p, status }: { p: PersonWithHealth; status?: PersonAlerts 
         {p.person.self ? "View your full year" : <>View {first}&apos;s full year</>}
         <ChevronRight size={15} />
       </Link>
+      </div>
     </section>
+  );
+}
+
+/** Gray circled star, like the Health app's "Changes" line. Decorative. */
+function StarBadge() {
+  return (
+    <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" className="shrink-0">
+      <circle cx="8" cy="8" r="8" fill="#8e8e93" />
+      <path d="M8 3.6l1.3 2.7 2.9.4-2.1 2 .5 2.9L8 10.2l-2.6 1.4.5-2.9-2.1-2 2.9-.4Z" fill="#fff" />
+    </svg>
   );
 }
 
@@ -145,7 +184,7 @@ export default function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Family dashboard"
+        title="Family"
         subtitle="You and the people you're connected to, each at the level they share. Monthly cards compare the latest month with the month before (blood pressure uses the top number)."
       >
         {me?.setUp && (
@@ -170,6 +209,7 @@ export default function DashboardPage() {
       ) : (
         <>
         {alerts.data && <FamilyAlerts data={alerts.data} />}
+        <h2 className="-mb-2 text-title3">You &amp; Family</h2>
         <div className="grid gap-4 lg:grid-cols-2">
           {people.map((p) => {
             const s = statusOf(p);
