@@ -85,6 +85,7 @@ Emory Hacks requires separating original work from frameworks.
 - Tiger Data / TimescaleDB (`pg`): our database for health history
 - Public data: openFDA (U.S. FDA), RxNorm/RxNav, MedlinePlus Connect, MedlinePlus Web Service (spelling suggestions) and Clinical Tables (U.S. National Library of Medicine), NPI Registry (CMS)
 - Chert FaceTime (`@trychert/facetime` CLI); `chert-agent/` started from Chert's video-agent starter (`chert-rooms.mjs` and `greet.mjs` are Chert's files; `face.mjs` keeps the starter's interface but the face drawing is ours)
+- Inigo Quilez's 2D heart signed distance function (iquilezles.org/articles/distfunctions2d): the heart shape in `chert-agent/face.mjs`
 - LiveKit Agents for Node (`@livekit/agents`, `@livekit/rtc-node`, `@livekit/agents-plugin-google`) and LiveKit Cloud
 - Coder (dev environments), Vercel (hosting)
 
