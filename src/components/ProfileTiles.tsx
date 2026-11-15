@@ -3,7 +3,9 @@
 // sparkline and an arrow + word) and opens in place for the details. Only one card is open at a time, so the page
 // never shows everything at once. Cards are ordered by `weight` (highest first); the caller decides the weights.
 // Motion (MIT): cards glide to their new places when one opens (layout animation), details fold open, numbers roll in.
-import { useState, type ReactNode } from "react";
+// A link can open a card: ?tab=<key> (e.g. an alert's "Take a look" -> /family/rosa?tab=medicines) opens it and scrolls to it.
+import { useEffect, useState, type ReactNode } from "react";
+import { useSearchParams } from "next/navigation";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "motion/react";
 import { ChevronRight } from "@/components/Icons";
 import RollingNumber from "@/components/RollingNumber";
@@ -62,7 +64,8 @@ function Tile({ t, open, onToggle, glass }: { t: TileSpec; open: boolean; onTogg
       layout={!reduce}
       transition={SPRING}
       style={{ borderRadius: 22 }}
-      className={`${glass ? GLASS : "card"} overflow-hidden transition-shadow ${open ? "col-span-full shadow-raised" : ""}`}
+      id={`card-${t.key}`}
+      className={`${glass ? GLASS : "card"} scroll-mt-24 overflow-hidden transition-shadow ${open ? "col-span-full shadow-raised" : ""}`}
     >
       <motion.button
         layout={reduce ? false : "position"}
@@ -123,6 +126,15 @@ function Tile({ t, open, onToggle, glass }: { t: TileSpec; open: boolean; onTogg
 
 export default function ProfileTiles({ title, subtitle, tiles, glass = false }: { title: string; subtitle: string; tiles: TileSpec[]; glass?: boolean }) {
   const [open, setOpen] = useState<string | null>(null);
+  const tab = useSearchParams().get("tab");
+  const has = tab !== null && tiles.some((t) => t.key === tab);
+  useEffect(() => {
+    if (!has || !tab) return;
+    setOpen(tab);
+    // after the card has moved to its open place
+    const id = window.setTimeout(() => document.getElementById(`card-${tab}`)?.scrollIntoView({ behavior: "smooth", block: "start" }), 350);
+    return () => window.clearTimeout(id);
+  }, [tab, has]);
   const sorted = [...tiles].sort((a, b) => b.weight - a.weight);
   return (
     <section aria-labelledby="matters-heading">

@@ -36,6 +36,7 @@ ${LEVELS[level]}
 Rules for this task:
 - Use ONLY facts in the label text you are given. If a section is missing, leave that field empty instead of filling it in from general knowledge.
 - Never give doses, dosing schedules or advice to start, stop or change the medicine.
+- Never write an instruction to the reader about the medicine ("stop taking", "take", "skip", "switch", "do not take"), even when the label itself tells patients to do it. Instead, say what the label says in the third person ("The label says this medicine can harm an unborn baby and should not be used during pregnancy.") and end that point with "Talk to your doctor right away."
 - If the label has a BOXED WARNING, you MUST explain it in "boxedWarning". If there is none, set "boxedWarning" to null.
 - "importantWarnings": up to 4 of the most important warnings or "do not use" points.
 - "commonSideEffects": up to 6 side effects the label lists as common or most frequent.
