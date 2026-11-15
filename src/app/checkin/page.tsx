@@ -180,7 +180,7 @@ export default function CheckinPage() {
 
         {!started ? (
           <div className="flex flex-col items-center gap-3 rounded-2xl bg-surface-muted px-5 py-8 text-center">
-            <span aria-hidden className="grid h-12 w-12 place-items-center rounded-[14px] bg-gradient-to-b from-[#16a3a1] to-brand text-white shadow-sm">
+            <span aria-hidden className="grid h-12 w-12 place-items-center rounded-[14px] tile-warm">
               <VideoIcon size={26} />
             </span>
             {canCheckin ? (

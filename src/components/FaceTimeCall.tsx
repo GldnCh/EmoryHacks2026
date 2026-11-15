@@ -41,7 +41,7 @@ export default function FaceTimeCall() {
     <Card
       title={
         <span id="facetime" className="flex scroll-mt-28 items-center gap-3">
-          <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-gradient-to-b from-[#16a3a1] to-brand text-white shadow-sm">
+          <span aria-hidden className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] tile-warm">
             <VideoIcon size={22} />
           </span>
           <span className="min-w-0">

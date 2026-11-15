@@ -49,7 +49,7 @@ const EXPLAINERS = [
     term: "Continuous aggregate",
     text: "A summary (like each month's average) that the database keeps up to date by itself, so charts read a few rows instead of millions.",
     Icon: LayersIcon,
-    tint: "from-[#2fb5b2] to-[#0e7c7b]",
+    tint: "from-[#FFC46B] to-[#F2683A]",
   },
   {
     term: "Compression",
