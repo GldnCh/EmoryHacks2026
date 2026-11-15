@@ -52,7 +52,7 @@ export default function FaceTimeCall() {
       }
     >
       <p className="text-subhead text-secondary">
-        iCare answers with a friendly animated face, asks who&apos;s calling, then checks in about sleep, energy, pain, mood and
+        iCare answers with a friendly animated heart, asks who&apos;s calling, then checks in about sleep, energy, pain, mood and
         medicines. When you hang up, a short summary appears in <span className="font-semibold text-foreground">Recent check-ins</span>{" "}
         below. The call itself isn&apos;t recorded.
       </p>

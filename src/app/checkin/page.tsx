@@ -2,6 +2,8 @@
 // /checkin: AI wellness check-in chat + monthly/yearly AI health summaries. Owner: Ish (logic, prompts, safety wording).
 // Styling (TD): the app's shared components and color tokens. Only the markup changed; state and API calls are Ish's.
 // This page only talks to our own API routes; the Gemini key never reaches the browser.
+// Permissions (Cam): the picker lists you and people who share at least a Health summary with you (summaries need
+// "trends"); a chat check-in about someone needs "checkins" (yourself or Full). The API routes check the same.
 import { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
@@ -11,6 +13,8 @@ import { InfoIcon, VideoIcon, WarningIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import SegmentedControl from "@/components/SegmentedControl";
 import { ErrorNote, Skeleton } from "@/components/Status";
+import { usePeople } from "@/components/usePeople";
+import { SetupPrompt } from "@/components/SetupPrompt";
 import { RELATIONSHIP } from "@/components/types";
 
 type Member = { id: string; name: string; relationship: string; age: number };
@@ -30,8 +34,6 @@ type SummaryResponse = {
 const DISCLAIMER =
   "iCare is not medical advice. It does not diagnose conditions or change medications. Talk to a doctor, nurse or pharmacist about your health. In an emergency, call 911.";
 
-const FALLBACK_FAMILY: Member[] = [{ id: "jordan", name: "Jordan Rivera", relationship: "self", age: 45 }];
-
 // Soft red background for the emergency bubble (there's no --danger-soft token yet).
 const DANGER_SOFT = "bg-[color-mix(in_srgb,var(--danger)_8%,white)]";
 
@@ -49,8 +51,8 @@ function SafetyNote({ text }: { text: string }) {
 }
 
 export default function CheckinPage() {
-  const [family, setFamily] = useState<Member[]>([]);
-  const [memberId, setMemberId] = useState("jordan");
+  const { me, people: connected } = usePeople();
+  const [chosen, setChosen] = useState<string | null>(null);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,25 +62,22 @@ export default function CheckinPage() {
   const [error, setError] = useState<string | null>(null);
   const endRef = useRef<HTMLLIElement>(null);
 
-  useEffect(() => {
-    fetch("/api/sample/family")
-      .then((r) => r.json())
-      .then((d) => setFamily(d.family ?? []))
-      .catch(() => setFamily([]));
-  }, []);
-
   // Braces matter: in current Chrome, smooth scrollIntoView() returns a Promise. Returning it from the
   // effect makes React treat it as a cleanup function and crash ("u is not a function") on the next message.
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
-  const people = family.length ? family : FALLBACK_FAMILY;
-  const member = people.find((m) => m.id === memberId);
+  // You + people who share at least a health summary with you, labelled from your point of view ("You", "Mother").
+  const visible = (connected ?? []).filter((p) => p.can("trends"));
+  const people: Member[] = visible.map((p) => ({ id: p.member.id, name: p.member.name, relationship: p.label, age: p.member.age }));
+  const member = people.find((m) => m.id === chosen) ?? people[0];
+  const memberId = member?.id ?? "";
+  const canCheckin = visible.find((p) => p.member.id === memberId)?.can("checkins") ?? false;
   const firstName = member?.name.split(" ")[0] ?? memberId;
 
   function reset(id = memberId) {
-    setMemberId(id);
+    setChosen(id);
     setMessages([]);
     setStarted(false);
     setDone(false);
@@ -140,6 +139,16 @@ export default function CheckinPage() {
       {/* Real FaceTime call to iCare's Chert line; the chert-agent answers (TD). */}
       <FaceTimeCall />
 
+      {me && !me.setUp ? (
+        <SetupPrompt what="check-ins and health summaries" />
+      ) : !connected ? (
+        <Skeleton className="h-60 w-full rounded-2xl" />
+      ) : !member ? (
+        <p className="card p-6 text-subhead text-secondary">
+          Nobody shares their health with you yet, and this iPhone has no health profile. Connect with family from My iCare.
+        </p>
+      ) : (
+      <>
       <Card
         title={
           <span className="flex items-center gap-3">
@@ -176,12 +185,21 @@ export default function CheckinPage() {
             <span aria-hidden className="grid h-12 w-12 place-items-center rounded-[14px] bg-gradient-to-b from-[#16a3a1] to-brand text-white shadow-sm">
               <VideoIcon size={26} />
             </span>
-            <p className="max-w-sm text-subhead text-secondary">
-              iCare asks {firstName} a few short questions, then sums up how they&apos;re doing and a suggested next step.
-            </p>
-            <button onClick={start} className="btn btn-primary">
-              Start check-in
-            </button>
+            {canCheckin ? (
+              <>
+                <p className="max-w-sm text-subhead text-secondary">
+                  iCare asks {firstName} a few short questions, then sums up how they&apos;re doing and a suggested next step.
+                </p>
+                <button onClick={start} className="btn btn-primary">
+                  Start check-in
+                </button>
+              </>
+            ) : (
+              <p className="max-w-sm text-subhead text-secondary">
+                {firstName} shares a health summary with you, so you can read {firstName}&apos;s monthly and yearly summary below. Check-ins are
+                private: only {firstName}, or someone {firstName} shares Full access with, can start one.
+              </p>
+            )}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
@@ -262,11 +280,13 @@ export default function CheckinPage() {
           </div>
         )}
       </Card>
+      </>
+      )}
 
       {/* FaceTime check-in summaries saved by the Chert agent; a new one appears here after a call ends. */}
-      <CheckinHistory />
+      {me?.setUp && <CheckinHistory />}
 
-      <SummaryPanel key={memberId} memberId={memberId} firstName={firstName} />
+      {member && <SummaryPanel key={memberId} memberId={memberId} firstName={firstName} />}
     </div>
   );
 }

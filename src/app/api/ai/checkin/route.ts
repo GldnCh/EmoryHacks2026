@@ -5,6 +5,7 @@
 // Safety: the latest user message is checked for emergency phrases BEFORE Gemini is called.
 // Cost: conversations are capped at MAX_USER_TURNS answers and MAX_TEXT characters per message.
 import { NextResponse } from "next/server";
+import { authorizeMember, withAuthErrors } from "@/lib/auth";
 import type { Content } from "@google/genai";
 import { buildMemberContext } from "@/lib/ai/context";
 import { aiErrorMessage, asStringArray, generateJson } from "@/lib/ai/generate";
@@ -39,7 +40,9 @@ function parseBody(body: unknown): { memberId: string; messages: Msg[] } | strin
   return { memberId: b.memberId, messages };
 }
 
-export async function POST(req: Request) {
+// Permissions: the emergency check runs first for everyone (safety never waits on a permission). After that, a
+// check-in about someone needs "checkins": yourself, or a person who shares Full access with you.
+export const POST = withAuthErrors(async (req: Request) => {
   const parsed = parseBody(await req.json().catch(() => null));
   if (typeof parsed === "string") return NextResponse.json({ error: parsed }, { status: 400 });
   const { memberId, messages } = parsed;
@@ -68,6 +71,7 @@ export async function POST(req: Request) {
 
   const ctx = await buildMemberContext(memberId);
   if (!ctx) return NextResponse.json({ error: `Unknown member "${memberId}"` }, { status: 404 });
+  await authorizeMember("checkins", memberId);
   const firstName = ctx.member.name.split(" ")[0];
   const turnsLeft = MAX_USER_TURNS - userTurns;
 
@@ -110,4 +114,4 @@ export async function POST(req: Request) {
     console.error("AI check-in failed:", err);
     return NextResponse.json({ error: aiErrorMessage(err), disclaimer: DISCLAIMER }, { status: 502 });
   }
-}
+});
