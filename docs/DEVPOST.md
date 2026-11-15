@@ -15,7 +15,7 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 | Name / elevator pitch | ✅ **iCare** / "Your family's health, explained..." |
 | About the project | ✅ Updated Sat night: What it does (family sharing, reminders, alerts, doctor report, search by photo, saved FaceTime check-ins, installable app), Accomplishments, What we learned, and the expanded What's next |
 | Built with | ✅ 21 tags (added chert, livekit, gemini-live, pwa) |
-| Try it out | ✅ https://icare-wall-e9.vercel.app + GitHub |
+| Try it out | ✅ Desktop, iPhone (/iphone) and Apple Watch (/apple-watch) links + GitHub |
 | Video demo link | ✅ https://youtu.be/5OxAAXvU8ZU (unlisted, 2:52, added Sun Nov 15) |
 | Judging title / track | ✅ iCare / Healthcare |
 | Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense, Gemini, **Chert (a full FaceTime call worked, so keep it)** |
@@ -36,7 +36,9 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 Your family's health, explained. AI-led wellness check-ins, plain-language medicine search, nearby specialists, and monthly and yearly health trends for everyone you care about.
 
 ## Try it out (links)
-- Live app: https://icare-wall-e9.vercel.app
+- Live app (desktop): https://icare-wall-e9.vercel.app
+- iPhone view: https://icare-wall-e9.vercel.app/iphone (the app in an iPhone frame; opens the app directly on a real iPhone)
+- Apple Watch view: https://icare-wall-e9.vercel.app/apple-watch (the watch view in a watch frame; on a real Apple Watch open https://icare-wall-e9.vercel.app/watch from Messages)
 - GitHub: https://github.com/GldnCh/EmoryHacks2026
 - Demo video: **https://youtu.be/5OxAAXvU8ZU**
 
