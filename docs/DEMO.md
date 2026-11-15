@@ -5,7 +5,7 @@
 
 The demo tells **one story**: the Rivera family's year, seen through iCare. Every feature appears because the story needs it.
 
-Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Ish = check-in, Jam = medicines/specialists). If a page isn't merged by demo time, use the **backup** listed in that segment.
+Every page in this script is merged and live. Each segment still lists a **backup** in case something fails during the demo.
 
 ---
 
@@ -16,7 +16,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 **Screen:** home page `/`
 
-### 0:15–0:40 · The family dashboard ⏳ TD
+### 0:15–0:35 · The family dashboard (TD drives)
 **Before the demo:** this laptop must be set up as **Jordan's iPhone** (`/setup` → Jordan). The dashboard only shows you and the people you're connected to, at the level each one shares.
 
 **Click:** Dashboard → point to Rosa's card ("tracked remotely from Savannah") and the "Shares: Full · you're a guardian" chip.
@@ -27,7 +27,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 **Backup:** open `/api/trends/rosa` (in the same browser, so it knows whose iPhone this is) and point at July (`avgSystolic: 150`) vs October (`128`).
 
-### +0:20 · Reminders, alerts and the doctor report (Cam)
+### 0:35–0:55 · Reminders, alerts and the doctor report (Cam)
 **Click:** Dashboard → point to **Family alerts**: "Rosa missed 2 doses in the last 2 days", and Rosa's "May need a check-in" pill.
 > "iCare noticed before anyone else could: Grandma Rosa missed her evening pills twice this week. Jordan sees it because Rosa shares everything with her son. Sam only shares a summary, so Sam never sees the details."
 
@@ -38,7 +38,7 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 **Big safety moment (if the FaceTime agent is running):** FaceTime iCare and say *"I have chest pain"*. The agent tells you to call 911. After hanging up, refresh Jordan's dashboard: an **urgent** alert appears ("Rosa's check-in mentioned emergency symptoms").
 **Backup:** open `/api/alerts` and `/api/reminders/rosa` in the same browser.
 
-### 0:40–1:05 · AI check-in and summary ⏳ Ish
+### 0:55–1:15 · AI check-in and summary (Ish's feature)
 **Click:** Check-in → pick Rosa → "Get yearly summary".
 > "Gemini reads her whole year and explains it in plain language, with what to bring up with her doctor. It never diagnoses or changes doses, and it always says it's not medical advice."
 
@@ -50,23 +50,26 @@ Pages marked ⏳ depend on a teammate's PR (TD = dashboard/family/data pages, Is
 
 **Backup:** skip the live AI; describe it in one sentence and move on. (The summary is cached after the first click, so pre-run it before presenting.)
 
-### 1:05–1:25 · Medicine search ⏳ Jam
+### 1:15–1:35 · Medicine search (Jam's feature)
 **Click:** Medicines → type **"wal-zyr"** (a store brand).
 > "Rosa's neighbor gave her 'Wal-Zyr'. What is it? iCare knows every brand name from the National Library of Medicine: it's cetirizine, an allergy medicine."
 
 **Click:** Lisinopril (Rosa's blood pressure med) → point to the red **FDA boxed warning** → click **✨ Explain this label simply**.
 > "Every medicine shows the official FDA label, boxed warnings first, and Gemini explains it in plain language using only the label's own text."
 
-**Safe searches:** `wal-zyr`, `zyrtec`, `lisinopril`, `allergies`, `heartburn`. (Avoid `allergy` until Jam's Typesense search is merged.)
+**Optional 10-second beat (bring a real medicine box):** tap **📷 Search by photo**, photograph the box, and the name fills in with results.
+> "No typing: snap the label. iCare reads only the printed name, and it refuses to guess a loose pill from how it looks."
+
+**Safe searches:** `wal-zyr`, `zyrtec`, `lisinopril`, `allergies`, `allergy`, `heartburn`.
 **Backup:** open `/api/medicines/lisinopril` and read the `boxedWarning` line.
 
-### 1:25–1:40 · Find a specialist ⏳ Jam
+### 1:35–1:45 · Find a specialist (Jam's feature)
 **Click:** from Rosa's page, "Find specialists near Savannah".
 > "Her conditions map to the right specialists, and these are real, licensed doctors near her, from the national NPI Registry, with phone numbers."
 
 **Backup:** open `/api/specialists?memberId=rosa&limit=2`.
 
-### 1:40–1:55 · Powered by Tiger Data ⏳ TD
+### 1:45–1:55 · Powered by Tiger Data (TD's page)
 **Click:** Tiger Data page.
 > "Under the hood: 2.1 million minute-by-minute readings in Tiger Data. Continuous aggregates make every chart load in about 3 milliseconds instead of 22, and compression shrinks it from 212 megabytes to 6. That's 97%."
 

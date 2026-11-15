@@ -75,6 +75,10 @@ Emory Hacks requires separating original work from frameworks.
 - Gemini routes: monthly/yearly health summaries (`/api/ai/summary/<id>`), wellness check-in chat (`/api/ai/checkin`), plain-language FDA label explanations (`/api/ai/explain-label`), and the voice agent's prompt and red-flag routes
 - The `/checkin` page: check-in chat, family member picker and monthly/yearly summary panel
 - Accounts and connections (`src/lib/auth/`, `/setup`, `/account`): the iPhone as identity (one-time setup, no sign-in), connection requests with accept/decline/cancel, disconnect from either side with warnings, Full / Health summary / Basic levels with guardians, and an activity log, stored in Tiger Data
+- Connected dashboard and permission checks: `/dashboard` and `/family/<id>` show only you and the people you're connected to, at the level they share; trends, vitals, check-ins, AI summaries and the check-in chat all check permissions on the server (the emergency check still runs first for everyone)
+- Medication reminders and dose tracking (`src/lib/reminders/`, `/api/reminders/<id>`): schedules from the prescription label, a Taken button, missed doses, a 7-day grid, guardians logging for a parent or child, stored in Tiger Data
+- Family alerts (`src/lib/alerts.ts`, `/api/alerts`): missed doses, high blood pressure and emergency check-ins, with detail limited by each viewer's sharing level
+- Doctor report (`/family/<id>/report`, `/api/report/<id>`): a printable page with conditions, medicines, doses taken, a year of monthly averages, recent check-ins and alerts, plus Gemini's overview and questions to ask the doctor
 - The Chert FaceTime check-in agent (`chert-agent/agent.mjs`): Gemini Live voice, iCare's shared prompts and safety rules, emergency check on every caller sentence
 
 **Frameworks, libraries and services used:**

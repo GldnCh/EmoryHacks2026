@@ -7,14 +7,14 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 - Owners: Cam keeps this file up to date. Each teammate updates their own feature's lines when it lands.
 - Before submitting, check the prize rules at the sponsor tables and fill in the **[CHECK]** items.
 
-## Submission status on Devpost (updated by Cam's Claude, Sat Nov 14 afternoon)
+## Submission status on Devpost (updated by Cam's Claude, Sat Nov 14 night)
 **Status: SUBMITTED (5/5 steps).** We can keep editing until the 8 AM deadline. Edit: Emory Hacks 2026 → **My projects** → **iCare** → Edit (Cam's account).
 
 | Field | State |
 |---|---|
 | Name / elevator pitch | ✅ **iCare** / "Your family's health, explained..." |
-| About the project | ✅ Full story, matches what is live: dashboard, trends, day view, Tiger Data, medicine search + FDA labels + Gemini explanations, specialists, Gemini check-in and summaries. Chert FaceTime check-in confirmed working |
-| Built with | ✅ 17 tags |
+| About the project | ⚠️ **Update on Devpost:** paste the new "What it does", "Accomplishments", "What we learned" and "What's next" from this file. Added since the first submission: family sharing, medication reminders, family alerts, doctor report, search by photo, check-in history, the FaceTime call button, the installable app |
+| Built with | ⚠️ Add `pwa` (see "Built with" below) |
 | Try it out | ✅ https://icare-wall-e9.vercel.app + GitHub |
 | Video demo link | ✅ Added by the team. Re-record if the demo flow changes (docs/DEMO.md) |
 | Judging title / track | ✅ iCare / Healthcare |
@@ -22,18 +22,8 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 | Gemini Project Number | ⚠️ Optional field for the Gemini prize: AI Studio → API key → Project Number |
 | Gen-AI question | ✅ Answered (Claude Code for development; Gemini live in the app; Chert FaceTime agent with Gemini Live working) |
 
-**Before 7:30 AM Sun:** re-check every claim against the live site, decide the Chert opt-in, update the story for anything merged after this point.
+**Before 7:30 AM Sun:** re-check every claim against the live site, paste the updated sections into Devpost, and add the demo video link below if it changed.
 
----|---|
-| Name / elevator pitch | ✅ iCare / "Your family's health, explained..." |
-| About the project | ✅ Full story, matches what is live (Gemini described as in progress) |
-| Built with | ✅ 17 tags |
-| Try it out | ✅ Live site + GitHub |
-| **Video demo link** | ❌ **Required.** Cam records (<2 min, public/unlisted YouTube or Vimeo) following docs/DEMO.md |
-| Track | ✅ Healthcare |
-| Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense. ⚠️ Gemini (needs Gemini live + Gemini Project Number). ⚠️ Chert (only keep if the Chert check-in works) |
-| Gen-AI question | ✅ Answered (Claude Code for development; Gemini in progress) |
-| Terms checkbox + Submit | ⏸️ Cam, after the video, by Sun 7:30 AM |
 
 **When Ish's check-in merges:** update the About story (What it does, How we built it), the gen-AI answer and the Gemini/Chert prize decisions, then resolve the markers below.
 
@@ -117,12 +107,16 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - One set of prompts and safety rules shared by the chat and the FaceTime agent.
 - Fitting a year of minute-by-minute vitals for a whole family (2.1M readings) into 6.2 MB, with every dashboard query answering in a few milliseconds.
 - Privacy by design: every health route checks who is asking and what that person shares with them, and alerts give Basic connections a nudge to call without revealing any health details.
-- **[ADD as features land]**
+- Search by photo that refuses to identify a loose pill from how it looks: Gemini only copies the name printed on a label, and the server enforces it.
+- An installable app (Add to Home Screen) whose offline cache never stores anyone's health data.
+- A doctor report where the numbers that matter (like the highest blood pressure month) are worked out in code and handed to Gemini, so the AI can't mix up months.
 
 ## What we learned
 - How much useful, free health data the U.S. government publishes (FDA, NLM, CMS), and how much cleanup it takes to make it family-friendly.
 - How time-series databases make "how has this changed over the year?" questions fast and simple.
-- **[ADD: team learnings]**
+- Design permissions first: once every health route asked "who is asking, and what do they share with them?", new features (reminders, alerts, reports) got privacy almost for free.
+- AI is most accurate when code does the math: giving Gemini precomputed changes and peak months fixed mistakes that prompting alone didn't.
+- Real-time voice is unforgiving: a FaceTime agent has 10 seconds to speak, and everything it draws or checks shares the same moment as the caller's audio.
 
 ## What's next for iCare
 - A **native iOS app with live Apple HealthKit** data, instead of sample data
@@ -131,12 +125,11 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - **Real reminders:** iPhone and Apple Watch notifications for medicine times, and Apple Watch safety alerts (falls, irregular rhythm) feeding family alerts
 - **Caller identity from the iPhone:** today the FaceTime assistant starts by asking who it's speaking with, and works out from the conversation whose history the summary belongs in. In the native app, iCare would know whose iPhone it is (the web demo already asks once, at setup: "Whose iPhone is this?"), so a FaceTime call from that phone would arrive linked to that person: no "who's calling?", their own health context from the first sentence, and the summary filed under the right person automatically. It's also more private: identity comes from the device instead of a name said out loud, and the Family Sharing levels we already built (Full, Health summary, Basic) decide who in the family sees each summary. A parent checking in for a child would still say who the call is for, just as a guardian can open a child's iCare from their own phone today
 - Support for **more languages and reading levels**
-- **[MOVE any unfinished features from "What it does" here]**
 
 ---
 
 ## Built with
-`nextjs` `react` `typescript` `tailwindcss` `vercel` `coder` `tiger-data` `timescaledb` `postgresql` `typesense` `gemini` `gemini-live` `chert` `livekit` `openfda` `rxnorm` `medlineplus` `npi-registry`
+`nextjs` `react` `typescript` `tailwindcss` `vercel` `coder` `tiger-data` `timescaledb` `postgresql` `typesense` `gemini` `gemini-live` `chert` `livekit` `openfda` `rxnorm` `medlineplus` `npi-registry` `pwa`
 
 ## What we built vs. what we used (required by Emory Hacks)
 **Built during the hackathon (after 8PM Fri Nov 13):**
@@ -148,16 +141,18 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - App shell, family dashboard, per-person trend and day-view charts, and the Tiger Data page (TD)
 - Medicine search on Typesense, medicine detail pages with FDA boxed warnings, and the specialist finder (Jam)
 - Gemini AI layer: safety rules, red-flag check, summaries, check-in chat, label explanations, and the `/checkin` page (Ish)
-- The Chert FaceTime check-in agent (Gemini Live) (Ish)
+- The Chert FaceTime check-in agent (Gemini Live) with its animated heart, saved check-in summaries and the "Start FaceTime call" button (Ish, TD)
+- Search by photo: Gemini reads the printed drug name from a label photo, then the normal search runs (Jam)
+- Family sharing (iPhone as identity, request and accept, Full / Health summary / Basic, guardians), medication reminders and dose tracking, family alerts, and the doctor report (Cam)
+- Health-app style redesign and the installable app (PWA) (TD)
 
 **Frameworks, libraries and services used (not built by us):**
 Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB/PostgreSQL, `pg`), Typesense, Google Gemini API (incl. Gemini Live), Chert (`@trychert/facetime` and its video-agent starter), LiveKit Agents and LiveKit Cloud, openFDA, RxNorm/RxNav, MedlinePlus Connect, NLM Clinical Tables, NPI Registry.
 
 ## Prize tracks to select
 - **Healthcare** track
-- **Best Use of Tiger Data:** 2.1M minute-level vitals in a hypertable; relational profiles and metric streams side by side in one database (one SQL JOIN for "everyone with hypertension and their monthly BP"); 3 continuous aggregates powering lag-free dashboard charts (2–4 ms); **97% compression (212.3 MB → 6.2 MB)**; and a live raw-vs-aggregate benchmark (~22 ms vs ~3 ms) shown in the demo. **[CHECK: sponsor's requirements]**
-- **Best Use of Gemini API:** Gemini powers every AI feature, all behind one shared set of safety rules: (1) the **wellness check-in chat**, one question at a time, personalized with the person's Tiger Data trends, ending in a summary and next step; (2) **monthly and yearly health summaries** as validated JSON (headline, highlights, things to ask a doctor, encouragement) built from real numbers; (3) **plain-language FDA label explanations** that use only the label text and always keep boxed warnings; (4) **Gemini Live native audio** answering real iPhone **FaceTime** calls through Chert. **Safety guardrails:** an emergency red-flag check runs before Gemini (911/988 in ~10 ms), and the AI never diagnoses, never suggests medicines or doses, and always says it's not medical advice. Gemini keys are set in Vercel (Production + Preview) and all routes are live. **[CHECK: sponsor's submission requirements; add the Gemini Project Number on Devpost]**
-- **[CHECK: any other MLH prizes we qualify for, e.g. domain or DEV writing]**
+- **Best Use of Tiger Data:** 2.1M minute-level vitals in a hypertable; relational profiles and metric streams side by side in one database (one SQL JOIN for "everyone with hypertension and their monthly BP"); 3 continuous aggregates powering lag-free dashboard charts (2–4 ms); **97% compression (212.3 MB → 6.2 MB)**; and a live raw-vs-aggregate benchmark (~22 ms vs ~3 ms) shown in the demo. The same database also holds the app's own data (accounts, sharing, connection requests, medicine schedules, dose logs and FaceTime check-in summaries), so alerts and doctor reports join health trends with app data in one place.
+- **Best Use of Gemini API:** Gemini powers every AI feature, all behind one shared set of safety rules: (1) the **wellness check-in chat**, one question at a time, personalized with the person's Tiger Data trends, ending in a summary and next step; (2) **monthly and yearly health summaries** as validated JSON (headline, highlights, things to ask a doctor, encouragement) built from real numbers; (3) **plain-language FDA label explanations** that use only the label text and always keep boxed warnings; (4) **Gemini Live native audio** answering real iPhone **FaceTime** calls through Chert, with each call summarized and saved; (5) the **doctor report** overview and questions to ask the doctor, from numbers computed in code; (6) **search by photo**, where Gemini reads only the printed drug name from a label photo and refuses loose pills. **Safety guardrails:** an emergency red-flag check runs before Gemini (911/988 in ~10 ms), and the AI never diagnoses, never suggests medicines or doses, and always says it's not medical advice. Gemini keys are set in Vercel (Production + Preview) and all routes are live.
 
 ## Team
 - **Cam:** Lead, product and pitch
@@ -172,6 +167,7 @@ Next.js, React, TypeScript, Tailwind CSS, Vercel, Coder, Tiger Data (TimescaleDB
 - [ ] Every **[WHEN BUILT]**, **[CHECK]** and **[ADD]** marker is resolved or deleted
 - [ ] Demo video uploaded and linked (backup in case the live demo fails)
 - [ ] All teammates added to the Devpost submission
-- [ ] Prize tracks selected, and each sponsor's extra requirements met
+- [ ] Prize tracks selected, and each sponsor's extra requirements met (re-read the Tiger Data and Gemini prize pages; add the Gemini Project Number on Devpost: AI Studio → API key → Project Number)
+- [ ] Checked the MLH prize list for any other prize we qualify for
 - [ ] README "What we built vs. what we used" matches this page
 - [ ] Submitted by **7:30AM** (hard deadline 8AM)
