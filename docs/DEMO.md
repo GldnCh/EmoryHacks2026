@@ -35,7 +35,7 @@ Every page in this script is merged and live. Each segment still lists a **backu
 **Click:** **Doctor report** (top of Rosa's page) → scroll: questions to ask the doctor, doses taken, a year of averages → **Print or save as PDF**.
 > "Before her next visit, Jordan prints one page for her doctor, with questions to ask, written by Gemini from her real numbers."
 
-**Big safety moment (if the FaceTime agent is running):** FaceTime iCare and say *"I have chest pain"*. The agent tells you to call 911. After hanging up, refresh Jordan's dashboard: an **urgent** alert appears ("Rosa's check-in mentioned emergency symptoms").
+**Big safety moment (if the FaceTime agent is running):** FaceTime iCare, wait for it to finish its greeting, then say *"I have chest pain"*. The agent tells you to call 911. After hanging up, refresh Jordan's dashboard: an **urgent** alert appears ("Rosa's check-in mentioned emergency symptoms").
 **Backup:** open `/api/alerts` and `/api/reminders/rosa` in the same browser.
 
 ### 0:55–1:15 · AI check-in and summary (Ish's feature)
@@ -44,7 +44,7 @@ Every page in this script is merged and live. Each segment still lists a **backu
 
 **Then:** start a check-in, type: *"I've been dizzy when I stand up."* Show the gentle follow-up question.
 **Optional safety moment:** type *"I have chest pain"* → it immediately says to call 911, without even asking the AI.
-**FaceTime moment (Chert, confirmed working):** call iCare's Chert FaceTime number from an iPhone and let the check-in greet you with its face and voice for ~10 seconds.
+**FaceTime moment (Chert, confirmed working):** tap **Start FaceTime call** on `/checkin` (or call the number) from an iPhone, then **stay quiet**: the line takes ~10 seconds to get ready, and talking (or a speakerphone echo) during the greeting cuts it off. Use AirPods or hold the phone to your ear, not speakerphone, and only answer once it has finished greeting you.
 > "And it doesn't have to be a website. Grandma Rosa can just FaceTime iCare, and the same check-in answers, by voice, with her own health data."
 *(Ish's agent must be running in Ish's Coder workspace before the demo. If the call doesn't connect within ~5 seconds, hang up and continue with `/checkin`.)*
 
@@ -94,7 +94,7 @@ Every page in this script is merged and live. Each segment still lists a **backu
 - [ ] Run each AI action once (Rosa's yearly summary, and Rosa's doctor report at `/family/rosa/report`) so the cached answer is instant during the demo
 - [ ] Don't tap "Log as taken" on Rosa's missed doses before the demo (that clears the alert). Tonight's "Taken" taps are fine
 - [ ] Check `/api/health` shows `gemini`, `typesense` and `tigerData` all `true`
-- [ ] **Ish: start the Chert FaceTime agent** in your Coder workspace (see `chert-agent/README.md`) and place one test FaceTime call; keep the workspace awake through the demo
+- [ ] **Ish: start the Chert FaceTime agent** in your Coder workspace (see `chert-agent/README.md`) and place one test FaceTime call; keep the workspace awake through the demo. Presenter: pair AirPods with the demo iPhone (speakerphone in a noisy room can interrupt the greeting)
 - [ ] Laptop: browser zoom 125–150%, notifications off, charger plugged in, other tabs closed
 - [ ] Open the site on a phone once too (bottom tab bar), in case a judge asks to see mobile
 - [ ] Have the **backup video** open in another tab (see below)

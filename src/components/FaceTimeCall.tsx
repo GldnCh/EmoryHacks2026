@@ -82,6 +82,14 @@ export default function FaceTimeCall() {
       <ul className="mt-4 flex flex-col gap-1.5 text-footnote text-secondary">
         <li className="flex gap-2">
           <InfoIcon size={16} className="mt-px shrink-0 text-muted" />
+          <span>
+            <span className="font-semibold text-foreground">Give it a moment.</span> After the call connects, iCare takes about 10 seconds to say
+            hello. Stay quiet until it does and let it finish its greeting. AirPods or holding the phone to your ear work best: speakerphone can
+            interrupt it.
+          </span>
+        </li>
+        <li className="flex gap-2">
+          <InfoIcon size={16} className="mt-px shrink-0 text-muted" />
           <span>Use FaceTime Video. Calls last up to 5 minutes. If nobody answers, iCare&apos;s line may be offline: use the chat below.</span>
         </li>
         <li className="flex gap-2">
