@@ -11,7 +11,7 @@ import { useJson } from "@/components/useJson";
 
 const FEATURES = [
   {
-    href: "/checkin",
+    href: "/checkin#facetime",
     title: "FaceTime check-in",
     text: "A friendly AI check-in by FaceTime or chat about sleep, energy, pain, mood and medicines, plus monthly and yearly summaries.",
     Icon: VideoIcon,
