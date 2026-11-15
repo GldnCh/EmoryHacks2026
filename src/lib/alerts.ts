@@ -89,7 +89,7 @@ async function allAlerts(s: Subject): Promise<Alert[]> {
       id: `missed-${s.accountId}-${missed.at(-1)!.scheduledFor}`, subjectId: s.accountId, kind: "missed-doses", severity: "attention",
       title: `${who} missed ${missed.length} dose${missed.length > 1 ? "s" : ""} in the last 2 days`,
       detail: `Not logged as taken: ${parts.join("; ")}. ${s.self ? "If you took them, log them as taken." : `A quick call can help. If ${s.firstName} took them, log them as taken.`} Ask the pharmacist or doctor before making up a missed dose.`,
-      at: missed.at(-1)!.scheduledFor, href: `/family/${s.memberId}`,
+      at: missed.at(-1)!.scheduledFor, href: `/family/${s.memberId}?tab=medicines`,
     });
   }
 
