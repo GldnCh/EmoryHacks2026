@@ -125,18 +125,6 @@ const agent = defineAgent({
         voice: VOICE,
         apiKey: process.env.GEMINI_API_KEY,
         temperature: 0.4,
-        // Gemini's own speech detection decides when the caller interrupts; LiveKit's allowInterruptions and
-        // minimum interruption length don't apply to it. Its default START_SENSITIVITY_HIGH let a cough, a lone
-        // "hello?", speakerphone echo or room noise cut the greeting into fragments. LOW sensitivity plus 500 ms
-        // of speech before it counts (LiveKit's own default minimum) keeps short sounds from stopping iCare,
-        // while a real sentence still interrupts. Input transcription is unchanged, so the emergency check
-        // still sees every caller sentence. Docs: https://aistudio.google.com/api-reference/live
-        realtimeInputConfig: {
-          automaticActivityDetection: {
-            startOfSpeechSensitivity: 'START_SENSITIVITY_LOW',
-            prefixPaddingMs: 500,
-          },
-        },
       }),
     });
     session.on(voice.AgentSessionEventTypes.AgentStateChanged, event => { speaking = event.newState === 'speaking'; });
