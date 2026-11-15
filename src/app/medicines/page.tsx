@@ -1,6 +1,7 @@
 "use client";
 // Medicine search (Jam). Live results from /api/medicines/search as you type (debounced),
-// filter chips from the facets, Rx/OTC badges, and voice search with the browser's Web Speech API.
+// filter chips from the facets, Rx/OTC badges, voice search with the browser's Web Speech API, and search by photo
+// (/api/medicines/photo reads the drug name off a label; the photo is shrunk in the browser first and never stored).
 import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -87,6 +88,78 @@ function VoiceButton({ onText }: { onText: (t: string) => void }) {
   );
 }
 
+// ---------- search by photo ----------
+
+const PHOTO_MAX_SIDE = 1024;
+
+/** Shrinks a photo to about 1024px on the long side as JPEG (Vercel limits request size). */
+async function shrinkPhoto(file: File): Promise<string> {
+  let source: CanvasImageSource & { width: number; height: number };
+  try {
+    source = await createImageBitmap(file);
+  } catch {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image();
+      img.src = url;
+      await img.decode();
+      source = img;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+  const scale = Math.min(1, PHOTO_MAX_SIDE / Math.max(source.width, source.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(source.width * scale));
+  canvas.height = Math.max(1, Math.round(source.height * scale));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("no canvas");
+  ctx.drawImage(source, 0, 0, canvas.width, canvas.height);
+  if ("close" in source && typeof source.close === "function") source.close();
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
+type PhotoState =
+  | { status: "idle" }
+  | { status: "reading" }
+  | { status: "done"; names: string[]; message?: string; disclaimer?: string }
+  | { status: "error"; message: string; disclaimer?: string };
+
+function PhotoButton({ busy, onPick }: { busy: boolean; onPick: (file: File) => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  return (
+    <>
+      <input
+        ref={input}
+        type="file"
+        accept="image/*"
+        capture="environment"
+        className="sr-only"
+        tabIndex={-1}
+        aria-hidden
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          e.target.value = ""; // so the same photo can be picked again
+          if (file) onPick(file);
+        }}
+      />
+      <button
+        type="button"
+        onClick={() => input.current?.click()}
+        disabled={busy}
+        aria-label="Search by photo of a medicine label"
+        title="Search by photo of a medicine label"
+        className="pressable flex h-11 shrink-0 items-center gap-1.5 rounded-full bg-brand-soft px-3.5 text-footnote font-semibold hover:bg-fill disabled:opacity-60"
+      >
+        <span aria-hidden className="text-xl">
+          📷
+        </span>
+        <span className="hidden sm:inline">Search by photo</span>
+      </button>
+    </>
+  );
+}
+
 // ---------- filter chips ----------
 
 function Chip({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
@@ -128,6 +201,44 @@ function MedicineSearch() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [attempt, setAttempt] = useState(0);
+  const [photo, setPhoto] = useState<PhotoState>({ status: "idle" });
+  const photoRun = useRef(0);
+
+  // Typing or speaking a new search hides the photo result.
+  function typeQuery(next: string) {
+    photoRun.current++;
+    setPhoto({ status: "idle" });
+    updateQuery(next);
+  }
+
+  async function searchByPhoto(file: File) {
+    const run = ++photoRun.current;
+    setPhoto({ status: "reading" });
+    try {
+      let image: string;
+      try {
+        image = await shrinkPhoto(file);
+      } catch {
+        throw new Error("We couldn't open that photo. Try a JPEG or PNG.");
+      }
+      const res = await fetch("/api/medicines/photo", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image }),
+      });
+      const body = await res.json().catch(() => null);
+      if (run !== photoRun.current) return;
+      if (!res.ok) {
+        setPhoto({ status: "error", message: body?.error ?? `The server answered ${res.status}.`, disclaimer: body?.disclaimer });
+        return;
+      }
+      const names: string[] = Array.isArray(body?.names) ? body.names : [];
+      setPhoto({ status: "done", names, message: body?.message, disclaimer: body?.disclaimer });
+      if (names[0]) updateQuery(names[0]); // the normal search runs from here
+    } catch (err) {
+      if (run === photoRun.current) setPhoto({ status: "error", message: err instanceof Error ? err.message : "Something went wrong." });
+    }
+  }
 
   // Changing the words clears the filters (their facets belong to the old query).
   function updateQuery(next: string) {
@@ -190,7 +301,7 @@ function MedicineSearch() {
     <div className="flex flex-col gap-5">
       <PageHeader
         title="Medicines"
-        subtitle="Search by brand, generic name or what it's for. Typos are fine. Tap 🎤 to search by voice."
+        subtitle="Search by brand, generic name or what it's for. Typos are fine. Tap 🎤 to search by voice, or 📷 to read the name off a label."
       />
 
       <form role="search" onSubmit={(e) => e.preventDefault()} className="flex flex-wrap items-center gap-2">
@@ -201,20 +312,49 @@ function MedicineSearch() {
           id="med-q"
           type="search"
           value={q}
-          onChange={(e) => updateQuery(e.target.value)}
+          onChange={(e) => typeQuery(e.target.value)}
           placeholder="e.g. Zyrtec, heartburn, lisinopril"
           autoComplete="off"
           autoFocus
           className="min-h-11 min-w-0 flex-1 rounded-full bg-surface px-5 text-[17px] shadow-card outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand/50"
         />
-        <VoiceButton onText={updateQuery} />
+        <VoiceButton onText={typeQuery} />
+        <PhotoButton busy={photo.status === "reading"} onPick={searchByPhoto} />
       </form>
+
+      {photo.status !== "idle" && (
+        <div role="status" aria-live="polite" className="card flex flex-col gap-1 p-4">
+          {photo.status === "reading" ? (
+            <p className="animate-pulse text-subhead">Reading the label…</p>
+          ) : photo.status === "error" ? (
+            <p className="text-subhead text-danger">{photo.message}</p>
+          ) : (
+            <>
+              {photo.names.length > 0 && (
+                <p className="text-subhead">
+                  Read from your photo:{" "}
+                  {photo.names.map((n, i) => (
+                    <span key={n}>
+                      {i > 0 && ", "}
+                      <button type="button" onClick={() => updateQuery(n)} className="font-semibold text-[var(--brand-pressed)] underline">
+                        {n}
+                      </button>
+                    </span>
+                  ))}
+                </p>
+              )}
+              {photo.message && <p className="text-subhead">{photo.message}</p>}
+            </>
+          )}
+          {photo.status !== "reading" && photo.disclaimer && <p className="text-footnote text-secondary">{photo.disclaimer}</p>}
+        </div>
+      )}
 
       {!term && (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-footnote text-muted">Try:</span>
           {EXAMPLES.map((ex) => (
-            <Chip key={ex} active={false} onClick={() => updateQuery(ex)}>
+            <Chip key={ex} active={false} onClick={() => typeQuery(ex)}>
               {ex}
             </Chip>
           ))}

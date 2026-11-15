@@ -4,7 +4,7 @@ FaceTime iCare's Chert line and an AI wellness check-in answers with an animated
 
 **Not medical advice.** The agent never diagnoses or suggests medicines or doses. Every sentence the caller says goes through iCare's emergency check; chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts make it read the 911/988 message.
 
-Owner: Ish. Started from Chert's video starter (`chert new --video`, `@trychert/facetime`). `chert-rooms.mjs` and `greet.mjs` are Chert's starter files, unchanged. `agent.mjs` is ours, and so is the friendly animated face in `face.mjs` (redrawn during the hackathon; only its file layout and `drawFace(tick, speaking)` interface come from the starter).
+Owner: Ish. Started from Chert's video starter (`chert new --video`, `@trychert/facetime`). `chert-rooms.mjs` and `greet.mjs` are Chert's starter files, unchanged. `agent.mjs` is ours, and so is the friendly animated heart in `face.mjs`, which pulses while iCare talks (redrawn during the hackathon; only its file layout and `drawFace(tick, speaking)` interface come from the starter).
 
 ## How it works
 ```

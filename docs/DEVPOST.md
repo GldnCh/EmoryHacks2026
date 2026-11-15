@@ -75,6 +75,7 @@ iCare is a family telehealth companion. Our demo follows the **Rivera family**, 
 - **Emergency safety net:** if anyone mentions chest pain, trouble breathing, stroke signs, fainting or suicidal thoughts, iCare immediately tells them to call 911 (and 988), before the AI is even asked. In chat and on FaceTime.
 - **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text, from the "Explain this label simply" button on every medicine page.
 - **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).
+- **Search by photo:** tap the camera on the Medicines page and photograph a medicine box or pill-bottle label. Gemini reads only the drug name printed on the label, and iCare runs the normal search with it. For safety it never identifies loose pills by their shape, color or imprint (it asks for a photo of the label instead), never returns doses or advice, and never stores the photo.
 
 iCare never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
 
@@ -125,7 +126,6 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 
 ## What's next for iCare
 - A **native iOS app with live Apple HealthKit** data, instead of sample data
-- **Search by photo:** snap a pill bottle and have AI read just the drug name off the label, then run the normal search
 - **Clinician review** of AI summaries before they reach patients
 - **Booking and sharing:** book with a suggested specialist, and send the doctor report straight to the clinic
 - **Real reminders:** iPhone and Apple Watch notifications for medicine times, and Apple Watch safety alerts (falls, irregular rhythm) feeding family alerts
