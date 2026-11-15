@@ -141,7 +141,7 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 ---
 
 ## Built with
-`nextjs` `react` `typescript` `tailwindcss` `vercel` `coder` `tiger-data` `timescaledb` `postgresql` `typesense` `gemini` `gemini-live` `chert` `livekit` `openfda` `rxnorm` `medlineplus` `npi-registry` `pwa`
+`nextjs` `react` `typescript` `tailwindcss` `vercel` `coder` `tiger-data` `timescaledb` `postgresql` `typesense` `gemini` `gemini-live` `chert` `livekit` `openfda` `rxnorm` `medlineplus` `npi-registry` `pwa` `apple-watch`
 
 ## What we built vs. what we used (required by Emory Hacks)
 **Built during the hackathon (after 8PM Fri Nov 13):**
