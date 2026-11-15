@@ -14,7 +14,7 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 |---|---|
 | Name / elevator pitch | ✅ **iCare** / "Your family's health, explained..." |
 | About the project | ✅ Updated Sat night: What it does (family sharing, reminders, alerts, doctor report, search by photo, saved FaceTime check-ins, installable app), Accomplishments, What we learned, and the expanded What's next |
-| Built with | ✅ 21 tags (added chert, livekit, gemini-live, pwa) |
+| Built with | ✅ 22 tags (added chert, livekit, gemini-live, pwa, apple-watch) |
 | Try it out | ✅ Desktop, iPhone (/iphone) and Apple Watch (/apple-watch) links + GitHub |
 | Video demo link | ✅ https://youtu.be/5OxAAXvU8ZU (unlisted, 2:52, added Sun Nov 15) |
 | Judging title / track | ✅ iCare / Healthcare |
@@ -68,6 +68,7 @@ iCare is a family telehealth companion. Our demo follows the **Rivera family**, 
 - **Plain-language drug labels:** Gemini explains an official FDA label simply (what it's for, the boxed warning, key warnings, common side effects, questions to ask your pharmacist) using only the label's own text, from the "Explain this label simply" button on every medicine page.
 - **Voice search:** tap the microphone on the Medicines page and say a drug name or symptom; the browser's speech recognition turns it into a search (shown on browsers that support it, such as Chrome and Safari).
 - **Search by photo:** tap the camera on the Medicines page and photograph a medicine box or pill-bottle label. Gemini reads only the drug name printed on the label, and iCare runs the normal search with it. For safety it never identifies loose pills by their shape, color or imprint (it asks for a photo of the label instead), never returns doses or advice, and never stores the photo.
+- **Works on Apple Watch:** glance at the family (whoever needs a look comes first), tap a person for their alerts and next medicine, and start the AI check-in with a FaceTime audio call from your wrist. We tested it on a real Apple Watch: the call reached our Chert agent and the summary saved to Tiger Data. Shareable views: `/iphone` and `/apple-watch`.
 
 iCare never diagnoses. It explains, tracks and points you to a professional, and every screen carries a "not medical advice" notice.
 
@@ -140,7 +141,7 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 ---
 
 ## Built with
-`nextjs` `react` `typescript` `tailwindcss` `vercel` `coder` `tiger-data` `timescaledb` `postgresql` `typesense` `gemini` `gemini-live` `chert` `livekit` `openfda` `rxnorm` `medlineplus` `npi-registry` `pwa`
+`nextjs` `react` `typescript` `tailwindcss` `vercel` `coder` `tiger-data` `timescaledb` `postgresql` `typesense` `gemini` `gemini-live` `chert` `livekit` `openfda` `rxnorm` `medlineplus` `npi-registry` `pwa` `apple-watch`
 
 ## What we built vs. what we used (required by Emory Hacks)
 **Built during the hackathon (after 8PM Fri Nov 13):**
