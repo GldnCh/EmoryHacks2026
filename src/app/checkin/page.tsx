@@ -33,8 +33,6 @@ type SummaryResponse = {
 const DISCLAIMER =
   "iCare is not medical advice. It does not diagnose conditions or change medications. Talk to a doctor, nurse or pharmacist about your health. In an emergency, call 911.";
 
-// Soft red background for the emergency bubble (there's no --danger-soft token yet).
-const DANGER_SOFT = "bg-[color-mix(in_srgb,var(--danger)_8%,white)]";
 
 function relationshipLabel(r: string) {
   return (RELATIONSHIP as Record<string, string>)[r] ?? r;
@@ -202,7 +200,7 @@ export default function CheckinPage() {
             <ul className="-mx-1 flex max-h-[28rem] flex-col gap-2 overflow-y-auto px-1 py-1" aria-live="polite" aria-label="Conversation">
               {messages.map((m, i) =>
                 m.emergency ? (
-                  <li key={i} role="alert" className={`max-w-[88%] self-start rounded-[20px] rounded-bl-md border-2 border-danger px-4 py-3 ${DANGER_SOFT}`}>
+                  <li key={i} role="alert" className="max-w-[88%] self-start rounded-[20px] rounded-bl-md border-2 border-danger bg-danger/10 px-4 py-3">
                     <span className="mb-1 flex items-center gap-1.5 text-footnote font-bold uppercase tracking-wide text-danger">
                       <WarningIcon size={16} strokeWidth={2.4} /> Get help now
                     </span>
