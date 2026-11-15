@@ -1,15 +1,22 @@
 "use client";
-// Landing page (TD): pitch, three feature tiles, and the fictional Rivera family.
+// Landing page (TD): pitch, four feature tiles, and the fictional Rivera family.
 import Link from "next/link";
 import Avatar from "@/components/Avatar";
 import Disclaimer from "@/components/Disclaimer";
-import { ChevronRight, PeopleIcon, PillIcon, StethoscopeIcon } from "@/components/Icons";
+import { ChevronRight, PeopleIcon, PillIcon, StethoscopeIcon, VideoIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import { ErrorNote, Skeleton } from "@/components/Status";
 import { RELATIONSHIP, type Member } from "@/components/types";
 import { useJson } from "@/components/useJson";
 
 const FEATURES = [
+  {
+    href: "/checkin",
+    title: "FaceTime check-in",
+    text: "A friendly AI check-in by FaceTime or chat about sleep, energy, pain, mood and medicines, plus monthly and yearly summaries.",
+    Icon: VideoIcon,
+    tint: "from-[#16a3a1] to-[#0a6665]",
+  },
   {
     href: "/dashboard",
     title: "Family health dashboard",
@@ -57,7 +64,7 @@ export default function Home() {
         <h2 id="features-heading" className="mb-3 px-1 text-title2">
           What iCare does
         </h2>
-        <ul className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+        <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
           {FEATURES.map(({ href, title, text, Icon, tint }) => (
             <li key={href}>
               <Link
