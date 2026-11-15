@@ -1,5 +1,4 @@
-// Friendly iOS-style empty state for any page that doesn't exist yet
-// (Check-in, Medicines and Specialists show this until those pull requests merge).
+// Friendly iOS-style empty state for a link that doesn't match any page.
 import Link from "next/link";
 import { InfoIcon } from "@/components/Icons";
 
@@ -9,9 +8,9 @@ export default function NotFound() {
       <span className="grid h-16 w-16 place-items-center rounded-full bg-fill text-muted">
         <InfoIcon size={32} />
       </span>
-      <h1 className="mt-5 text-title2">This screen isn&apos;t here yet</h1>
+      <h1 className="mt-5 text-title2">We couldn&apos;t find that page</h1>
       <p className="mt-2 max-w-sm text-subhead text-secondary">
-        It may still be in progress. Check-in, Medicines and Specialists are being built by the team and will appear here soon.
+        The link may be mistyped or out of date. Everything in iCare is one tap away from the family dashboard.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <Link href="/dashboard" className="btn btn-primary">

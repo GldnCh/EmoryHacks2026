@@ -313,7 +313,7 @@ function MedicineSearch() {
           type="search"
           value={q}
           onChange={(e) => typeQuery(e.target.value)}
-          placeholder="e.g. Zyrtec, heartburn, lisinopril"
+          placeholder="Zyrtec, heartburn…"
           autoComplete="off"
           autoFocus
           className="min-h-11 min-w-0 flex-1 rounded-full bg-surface px-5 text-[17px] shadow-card outline-none placeholder:text-muted focus-visible:ring-2 focus-visible:ring-brand/50"
