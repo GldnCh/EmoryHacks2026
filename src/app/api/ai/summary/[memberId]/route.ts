@@ -4,10 +4,11 @@
 // Gemini writes a friendly report from the member's monthly trends (Tiger Data, or sample data).
 // Results are cached in memory per member + period so repeated demo clicks are instant.
 import { NextResponse } from "next/server";
+import { authorizeMember, withAuthErrors } from "@/lib/auth";
 import { buildMemberContext, formatTrendLine } from "@/lib/ai/context";
 import { aiErrorMessage, asStringArray, generateJson } from "@/lib/ai/generate";
 import { DISCLAIMER } from "@/lib/ai/safety";
-import type { MonthlySummary } from "@/lib/sample-data/health";
+import { getMember, type MonthlySummary } from "@/lib/sample-data/health";
 
 type Period = "month" | "year";
 
@@ -63,8 +64,11 @@ function isSummary(v: unknown): v is Summary {
   return !!s && typeof s.headline === "string" && Array.isArray(s.highlights) && typeof s.encouragement === "string";
 }
 
-export async function GET(req: Request, { params }: { params: Promise<{ memberId: string }> }) {
+// Health data: needs "trends" (yourself, or a Full / Health summary connection), checked before the cache.
+export const GET = withAuthErrors(async (req: Request, { params }: { params: Promise<{ memberId: string }> }) => {
   const { memberId } = await params;
+  if (!getMember(memberId)) return NextResponse.json({ error: `Unknown member "${memberId}"` }, { status: 404 });
+  await authorizeMember("trends", memberId);
   const url = new URL(req.url);
   const period: Period = url.searchParams.get("period") === "year" ? "year" : "month";
   const key = `${memberId}:${period}`;
@@ -139,4 +143,4 @@ export async function GET(req: Request, { params }: { params: Promise<{ memberId
     console.error("AI summary failed:", err);
     return NextResponse.json({ error: aiErrorMessage(err), disclaimer: DISCLAIMER }, { status: 502 });
   }
-}
+});

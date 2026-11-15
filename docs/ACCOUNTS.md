@@ -55,7 +55,7 @@ await logActivity(actor.id, subject.id, "appointment.create", { providerNpi });
 - `withAuthErrors` turns a failed check into a JSON **401/403** instead of a crash.
 - Capabilities: `profile`, `conditions`, `trends`, `vitals`, `medications`, `checkins`, `appointments`, `reminders`, `act`, `manageSharing` (see `src/lib/auth/permissions.ts`).
 - `account.memberId` links an account to its health data (`/api/trends/<memberId>` etc.). Alex has none. For routes keyed by member id, use `authorizeMember(capability, memberId)`.
-- **Protected health routes:** `/api/trends/<id>` (`trends`), `/api/vitals/<id>` (`vitals`), `/api/checkins/<id>` (`checkins`). `/api/sample/family` and `/api/family/<id>/profile` stay public (names, conditions and medicine names of the fictional family, used by the medicine chips and specialists pages).
+- **Protected health routes:** `/api/trends/<id>` (`trends`), `/api/vitals/<id>` (`vitals`), `/api/checkins/<id>` (`checkins`), `/api/ai/summary/<id>` (`trends`), `/api/ai/checkin` (`checkins`; its emergency check runs first for everyone). `/api/sample/family` and `/api/family/<id>/profile` stay public (names, conditions and medicine names of the fictional family, used by the medicine chips and specialists pages).
 - Store new per-person data with an `account_id` column; add the table to `db/tiger/app-schema.sql` and its `GRANT ... TO idoc_team` line in `scripts/seed-app.mjs`, then ask Cam to run `npm run seed:app`.
 
 **Client side (pages):**
