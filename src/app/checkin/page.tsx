@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import Avatar from "@/components/Avatar";
 import Card from "@/components/Card";
 import CheckinHistory from "@/components/CheckinHistory";
+import FaceTimeCall from "@/components/FaceTimeCall";
 import { InfoIcon, VideoIcon, WarningIcon } from "@/components/Icons";
 import PageHeader from "@/components/PageHeader";
 import SegmentedControl from "@/components/SegmentedControl";
@@ -132,6 +133,9 @@ export default function CheckinPage() {
       />
 
       <SafetyNote text={DISCLAIMER} />
+
+      {/* Real FaceTime call to iCare's Chert line; the chert-agent answers (TD). */}
+      <FaceTimeCall />
 
       {me && !me.setUp ? (
         <SetupPrompt what="check-ins and health summaries" />
