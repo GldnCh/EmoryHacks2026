@@ -50,7 +50,7 @@ function ago(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-export default function FamilyAlerts({ data, onlyAccount, title = "Family alerts" }: { data: AlertsResponse; onlyAccount?: string; title?: string }) {
+export default function FamilyAlerts({ data, onlyAccount, title = "Family alerts", glass = false }: { data: AlertsResponse; onlyAccount?: string; title?: string; glass?: boolean }) {
   const alerts = data.people
     .filter((p) => !onlyAccount || p.accountId === onlyAccount)
     .flatMap((p) => p.alerts)
@@ -59,7 +59,14 @@ export default function FamilyAlerts({ data, onlyAccount, title = "Family alerts
   if (onlyAccount && alerts.length === 0) return null;
 
   return (
-    <section aria-labelledby="alerts-heading" className="card p-5 sm:p-6">
+    <section
+      aria-labelledby="alerts-heading"
+      className={
+        glass
+          ? "rounded-[22px] border border-white/60 bg-white/65 p-4 shadow-[0_10px_28px_rgba(170,70,20,0.12),inset_0_1px_0_rgba(255,255,255,0.85)] backdrop-blur-xl"
+          : "card p-5 sm:p-6"
+      }
+    >
       <h2 id="alerts-heading" className="text-headline">
         {title}
         {alerts.length > 0 && <span className="ml-2 rounded-full bg-fill px-2 py-0.5 text-caption font-semibold text-secondary">{alerts.length}</span>}

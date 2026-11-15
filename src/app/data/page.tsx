@@ -185,7 +185,7 @@ function Cohort() {
 
 export default function DataPage() {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-5">
       <PageHeader
         eyebrow="MLH · Best use of Tiger Data"
         title="Powered by Tiger Data"

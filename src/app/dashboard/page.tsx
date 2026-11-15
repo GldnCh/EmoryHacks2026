@@ -182,7 +182,7 @@ export default function DashboardPage() {
   const statusOf = (p: PersonWithHealth) => alerts.data?.people.find((x) => x.accountId === p.person.account.id);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-4 sm:gap-5">
       <PageHeader
         title="Family"
         subtitle="You and the people you're connected to, each at the level they share. Monthly cards compare the latest month with the month before (blood pressure uses the top number)."

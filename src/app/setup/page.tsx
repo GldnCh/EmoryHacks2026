@@ -38,7 +38,7 @@ function Setup() {
 
   if (me?.setUp && me.account && !demoSwitch) {
     return (
-      <main className="mx-auto max-w-xl px-4 pb-28 sm:px-6">
+      <main className="mx-auto max-w-xl pb-4">
         <PageHeader title="All set" subtitle={`This iPhone belongs to ${me.account.displayName}. iCare opens straight to your health.`} />
         <button onClick={() => router.push("/dashboard")} className="btn btn-primary min-h-12 px-5">
           Open my iCare
@@ -48,7 +48,7 @@ function Setup() {
   }
 
   return (
-    <main className="mx-auto max-w-xl px-4 pb-28 sm:px-6">
+    <main className="mx-auto max-w-xl pb-4">
       <PageHeader
         eyebrow={demoSwitch ? "Demo · pretend to be another iPhone" : "Welcome to iCare"}
         title="Whose iPhone is this?"
