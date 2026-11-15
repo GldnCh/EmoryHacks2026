@@ -1,39 +1,44 @@
 @import "tailwindcss";
 
-/* iCare design tokens (TD), inspired by iOS Light Mode.
-   Grouped-background gray behind white cards, soft shadows instead of borders, one teal tint color.
-   Text grays are darker than iOS defaults so small text keeps at least 4.5:1 contrast on white and on #f2f2f7.
+/* iCare design tokens (TD; warm "golden peach" look by Cam), inspired by iOS Light Mode.
+   Warm cream background behind white cards, soft warm shadows instead of borders, one burnt-orange tint
+   color from the logo's golden peach family (#B84A14: 5.2:1 with white text, 4.8:1 on the cream).
+   Text colors are warm and dark enough that small text keeps at least 4.5:1 contrast on white and on the cream.
    --series-1 / --series-2 are a colorblind-checked pair for charts (blue, orange).
    --good / --warn are status colors: always shown with an arrow + word, never color alone. */
 :root {
   color-scheme: light;
-  --background: #f2f2f7;
-  --foreground: #1c1c1e;
+  --background: #fbf5ef;
+  --foreground: #2b1f1a;
   --surface: #ffffff;
-  --surface-muted: #f2f2f7;
-  --fill: rgba(118, 118, 128, 0.12);
-  --fill-strong: rgba(118, 118, 128, 0.2);
-  --border: rgba(60, 60, 67, 0.12);
-  --text-secondary: #545458;
-  --text-muted: #6c6c70;
-  --brand: #0e7c7b;
-  --brand-pressed: #0a6665;
-  --brand-soft: #e2f2f1;
+  --surface-muted: #f8efe6;
+  --fill: rgba(150, 100, 70, 0.1);
+  --fill-strong: rgba(150, 100, 70, 0.18);
+  --border: rgba(110, 65, 35, 0.12);
+  --text-secondary: #5e4e46;
+  --text-muted: #75645b;
+  --brand: #b84a14;
+  --brand-pressed: #963a0c;
+  --brand-soft: #ffeadb;
+  /* the logo's golden peach, for icon tiles and decorative washes (never for text) */
+  --peach-1: #ffd98a;
+  --peach-2: #ffa960;
+  --peach-3: #ff7c4e;
   --series-1: #2a78d6;
   --series-2: #eb6834;
-  --grid: rgba(60, 60, 67, 0.1);
+  --grid: rgba(110, 65, 35, 0.1);
   --good: #11713a;
   --good-soft: #e3f4e8;
   --warn: #9a5b00;
   --warn-soft: #fdf1dc;
   --danger: #b42318;
-  --material: rgba(249, 249, 251, 0.78);
-  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 6px 20px rgba(0, 0, 0, 0.05);
-  --shadow-raised: 0 2px 6px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(0, 0, 0, 0.08);
+  --material: rgba(255, 250, 245, 0.8);
+  --shadow-card: 0 1px 2px rgba(120, 60, 20, 0.05), 0 8px 24px rgba(120, 60, 20, 0.06);
+  --shadow-raised: 0 2px 6px rgba(120, 60, 20, 0.07), 0 14px 34px rgba(120, 60, 20, 0.1);
   --ease-ios: cubic-bezier(0.2, 0.8, 0.2, 1);
-  --separator: rgba(60, 60, 67, 0.18);
-  /* iOS bar material (tab bar, nav bar) */
-  --bar: rgba(249, 249, 249, 0.94);
+  --separator: rgba(110, 65, 35, 0.16);
+  /* iOS bar material (tab bar, nav bar), warmed */
+  --bar: rgba(255, 249, 243, 0.92);
 }
 
 @theme inline {
@@ -64,7 +69,12 @@ html {
 }
 
 body {
-  background: var(--background);
+  /* a soft golden-peach glow at the top of every page, fading into the cream */
+  background:
+    radial-gradient(900px 420px at 10% -120px, rgba(255, 196, 130, 0.35), transparent 70%),
+    radial-gradient(800px 380px at 100% -140px, rgba(255, 150, 120, 0.22), transparent 70%),
+    var(--background);
+  background-repeat: no-repeat;
   color: var(--foreground);
   font-family: var(--font-sans);
   font-size: 15px;
@@ -116,11 +126,20 @@ body {
   line-height: 1.33;
 }
 
-/* Cards: flat white on the grouped gray, like the iOS 15 Health app. 14px corners, no border, barely-there shadow. */
+/* Cards: white on the warm cream, soft and rounded (20px), with a gentle warm shadow. */
 @utility card {
   background: var(--surface);
-  border-radius: 14px;
-  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.04);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+}
+
+/* Icon tiles (feature tiles, FaceTime card): the logo's golden peach gradient with soft top light. */
+@utility tile-warm {
+  background:
+    radial-gradient(circle at 25% 15%, rgba(255, 255, 255, 0.4), transparent 55%),
+    linear-gradient(135deg, var(--peach-1), var(--peach-2) 50%, var(--peach-3));
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(200, 90, 30, 0.25);
 }
 
 /* Frosted iOS material for bars and floating controls */
@@ -139,14 +158,14 @@ body {
 
 /* iOS segmented-control track and its selected segment (also used for the desktop tab switcher). */
 @utility segment-track {
-  background: rgba(118, 118, 128, 0.12);
+  background: rgba(150, 100, 70, 0.1);
   border-radius: 9px;
   padding: 2px;
 }
 @utility segment-on {
   background: #fff;
   border-radius: 7px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04), 0 0 0 0.5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 3px 8px rgba(120, 60, 20, 0.12), 0 3px 1px rgba(120, 60, 20, 0.04), 0 0 0 0.5px rgba(120, 60, 20, 0.05);
 }
 
 /* Anything tappable: a gentle press-down */
@@ -184,6 +203,7 @@ body {
 @utility btn-primary {
   background: var(--brand);
   color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 4px 12px rgba(184, 74, 20, 0.22);
   &:hover {
     background: var(--brand-pressed);
   }
@@ -206,7 +226,7 @@ body {
 
 /* Loading shimmer */
 @utility shimmer {
-  background: linear-gradient(90deg, var(--fill) 0%, rgba(118, 118, 128, 0.05) 50%, var(--fill) 100%);
+  background: linear-gradient(90deg, var(--fill) 0%, rgba(150, 100, 70, 0.04) 50%, var(--fill) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.4s ease-in-out infinite;
 }

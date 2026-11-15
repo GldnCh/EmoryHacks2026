@@ -15,14 +15,14 @@ const FEATURES = [
     title: "FaceTime check-in",
     text: "A friendly AI check-in by FaceTime or chat about sleep, energy, pain, mood and medicines, plus monthly and yearly summaries.",
     Icon: VideoIcon,
-    tint: "from-[#16a3a1] to-[#0a6665]",
+    tint: "from-[#FFC46B] to-[#F2683A]",
   },
   {
     href: "/dashboard",
     title: "Family health dashboard",
     text: "A year of Apple Health-style trends for everyone in the family, including relatives far away.",
     Icon: PeopleIcon,
-    tint: "from-[#2fb5b2] to-[#0e7c7b]",
+    tint: "from-[#FF9F7A] to-[#E5533F]",
   },
   {
     href: "/medicines",
