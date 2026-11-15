@@ -13,10 +13,10 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 | Field | State |
 |---|---|
 | Name / elevator pitch | ✅ **iCare** / "Your family's health, explained..." |
-| About the project | ⚠️ **Update on Devpost:** paste the new "What it does", "Accomplishments", "What we learned" and "What's next" from this file. Added since the first submission: family sharing, medication reminders, family alerts, doctor report, search by photo, check-in history, the FaceTime call button, the installable app |
-| Built with | ⚠️ Add `pwa` (see "Built with" below) |
+| About the project | ✅ Updated Sat night: What it does (family sharing, reminders, alerts, doctor report, search by photo, saved FaceTime check-ins, installable app), Accomplishments, What we learned, and the expanded What's next |
+| Built with | ✅ 21 tags (added chert, livekit, gemini-live, pwa) |
 | Try it out | ✅ https://icare-wall-e9.vercel.app + GitHub |
-| Video demo link | ✅ Added by the team. Re-record if the demo flow changes (docs/DEMO.md) |
+| Video demo link | ⚠️ **Required, currently empty.** The old link was an unrelated YouTube video and was removed. Record the demo (docs/DEMO.md), upload unlisted, add the link before 8 AM |
 | Judging title / track | ✅ iCare / Healthcare |
 | Prize opt-ins | ✅ Tiger Data, Coder (1st + 2nd), Typesense, Gemini, **Chert (a full FaceTime call worked, so keep it)** |
 | Gemini Project Number | ⚠️ Optional field for the Gemini prize: AI Studio → API key → Project Number |
@@ -119,12 +119,21 @@ iCare never diagnoses. It explains, tracks and points you to a professional, and
 - Real-time voice is unforgiving: a FaceTime agent has 10 seconds to speak, and everything it draws or checks shares the same moment as the caller's audio.
 
 ## What's next for iCare
-- A **native iOS app with live Apple HealthKit** data, instead of sample data
-- **Clinician review** of AI summaries before they reach patients
-- **Booking and sharing:** book with a suggested specialist, and send the doctor report straight to the clinic
-- **Real reminders:** iPhone and Apple Watch notifications for medicine times, and Apple Watch safety alerts (falls, irregular rhythm) feeding family alerts
-- **Caller identity from the iPhone:** today the FaceTime assistant starts by asking who it's speaking with, and works out from the conversation whose history the summary belongs in. In the native app, iCare would know whose iPhone it is (the web demo already asks once, at setup: "Whose iPhone is this?"), so a FaceTime call from that phone would arrive linked to that person: no "who's calling?", their own health context from the first sentence, and the summary filed under the right person automatically. It's also more private: identity comes from the device instead of a name said out loud, and the Family Sharing levels we already built (Full, Health summary, Basic) decide who in the family sees each summary. A parent checking in for a child would still say who the call is for, just as a guardian can open a child's iCare from their own phone today
-- Support for **more languages and reading levels**
+- **Smarter, more human AI conversations:** we plan to build on conversational AI research tools from **Professor Jinho Choi** (Emory NLP) to make iCare's check-ins feel more natural: remembering context across calls, asking better follow-up questions, and noticing when someone needs more support.
+- **Mental health, for a whole-person view of health:** regular mood, stress and sleep check-ins alongside physical health, trends that show when someone has been struggling for a while, gentle encouragement to reach out, and a direct path to the 988 Suicide & Crisis Lifeline and to a clinician. iCare would support, never diagnose or replace therapy.
+- **Prevention for common conditions, using Apple's health data:** condition-specific features that turn data people already collect into early warnings:
+  - **Asthma:** combine respiratory rate, blood oxygen, sleep and activity from Apple Watch with local air quality and pollen, and logged inhaler use, to flag tough days before they turn into attacks.
+  - **Diabetes:** connect glucose readings from glucose monitors that write to Apple Health, and show how meals, activity and sleep relate to highs and lows, with reminders for regular lab checks like A1C.
+  - **High blood pressure and heart health:** readings from connected blood-pressure cuffs, plus Apple Watch heart notifications, to spot a rise like Rosa's summer spike weeks earlier.
+- **Native iOS app with live Apple HealthKit:** real data from Apple Health and Apple Watch replaces our sample data, and the iPhone stays the identity, with no sign-in.
+- **Real reminders on iPhone and Apple Watch:** medicine reminders as notifications, a "Taken" tap from the watch, and a nudge to a guardian when a dose is missed.
+- **Apple Watch safety signals in family alerts:** with permission, fall detection, irregular rhythm and high or low heart rate notifications flow into family alerts, at the detail each person's sharing level allows.
+- **FaceTime check-ins that know who's calling:** a call from a family member's own iPhone arrives already linked to them, with no "who's calling?", and the next check-in follows up on last time, using summaries only.
+- **Closing the loop with clinicians:** send the doctor report to the clinic through a secure link that expires, clinician review of AI summaries, and real records from patient portals through standard health-data connections (FHIR).
+- **Booking and refills:** request appointments with suggested specialists (with in-network filters), and refill reminders when a prescription is running low.
+- **Built for every generation:** Spanish and more languages, simpler reading levels, and a voice-first, large-text mode for grandparents like Rosa.
+- **Privacy you can see:** each person can see their own activity log ("who looked at my health and when"), with healthcare-grade security and encrypted check-in summaries.
+- **Testing with real families:** a pilot with families and caregivers, and clinicians reviewing our safety rules before anyone relies on iCare.
 
 ---
 
