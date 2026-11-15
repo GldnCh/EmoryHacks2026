@@ -30,14 +30,18 @@ Priority order. **Core** features make the demo; the rest are **stretch**. Cam h
 
 | # | Feature | Owner | Priority | Status on the live site |
 |---|---|---|---|---|
-| 1 | AI wellness check-in (Gemini), in the browser and over Chert FaceTime | Ish | Core | ✅ Live: `/checkin` chat + red-flag check. ✅ Chert FaceTime check-in: a full call works (confirmed Sat Nov 14). The agent (`chert-agent/`) runs separately in Ish's Coder workspace and must be running during the demo |
-| 2 | Medicine search (Typesense, typo-tolerant, voice) + medicine pages with FDA boxed warnings and Gemini "Explain this label simply" | Jam + Ish | Core | ✅ Live: `/medicines`, `/medicines/<name>`, `/api/ai/explain-label`. Photo search: not built |
+| 1 | AI wellness check-in (Gemini), in the browser and over Chert FaceTime | Ish | Core | ✅ Live: `/checkin` chat + red-flag check. ✅ Chert FaceTime check-in: a full call works (confirmed Sat Nov 14). Summaries are saved to Tiger Data and shown under "Recent check-ins" on `/checkin`; "Start FaceTime call" button on `/checkin`; the agent shows a glowing heart. The agent (`chert-agent/`) runs separately in Ish's Coder workspace and must be running during the demo |
+| 2 | Medicine search (Typesense, typo-tolerant, voice) + medicine pages with FDA boxed warnings and Gemini "Explain this label simply" | Jam + Ish | Core | ✅ Live: `/medicines`, `/medicines/<name>`, `/api/ai/explain-label`. ✅ Search by photo: `/medicines` 📷, `/api/medicines/photo` (reads the label name only; refuses loose pills) |
 | 3 | Monthly and yearly health summaries (Gemini) | Ish | Core | ✅ Live: `/checkin` summary panel, `/api/ai/summary/<id>?period=month\|year` |
-| 4 | Family health dashboard, 12-month trends, hour-by-hour day view | TD | Core | ✅ Live: `/dashboard`, `/family/<id>` |
+| 4 | Family health dashboard, 12-month trends, hour-by-hour day view | TD | Core | ✅ Live: `/dashboard`, `/family/<id>` (Health-app style "at a glance" chips and highlight card). Shows only you and the people you're connected to, at the level they share |
 | 5 | Find specialists near a family member | Jam + TD | Stretch | ✅ Live: `/specialists?memberId=<id>` |
 | 6 | Track family health remotely (Rosa in Savannah), cohort view | TD + Jam | Stretch | ✅ Live: Rosa's dashboard card, `/data` cohort chart |
 | 7 | "Powered by Tiger Data" page (prize) | TD | Stretch | ✅ Live: `/data` |
-| 8 | Live Apple HealthKit (native iOS app) | TD | Stretch | Pitch as the next step |
+| 8 | Live Apple HealthKit (native iOS app) | TD | Stretch | Pitch as the next step. ✅ Installable now as a web app (PWA: Add to Home Screen; offline page; health data never cached) |
+| 9 | Family sharing: iPhone as identity, connect by request and accept, Full / Health summary / Basic + guardians | Cam | Core | ✅ Live: `/setup`, `/account`; every health route checks permissions (see below) |
+| 10 | Medication reminders and dose tracking | Cam | Stretch | ✅ Live: reminders card on `/family/<id>` (Taken button, missed doses, 7-day grid) |
+| 11 | Family alerts (missed doses, high blood pressure, emergency check-ins) | Cam | Stretch | ✅ Live: alerts panel on `/dashboard`, per-person alerts on `/family/<id>` |
+| 12 | Doctor report with questions to ask the doctor | Cam | Stretch | ✅ Live: `/family/<id>/report` (Print / Save as PDF) |
 
 How we build, review and ship: **[docs/WORKFLOW.md](docs/WORKFLOW.md)**.
 

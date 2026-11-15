@@ -220,8 +220,8 @@ I'm TD on iCare. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merg
 I'm Ish on iCare. Read CLAUDE.md and docs/WORKFLOW.md first and follow them. Merge cutoff is Sun 6:30AM.
 
 1. git checkout main && git pull && npm install, then git checkout -b ish/final-docs.
-2. README.md "Built during the hackathon" is missing recent check-in work. Add lines for: recent FaceTime check-ins shown on /checkin (#36), the FaceTime iCare call button on /checkin (#44), /checkin following the sharing levels (#43), and the heart-shaped animated call agent (#46/#48). Check that every library in chert-agent/package.json is credited in the "used" list. Shared file; mention it in the PR.
-3. docs/DEVPOST.md, the "Best Use of Gemini API" prize line: it lists 4 uses. Add (5) the doctor-report overview with questions to ask the doctor, and (6) Search by photo (Gemini reads only the printed drug name from a label photo and refuses loose pills). Shared file; mention it. Don't change any safety wording.
+2. README.md "Built during the hackathon" is missing recent check-in work. Add lines for: recent FaceTime check-ins shown on /checkin (#36), the FaceTime iCare call button on /checkin (#44), and the heart-shaped animated call agent (#46/#48). Check that every library in chert-agent/package.json is credited in the "used" list. Shared file; mention it in the PR.
+3. (Done by Cam in Part B: the Gemini prize line already lists the doctor report and search by photo, and README already has the permission work. Skip this.)
 4. Docs only. Commit, push, gh pr create. Give me the PR link to send to Cam.
 5. Demo readiness: the Chert agent must be running during judging (8:15AM expo, 10:15AM finalists). Write down the exact steps to start chert-agent/ from a stopped workspace, keep the Coder workspace from auto-stopping (check its auto-stop/TTL setting), and place one test FaceTime call at ~7:45AM. Tell me the steps and what to do if the call fails (backup: the /checkin chat).
 ```
