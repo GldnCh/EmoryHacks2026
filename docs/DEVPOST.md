@@ -33,7 +33,7 @@ Working draft of our Emory Hacks 2026 submission. Copy each section into the mat
 **iCare**
 
 ## Tagline (short description, ~200 characters)
-Your family's health, explained. AI-led wellness check-ins, plain-language medicine search, nearby specialists, and monthly and yearly health trends for everyone you care about.
+Your family's health, explained: AI FaceTime check-ins (Chert, Gemini Live), Typesense voice and photo medicine search, and Apple Watch alerts. Built in Coder, powered by Tiger Data.
 
 ## Try it out (links)
 - Live app (desktop): https://icare-wall-e9.vercel.app
